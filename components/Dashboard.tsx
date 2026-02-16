@@ -44,7 +44,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">
+          <h2 className="text-2xl font-bold text-[#333333]">
             {user.role === Role.ADMINISTRADOR ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
           </h2>
           <p className="text-slate-500">Mostrando registros para el periodo {selectedYear}</p>
@@ -57,7 +57,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
                 key={year}
                 onClick={() => setSelectedYear(year)}
                 className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
-                  selectedYear === year ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-50'
+                  selectedYear === year ? 'bg-[#003B71] text-white' : 'text-[#333333] hover:bg-slate-50'
                 }`}
               >
                 {year}
@@ -69,7 +69,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm font-medium text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
+              className="bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm font-medium text-[#333333] outline-none focus:ring-2 focus:ring-[#003B71] shadow-sm"
             >
               <option value="TODOS">Todos los Estados</option>
               <option value={BudgetStatus.PENDING}>Pendientes</option>
@@ -81,7 +81,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
           {user.role === Role.COLABORADOR && (
             <button 
               onClick={onCreate}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-md shadow-blue-100 flex items-center gap-2"
+              className="bg-[#ff8300] hover:bg-[#e67600] text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-md shadow-orange-100 flex items-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -94,7 +94,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
 
       {filteredRequests.length === 0 ? (
         <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-20 flex flex-col items-center justify-center text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+          <div className="w-16 h-16 bg-[#F8F9FA] rounded-full flex items-center justify-center mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>

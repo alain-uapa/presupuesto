@@ -30,7 +30,7 @@ const Toast: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> = ({
     switch (toast.type) {
       case 'success': return 'bg-emerald-600';
       case 'error': return 'bg-rose-600';
-      default: return 'bg-blue-600';
+      default: return 'bg-[#003B71]';
     }
   };
 
@@ -48,7 +48,7 @@ const Toast: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> = ({
             </svg>
           )}
         </div>
-        <p className="text-sm font-semibold text-slate-800">{toast.message}</p>
+        <p className="text-sm font-semibold text-[#333333]">{toast.message}</p>
         <button 
           onClick={() => onRemove(toast.id)}
           className="ml-auto text-slate-400 hover:text-slate-600 transition-colors"

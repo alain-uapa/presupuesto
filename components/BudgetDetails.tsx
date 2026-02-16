@@ -36,7 +36,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
       {/* Header */}
-      <div className="p-6 md:p-8 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 md:p-8 bg-[#F8F9FA] border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
@@ -47,7 +47,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </svg>
           </button>
           <div>
-            <h2 className="text-xl font-bold text-slate-900">{request.name}</h2>
+            <h2 className="text-xl font-bold text-[#333333]">{request.name}</h2>
             <p className="text-sm text-slate-500">Solicitado el {new Date(request.requestDate).toLocaleDateString()}</p>
           </div>
         </div>
@@ -61,7 +61,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
         <div className="md:col-span-2 space-y-8">
           <section>
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3">Descripción de la Actividad</h3>
-            <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
+            <p className="text-[#333333] leading-relaxed whitespace-pre-wrap">
               {request.description}
             </p>
           </section>
@@ -71,19 +71,19 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             {request.attachments.length > 0 ? (
               <div className="grid gap-3">
                 {request.attachments.map((file, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl group hover:border-blue-300 transition-colors">
+                  <div key={idx} className="flex items-center justify-between p-4 bg-[#F8F9FA] border border-slate-200 rounded-xl group hover:border-[#003B71] transition-colors">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-blue-600 shadow-sm">
+                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#003B71] shadow-sm">
                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                          </svg>
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-slate-900">{file.name}</p>
+                        <p className="text-sm font-bold text-[#333333]">{file.name}</p>
                         <p className="text-xs text-slate-500">{file.size}</p>
                       </div>
                     </div>
-                    <button className="text-slate-400 hover:text-blue-600 p-2">
+                    <button className="text-slate-400 hover:text-[#003B71] p-2">
                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                        </svg>
@@ -108,12 +108,12 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
 
         {/* Action Sidebar */}
         <div className="space-y-6">
-          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-             <h3 className="text-sm font-bold text-slate-900 mb-4">Información del Solicitante</h3>
+          <div className="bg-[#F8F9FA] p-6 rounded-2xl border border-slate-200">
+             <h3 className="text-sm font-bold text-[#333333] mb-4">Información del Solicitante</h3>
              <div className="flex items-center gap-3">
                 <img src={`https://picsum.photos/seed/${request.userId}/60/60`} className="w-12 h-12 rounded-full ring-2 ring-white" alt="" />
                 <div>
-                   <p className="text-sm font-bold text-slate-900">{request.userName}</p>
+                   <p className="text-sm font-bold text-[#333333]">{request.userName}</p>
                    <p className="text-xs text-slate-500">Colaborador Académico</p>
                 </div>
              </div>
@@ -121,12 +121,12 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
 
           {user.role === Role.ADMINISTRADOR && request.status === BudgetStatus.PENDING && (
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Acciones del Administrador</h3>
+              <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Acciones del Administrador</h3>
               
               <div className="space-y-3">
                 <button 
                   onClick={() => handleStatusChange(BudgetStatus.APPROVED)}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2"
+                  className="w-full bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100 flex items-center justify-center gap-2"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

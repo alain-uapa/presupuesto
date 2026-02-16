@@ -18,7 +18,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    // Explicitly type the map parameter as File to fix 'unknown' type errors for name, size, and type properties
     const newFiles: Attachment[] = Array.from(e.target.files).map((f: File) => ({
       name: f.name,
       size: `${(f.size / 1024).toFixed(1)} KB`,
@@ -43,7 +42,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-900">
+        <h2 className="text-2xl font-bold text-[#333333]">
           {initialData ? 'Editar Solicitud' : 'Nueva Solicitud de Presupuesto'}
         </h2>
         <p className="text-slate-500">Complete la información detallada para que administración pueda evaluar su caso.</p>
@@ -51,31 +50,31 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 space-y-6">
         <div className="space-y-2">
-          <label className="text-sm font-bold text-slate-700">Nombre de la Actividad</label>
+          <label className="text-sm font-bold text-[#333333]">Nombre de la Actividad</label>
           <input 
             type="text"
             required
             value={formData.name}
             onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
             placeholder="Ej. Taller de capacitación docente"
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+            className="w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700">Fecha Prevista</label>
+            <label className="text-sm font-bold text-[#333333]">Fecha Prevista</label>
             <input 
               type="date"
               required
               value={formData.requestDate}
               onChange={e => setFormData(prev => ({ ...prev, requestDate: e.target.value }))}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              className="w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all"
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700">Categoría (Opcional)</label>
-            <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            <label className="text-sm font-bold text-[#333333]">Categoría (Opcional)</label>
+            <select className="w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all">
                <option>Equipamiento</option>
                <option>Infraestructura</option>
                <option>Eventos</option>
@@ -85,20 +84,20 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-bold text-slate-700">Descripción Detallada</label>
+          <label className="text-sm font-bold text-[#333333]">Descripción Detallada</label>
           <textarea 
             required
             rows={4}
             value={formData.description}
             onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
             placeholder="Explique el propósito de este gasto y cómo beneficia a la institución..."
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
+            className="w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all resize-none"
           />
         </div>
 
         <div className="space-y-3">
-          <label className="text-sm font-bold text-slate-700">Cotizaciones (Archivos)</label>
-          <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:bg-slate-50 transition-colors cursor-pointer relative">
+          <label className="text-sm font-bold text-[#333333]">Cotizaciones (Archivos)</label>
+          <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:bg-[#F8F9FA] transition-colors cursor-pointer relative">
             <input 
               type="file" 
               multiple 
@@ -117,15 +116,15 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               {attachments.map((file, idx) => (
                 <div key={idx} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-100 rounded-xl">
                   <div className="flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#003B71]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                     </svg>
-                    <span className="text-xs font-bold text-blue-900">{file.name}</span>
+                    <span className="text-xs font-bold text-[#003B71]">{file.name}</span>
                   </div>
                   <button 
                     type="button" 
                     onClick={() => removeAttachment(idx)}
-                    className="text-blue-400 hover:text-red-500 transition-colors"
+                    className="text-[#003B71] hover:text-red-500 transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -141,13 +140,13 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
           <button 
             type="button"
             onClick={onCancel}
-            className="flex-grow bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold py-3 rounded-xl transition-all"
+            className="flex-grow bg-[#F8F9FA] hover:bg-slate-100 text-slate-600 font-bold py-3 rounded-xl transition-all"
           >
             Cancelar
           </button>
           <button 
             type="submit"
-            className="flex-grow-[2] bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-100"
+            className="flex-grow-[2] bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100"
           >
             {initialData ? 'Guardar Cambios' : 'Enviar Solicitud'}
           </button>

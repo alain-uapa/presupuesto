@@ -114,7 +114,7 @@ const App: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4">
+      <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-center items-center p-4">
         <Login onLogin={handleLogin} />
         <ToastContainer toasts={toasts} onRemove={removeToast} />
       </div>
@@ -122,10 +122,10 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col">
       <Navbar user={user} onLogout={handleLogout} />
       
-      <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl">
+      <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl text-[#333333]">
         {view === 'dashboard' && (
           <Dashboard 
             user={user} 
