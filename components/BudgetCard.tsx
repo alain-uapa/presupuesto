@@ -27,6 +27,9 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
     year: 'numeric'
   }).format(new Date(request.requestDate));
 
+  // Generamos un avatar de perfil consistente basado en el ID del usuario
+  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${request.userId}&backgroundColor=f1f5f9`;
+
   return (
     <div 
       className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between"
@@ -48,8 +51,8 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
 
         {!isCollaborator && (
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-5 h-5 bg-slate-200 rounded-full flex items-center justify-center overflow-hidden">
-               <img src={`https://picsum.photos/seed/${request.userId}/20/20`} alt="" />
+            <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border border-slate-200">
+               <img src={requesterAvatar} alt={request.userName} />
             </div>
             <span className="text-xs text-slate-600 font-medium">Por {request.userName}</span>
           </div>

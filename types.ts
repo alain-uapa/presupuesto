@@ -27,6 +27,13 @@ export interface BudgetRequest {
   status: BudgetStatus;
   rejectionComments?: string;
   attachments: Attachment[];
+  // Nuevos campos
+  location: string;
+  requestType: string;
+  budgetRubro: string;
+  analyticalAccount: string;
+  preApprovedBudget: number;
+  executionAmount: number;
 }
 
 export interface User {

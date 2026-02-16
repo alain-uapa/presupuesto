@@ -17,7 +17,13 @@ const MOCK_REQUESTS: BudgetRequest[] = [
     requestDate: '2024-03-15',
     description: 'Compra de kits de robótica para el taller de verano.',
     status: BudgetStatus.PENDING,
-    attachments: [{ name: 'cotizacion1.pdf', size: '1.2MB', type: 'application/pdf' }]
+    attachments: [{ name: 'cotizacion1.pdf', size: '1.2MB', type: 'application/pdf' }],
+    location: 'Sede Santiago',
+    requestType: 'Desembolso',
+    budgetRubro: 'Plan de actividades',
+    analyticalAccount: 'CA-0164 RECTORIA',
+    preApprovedBudget: 50000,
+    executionAmount: 45000
   },
   {
     id: '2',
@@ -27,7 +33,13 @@ const MOCK_REQUESTS: BudgetRequest[] = [
     requestDate: '2023-11-20',
     description: 'Actualización de mobiliario ergonómico.',
     status: BudgetStatus.APPROVED,
-    attachments: []
+    attachments: [],
+    location: 'Santo Domingo',
+    requestType: 'Inversión',
+    budgetRubro: 'Inversión',
+    analyticalAccount: 'CA-0163 JUNTA DE DIRECTORES',
+    preApprovedBudget: 150000,
+    executionAmount: 148000
   },
   {
     id: '3',
@@ -38,7 +50,13 @@ const MOCK_REQUESTS: BudgetRequest[] = [
     description: 'Patrocinio para 5 conferencistas internacionales.',
     status: BudgetStatus.REJECTED,
     rejectionComments: 'Fuera de presupuesto trimestral asignado.',
-    attachments: [{ name: 'vuelos.pdf', size: '450KB', type: 'application/pdf' }]
+    attachments: [{ name: 'vuelos.pdf', size: '450KB', type: 'application/pdf' }],
+    location: 'Cibao Oriental, Nagua',
+    requestType: 'Desviación',
+    budgetRubro: 'Gastos de servicios y suministros',
+    analyticalAccount: 'CA-0165 CASA SAMANA',
+    preApprovedBudget: 80000,
+    executionAmount: 95000
   }
 ];
 
@@ -59,12 +77,20 @@ const App: React.FC = () => {
   };
 
   const handleLogin = (role: Role) => {
+    const name = role === Role.COLABORADOR ? 'Colaborador UAPA' : 'Admin UAPA';
+    
+    // Usamos un avatar de tipo "perfil" más estilizado usando multiavatar o ui-avatars con estilo de icono
+    // Para un look de "Avatar de perfil" corporativo, usamos una silueta limpia o un avatar generado por DiceBear (tipo 'avataaars' o 'pixel-art' pero más sobrio)
+    // En este caso, usaremos una silueta de usuario limpia de un CDN confiable o ui-avatars con un diseño circular elegante
+    const seed = role === Role.COLABORADOR ? 'colaborador' : 'admin';
+    const photoUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9&mood=happy`;
+    
     const mockUser: User = {
       id: role === Role.COLABORADOR ? 'user1' : 'admin1',
-      name: role === Role.COLABORADOR ? 'Colaborador UAPA' : 'Admin UAPA',
+      name: name,
       email: role === Role.COLABORADOR ? 'colaborador@uapa.edu.do' : 'admin@uapa.edu.do',
       role: role,
-      photoUrl: `https://picsum.photos/seed/${role}/100/100`
+      photoUrl: photoUrl
     };
     setUser(mockUser);
     addToast(`Sesión iniciada como ${mockUser.name}`, 'success');
@@ -169,6 +195,18 @@ const App: React.FC = () => {
           />
         )}
       </main>
+
+      <footer className="bg-white border-t border-slate-200 py-6">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-sm text-slate-500 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#ff8300]" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+            ¿Necesitas asistencia? Llama a la sede <strong>Ext. 378</strong> o Flota: <strong>829-901-2885</strong>
+          </p>
+          <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-widest font-bold">UAPA - Sistema de Gestión Presupuestaria</p>
+        </div>
+      </footer>
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>

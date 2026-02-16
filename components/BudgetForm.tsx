@@ -13,6 +13,12 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
     name: initialData?.name || '',
     description: initialData?.description || '',
     requestDate: initialData?.requestDate || new Date().toISOString().split('T')[0],
+    location: initialData?.location || 'Sede Santiago',
+    requestType: initialData?.requestType || 'Desembolso',
+    budgetRubro: initialData?.budgetRubro || 'Gastos de servicios y suministros',
+    analyticalAccount: initialData?.analyticalAccount || 'CA-0164 RECTORIA',
+    preApprovedBudget: initialData?.preApprovedBudget || 0,
+    executionAmount: initialData?.executionAmount || 0,
   });
   const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments || []);
 
@@ -39,8 +45,10 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
     });
   };
 
+  const inputClass = "w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all";
+
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-[#333333]">
           {initialData ? 'Editar Solicitud' : 'Nueva Solicitud de Presupuesto'}
@@ -49,19 +57,32 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 space-y-6">
-        <div className="space-y-2">
-          <label className="text-sm font-bold text-[#333333]">Nombre de la Actividad</label>
-          <input 
-            type="text"
-            required
-            value={formData.name}
-            onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            placeholder="Ej. Taller de capacitación docente"
-            className="w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all"
-          />
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2 col-span-1 md:col-span-2">
+            <label className="text-sm font-bold text-[#333333]">Nombre de la Actividad</label>
+            <input 
+              type="text"
+              required
+              value={formData.name}
+              onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Ej. Taller de capacitación docente"
+              className={inputClass}
+            />
+          </div>
 
-        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-[#333333]">Ubicación</label>
+            <select 
+              value={formData.location}
+              onChange={e => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              className={inputClass}
+            >
+              <option>Sede Santiago</option>
+              <option>Santo Domingo</option>
+              <option>Cibao Oriental, Nagua</option>
+            </select>
+          </div>
+
           <div className="space-y-2">
             <label className="text-sm font-bold text-[#333333]">Fecha Prevista</label>
             <input 
@@ -69,17 +90,70 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               required
               value={formData.requestDate}
               onChange={e => setFormData(prev => ({ ...prev, requestDate: e.target.value }))}
-              className="w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all"
+              className={inputClass}
             />
           </div>
+
           <div className="space-y-2">
-            <label className="text-sm font-bold text-[#333333]">Categoría (Opcional)</label>
-            <select className="w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all">
-               <option>Equipamiento</option>
-               <option>Infraestructura</option>
-               <option>Eventos</option>
-               <option>Otros</option>
+            <label className="text-sm font-bold text-[#333333]">Tipo de Solicitud</label>
+            <select 
+              value={formData.requestType}
+              onChange={e => setFormData(prev => ({ ...prev, requestType: e.target.value }))}
+              className={inputClass}
+            >
+              <option>Desembolso</option>
+              <option>Desviación</option>
             </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-[#333333]">Rubro Presupuestal</label>
+            <select 
+              value={formData.budgetRubro}
+              onChange={e => setFormData(prev => ({ ...prev, budgetRubro: e.target.value }))}
+              className={inputClass}
+            >
+              <option>Gastos de servicios y suministros</option>
+              <option>Plan de actividades</option>
+              <option>Inversión</option>
+            </select>
+          </div>
+
+          <div className="space-y-2 col-span-1 md:col-span-2">
+            <label className="text-sm font-bold text-[#333333]">Cuenta Analítica</label>
+            <select 
+              value={formData.analyticalAccount}
+              onChange={e => setFormData(prev => ({ ...prev, analyticalAccount: e.target.value }))}
+              className={inputClass}
+            >
+              <option>CA-0163 JUNTA DE DIRECTORES</option>
+              <option>CA-0164 RECTORIA</option>
+              <option>CA-0165 CASA SAMANA</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-[#333333]">Presupuesto Pre-aprobado (RD$)</label>
+            <input 
+              type="number"
+              required
+              min="0"
+              value={formData.preApprovedBudget}
+              onChange={e => setFormData(prev => ({ ...prev, preApprovedBudget: Number(e.target.value) }))}
+              className={inputClass}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-[#333333]">Monto a Ejecutar (RD$)</label>
+            <input 
+              type="number"
+              required
+              min="0"
+              value={formData.executionAmount}
+              onChange={e => setFormData(prev => ({ ...prev, executionAmount: Number(e.target.value) }))}
+              className={inputClass}
+            />
           </div>
         </div>
 
@@ -90,8 +164,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
             rows={4}
             value={formData.description}
             onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-            placeholder="Explique el propósito de este gasto y cómo beneficia a la institución..."
-            className="w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all resize-none"
+            placeholder="Explique el propósito de este gasto..."
+            className={`${inputClass} resize-none`}
           />
         </div>
 
@@ -108,7 +182,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4-4m4 4v12" />
             </svg>
             <p className="text-sm text-slate-600 font-medium">Haga clic o arrastre sus cotizaciones aquí</p>
-            <p className="text-xs text-slate-400">PDF, JPG o PNG aceptados</p>
           </div>
 
           {attachments.length > 0 && (
@@ -121,11 +194,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
                     </svg>
                     <span className="text-xs font-bold text-[#003B71]">{file.name}</span>
                   </div>
-                  <button 
-                    type="button" 
-                    onClick={() => removeAttachment(idx)}
-                    className="text-[#003B71] hover:text-red-500 transition-colors"
-                  >
+                  <button type="button" onClick={() => removeAttachment(idx)} className="text-[#003B71] hover:text-red-500 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -137,17 +206,10 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
         </div>
 
         <div className="flex items-center gap-3 pt-6 border-t border-slate-100">
-          <button 
-            type="button"
-            onClick={onCancel}
-            className="flex-grow bg-[#F8F9FA] hover:bg-slate-100 text-slate-600 font-bold py-3 rounded-xl transition-all"
-          >
+          <button type="button" onClick={onCancel} className="flex-grow bg-[#F8F9FA] hover:bg-slate-100 text-slate-600 font-bold py-3 rounded-xl transition-all">
             Cancelar
           </button>
-          <button 
-            type="submit"
-            className="flex-grow-[2] bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100"
-          >
+          <button type="submit" className="flex-grow-[2] bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100">
             {initialData ? 'Guardar Cambios' : 'Enviar Solicitud'}
           </button>
         </div>
