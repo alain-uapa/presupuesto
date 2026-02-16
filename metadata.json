@@ -1,0 +1,5 @@
+{
+  "name": "UAPA Budget Manager",
+  "description": "A comprehensive budget management system for UAPA with Google authentication, role-based access for collaborators and administrators, and real-time budget request tracking.",
+  "requestFramePermissions": []
+}
