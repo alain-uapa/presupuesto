@@ -7,10 +7,6 @@ import { BudgetRequest, BudgetStatus } from '../types';
  * Hereda la configuración base de HttpClient.
  */
 class BudgetService extends HttpClient {
-  // No requiere constructor si usa la baseUrl por defecto de HttpClient.
-  // En caso de que este servicio necesitara otra URL, se podría hacer:
-  // protected baseUrl: string = 'https://otra-api.uapa.edu.do';
-
   /**
    * Obtiene todas las solicitudes del servidor.
    */
@@ -26,16 +22,23 @@ class BudgetService extends HttpClient {
   }
 
   /**
+   * Actualiza una solicitud existente.
+   */
+  async update(id: string | number, data: Partial<BudgetRequest>): Promise<BudgetRequest> {
+    return this.patch<BudgetRequest>(`/solicitudes/update/${id}`, data);
+  }
+
+  /**
    * Cambia el estado de una solicitud (Aprobar/Rechazar).
    */
-  async updateStatus(id: string, status: BudgetStatus, comments?: string): Promise<BudgetRequest> {
+  async updateStatus(id: string | number, status: BudgetStatus, comments?: string): Promise<BudgetRequest> {
     return this.patch<BudgetRequest>(`/solicitudes/status/${id}`, { status, comments });
   }
 
   /**
    * Obtiene una solicitud específica por su ID.
    */
-  async getById(id: string): Promise<BudgetRequest> {
+  async getById(id: string | number): Promise<BudgetRequest> {
     return this.get<BudgetRequest>(`/solicitudes/${id}`);
   }
 }

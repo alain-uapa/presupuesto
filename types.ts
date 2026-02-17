@@ -67,3 +67,8 @@ export interface ToastType {
   type: 'success' | 'error' | 'info';
   duration: number;
 }
+
+export interface Choice {
+  value: string;
+  label: string;
+}

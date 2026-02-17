@@ -8,66 +8,35 @@ import BudgetForm from './components/BudgetForm';
 import ToastContainer from './components/Toast';
 import Navbar from './components/Navbar';
 import { budgetService } from './services/budget.service';
+import { CatalogProvider, useCatalogs } from './context/CatalogContext';
 
-const App: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [requests, setRequests] = useState<BudgetRequest[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [toasts, setToasts] = useState<ToastType[]>([]);
+const AppContent: React.FC<{ 
+  user: User | null; 
+  setUser: (u: User | null) => void; 
+  requests: BudgetRequest[];
+  setRequests: React.Dispatch<React.SetStateAction<BudgetRequest[]>>;
+  loading: boolean;
+  setLoading: (l: boolean) => void;
+  toasts: ToastType[];
+  addToast: (m: string, t?: ToastType['type']) => void;
+  removeToast: (id: string) => void;
+  handleLogout: () => void;
+  fetchAllRequests: () => void;
+  handleApiError: (e: any, m?: string) => boolean;
+}> = ({ 
+  user, setUser, requests, setRequests, loading, setLoading, 
+  toasts, addToast, removeToast, handleLogout, fetchAllRequests, handleApiError 
+}) => {
+  const { fetchCatalogs, loadingCatalogs } = useCatalogs();
   const [view, setView] = useState<'dashboard' | 'details' | 'create' | 'edit'>('dashboard');
   const [selectedRequestId, setSelectedRequestId] = useState<string | number | null>(null);
-
-  const addToast = useCallback((message: string, type: ToastType['type'] = 'info') => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts(prev => [...prev, { id, message, type, duration: 4000 }]);
-  }, []);
-
-  const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
-  };
-
-  const handleLogout = useCallback(() => {
-    setUser(null);
-    setRequests([]);
-    setView('dashboard');
-    setSelectedRequestId(null);
-  }, []);
-
-  /**
-   * Manejador centralizado de errores de API
-   * Retorna true si el error fue de autenticación y ya se manejó la redirección
-   */
-  const handleApiError = useCallback((error: any, customMessage?: string) => {
-    console.error("API Error context:", error);
-    
-    // Si el error es 401, forzamos logout y redirigimos
-    if (error.status === 401) {
-      handleLogout();
-      addToast('Tu sesión ha expirado o no tienes autorización. Por favor inicia sesión nuevamente.', 'error');
-      return true;
-    }
-    
-    addToast(customMessage || `Error: ${error.message}`, 'error');
-    return false;
-  }, [addToast, handleLogout]);
-
-  const fetchAllRequests = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await budgetService.getAll();
-      setRequests(data);
-    } catch (error: any) {
-      handleApiError(error, 'No se pudieron cargar las solicitudes.');
-    } finally {
-      setLoading(false);
-    }
-  }, [handleApiError]);
 
   useEffect(() => {
     if (user) {
       fetchAllRequests();
+      fetchCatalogs(); // Cargar catálogos al iniciar sesión
     }
-  }, [user, fetchAllRequests]);
+  }, [user, fetchAllRequests, fetchCatalogs]);
 
   const handleLogin = (role: Role) => {
     const id = role === Role.COLABORADOR ? 2 : 1; 
@@ -83,12 +52,6 @@ const App: React.FC = () => {
       photoUrl: photoUrl
     };
     setUser(mockUser);
-    addToast(`Sesión iniciada como ${mockUser.name}`, 'success');
-  };
-
-  const manualLogout = () => {
-    handleLogout();
-    addToast('Sesión cerrada correctamente', 'info');
   };
 
   const handleCreateRequest = async (formData: any) => {
@@ -103,12 +66,15 @@ const App: React.FC = () => {
         monto_a_ejecutar: formData.executionAmount,
         presupuesto_pre_aprobado: formData.preApprovedBudget,
         fecha_solicitud: new Date().toLocaleDateString('es-DO') + ' ' + new Date().toLocaleTimeString('es-DO', {hour: '2-digit', minute:'2-digit'}),
+        // Enviamos IDs en lugar de nombres si el backend lo espera
+        ubicacion_id: formData.locationId,
+        cuenta_analitica_id: formData.analyticalAccountId
       };
       
       try {
         await budgetService.create(payload as any);
         addToast('Solicitud enviada correctamente', 'success');
-        fetchAllRequests(); // Recargar datos
+        fetchAllRequests(); 
       } catch (e: any) {
         if (e.status === 401) {
           handleApiError(e);
@@ -134,14 +100,61 @@ const App: React.FC = () => {
              last_name: user.name.split(' ')[1] || 'Usuario',
              email: user.email
           },
-          ubicacion: { id: 1, nombre: formData.location },
-          cuenta_analitica: { id: 1, codigo: "CA-001", nombre: formData.analyticalAccount }
+          ubicacion: { id: formData.locationId, nombre: formData.locationName },
+          cuenta_analitica: { id: formData.analyticalAccountId, codigo: "CA-001", nombre: formData.analyticalAccountName }
         };
         setRequests(prev => [localRequest, ...prev]);
         addToast('Solicitud guardada localmente (Modo Demo)', 'info');
       }
       
       setView('dashboard');
+    } catch (error: any) {
+      handleApiError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditRequest = async (formData: any) => {
+    if (!user || !selectedRequestId) return;
+    setLoading(true);
+    try {
+      const payload = {
+        titulo: formData.name,
+        descripcion: formData.description,
+        tipo_solicitud: formData.requestType,
+        rubro_presupuestal: formData.budgetRubro,
+        monto_a_ejecutar: formData.executionAmount,
+        presupuesto_pre_aprobado: formData.preApprovedBudget,
+        ubicacion_id: formData.locationId,
+        cuenta_analitica_id: formData.analyticalAccountId
+      };
+
+      try {
+        await budgetService.update(selectedRequestId, payload as any);
+        addToast('Solicitud actualizada correctamente', 'success');
+        fetchAllRequests();
+      } catch (e: any) {
+        if (e.status === 401) {
+          handleApiError(e);
+          return;
+        }
+        console.warn('PATCH no disponible, simulando actualización local');
+        setRequests(prev => prev.map(r => 
+          r.id.toString() === selectedRequestId.toString() 
+          ? { 
+              ...r, 
+              ...payload, 
+              ubicacion: { ...r.ubicacion, id: formData.locationId, nombre: formData.locationName },
+              cuenta_analitica: { ...r.cuenta_analitica, id: formData.analyticalAccountId, nombre: formData.analyticalAccountName } 
+            } 
+          : r
+        ));
+        addToast('Cambios guardados localmente (Modo Demo)', 'info');
+      }
+
+      setView('dashboard');
+      setSelectedRequestId(null);
     } catch (error: any) {
       handleApiError(error);
     } finally {
@@ -189,9 +202,9 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col">
-      <Navbar user={user} onLogout={manualLogout} />
+      <Navbar user={user} onLogout={handleLogout} />
       
-      {loading && (
+      {(loading || loadingCatalogs) && (
         <div className="fixed top-0 left-0 w-full h-1 z-[60]">
           <div className="h-full bg-[#ff8300] animate-pulse"></div>
         </div>
@@ -232,6 +245,17 @@ const App: React.FC = () => {
             onSubmit={handleCreateRequest}
           />
         )}
+
+        {view === 'edit' && selectedRequest && (
+          <BudgetForm 
+            initialData={selectedRequest}
+            onCancel={() => {
+              setView('dashboard');
+              setSelectedRequestId(null);
+            }}
+            onSubmit={handleEditRequest}
+          />
+        )}
       </main>
 
       <footer className="bg-white border-t border-slate-200 py-6">
@@ -248,6 +272,69 @@ const App: React.FC = () => {
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [requests, setRequests] = useState<BudgetRequest[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [toasts, setToasts] = useState<ToastType[]>([]);
+
+  const addToast = useCallback((message: string, type: ToastType['type'] = 'info') => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts(prev => [...prev, { id, message, type, duration: 4000 }]);
+  }, []);
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  };
+
+  const handleLogout = useCallback(() => {
+    setUser(null);
+    setRequests([]);
+  }, []);
+
+  const handleApiError = useCallback((error: any, customMessage?: string) => {
+    console.error("API Error context:", error);
+    if (error.status === 401) {
+      handleLogout();
+      addToast('Tu sesión ha expirado o no tienes autorización. Por favor inicia sesión nuevamente.', 'error');
+      return true;
+    }
+    addToast(customMessage || `Error: ${error.message}`, 'error');
+    return false;
+  }, [addToast, handleLogout]);
+
+  const fetchAllRequests = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await budgetService.getAll();
+      setRequests(data);
+    } catch (error: any) {
+      handleApiError(error, 'No se pudieron cargar las solicitudes.');
+    } finally {
+      setLoading(false);
+    }
+  }, [handleApiError]);
+
+  return (
+    <CatalogProvider>
+      <AppContent 
+        user={user} 
+        setUser={setUser}
+        requests={requests}
+        setRequests={setRequests}
+        loading={loading}
+        setLoading={setLoading}
+        toasts={toasts}
+        addToast={addToast}
+        removeToast={removeToast}
+        handleLogout={handleLogout}
+        fetchAllRequests={fetchAllRequests}
+        handleApiError={handleApiError}
+      />
+    </CatalogProvider>
   );
 };
 

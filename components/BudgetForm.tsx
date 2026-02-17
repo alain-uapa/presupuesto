@@ -1,6 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BudgetRequest, Attachment } from '../types';
+import { useCatalogs } from '../context/CatalogContext';
 
 interface BudgetFormProps {
   initialData?: BudgetRequest;
@@ -9,21 +10,34 @@ interface BudgetFormProps {
 }
 
 const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit }) => {
-  // Fix: map BudgetRequest properties (titulo, descripcion, etc.) to local form state correctly
+  const { ubicaciones, cuentasAnaliticas, loadingCatalogs, TIPO_CHOICES, RUBRO_CHOICES } = useCatalogs();
+
   const [formData, setFormData] = useState({
     name: initialData?.titulo || '',
     description: initialData?.descripcion || '',
     requestDate: initialData?.fecha_solicitud 
       ? initialData.fecha_solicitud.split(' ')[0].split('/').reverse().join('-') 
       : new Date().toISOString().split('T')[0],
-    location: initialData?.ubicacion?.nombre || 'Sede Santiago',
-    requestType: initialData?.tipo_solicitud || 'Desembolso',
-    budgetRubro: initialData?.rubro_presupuestal || 'Gastos de servicios y suministros',
-    analyticalAccount: initialData?.cuenta_analitica?.nombre || 'CA-0164 RECTORIA',
+    locationId: initialData?.ubicacion?.id || 0,
+    requestType: initialData?.tipo_solicitud || TIPO_CHOICES[0].value,
+    budgetRubro: initialData?.rubro_presupuestal || RUBRO_CHOICES[0].value,
+    analyticalAccountId: initialData?.cuenta_analitica?.id || 0,
     preApprovedBudget: initialData?.presupuesto_pre_aprobado || 0,
     executionAmount: initialData?.monto_a_ejecutar || 0,
   });
+
   const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments || []);
+
+  useEffect(() => {
+    if (!initialData) {
+      if (ubicaciones.length > 0 && formData.locationId === 0) {
+        setFormData(prev => ({ ...prev, locationId: ubicaciones[0].id }));
+      }
+      if (cuentasAnaliticas.length > 0 && formData.analyticalAccountId === 0) {
+        setFormData(prev => ({ ...prev, analyticalAccountId: cuentasAnaliticas[0].id }));
+      }
+    }
+  }, [ubicaciones, cuentasAnaliticas, initialData, formData.locationId, formData.analyticalAccountId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -42,13 +56,19 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.description) return;
+
+    const loc = ubicaciones.find(u => u.id === Number(formData.locationId));
+    const acc = cuentasAnaliticas.find(a => a.id === Number(formData.analyticalAccountId));
+
     onSubmit({
       ...formData,
+      locationName: loc?.nombre || 'Sede Santiago',
+      analyticalAccountName: acc?.nombre || 'Cuenta Analítica',
       attachments
     });
   };
 
-  const inputClass = "w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all";
+  const inputClass = "w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all disabled:opacity-50";
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -76,13 +96,18 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
           <div className="space-y-2">
             <label className="text-sm font-bold text-[#333333]">Ubicación</label>
             <select 
-              value={formData.location}
-              onChange={e => setFormData(prev => ({ ...prev, location: e.target.value }))}
+              value={formData.locationId}
+              onChange={e => setFormData(prev => ({ ...prev, locationId: Number(e.target.value) }))}
               className={inputClass}
+              disabled={loadingCatalogs}
             >
-              <option>Sede Santiago</option>
-              <option>Santo Domingo</option>
-              <option>Cibao Oriental, Nagua</option>
+              {ubicaciones.length > 0 ? (
+                ubicaciones.map(u => (
+                  <option key={u.id} value={u.id}>{u.nombre}</option>
+                ))
+              ) : (
+                <option value={0}>Cargando ubicaciones...</option>
+              )}
             </select>
           </div>
 
@@ -104,8 +129,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               onChange={e => setFormData(prev => ({ ...prev, requestType: e.target.value }))}
               className={inputClass}
             >
-              <option>Desembolso</option>
-              <option>Desviación</option>
+              {TIPO_CHOICES.map(choice => (
+                <option key={choice.value} value={choice.value}>{choice.label}</option>
+              ))}
             </select>
           </div>
 
@@ -116,22 +142,27 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               onChange={e => setFormData(prev => ({ ...prev, budgetRubro: e.target.value }))}
               className={inputClass}
             >
-              <option>Gastos de servicios y suministros</option>
-              <option>Plan de actividades</option>
-              <option>Inversión</option>
+              {RUBRO_CHOICES.map(choice => (
+                <option key={choice.value} value={choice.value}>{choice.label}</option>
+              ))}
             </select>
           </div>
 
           <div className="space-y-2 col-span-1 md:col-span-2">
             <label className="text-sm font-bold text-[#333333]">Cuenta Analítica</label>
             <select 
-              value={formData.analyticalAccount}
-              onChange={e => setFormData(prev => ({ ...prev, analyticalAccount: e.target.value }))}
+              value={formData.analyticalAccountId}
+              onChange={e => setFormData(prev => ({ ...prev, analyticalAccountId: Number(e.target.value) }))}
               className={inputClass}
+              disabled={loadingCatalogs}
             >
-              <option>CA-0163 JUNTA DE DIRECTORES</option>
-              <option>CA-0164 RECTORIA</option>
-              <option>CA-0165 CASA SAMANA</option>
+              {cuentasAnaliticas.length > 0 ? (
+                cuentasAnaliticas.map(c => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                ))
+              ) : (
+                <option value={0}>Cargando cuentas...</option>
+              )}
             </select>
           </div>
 
@@ -212,7 +243,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
           <button type="button" onClick={onCancel} className="flex-grow bg-[#F8F9FA] hover:bg-slate-100 text-slate-600 font-bold py-3 rounded-xl transition-all">
             Cancelar
           </button>
-          <button type="submit" className="flex-grow-[2] bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100">
+          <button type="submit" disabled={loadingCatalogs} className="flex-grow-[2] bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100 disabled:opacity-50">
             {initialData ? 'Guardar Cambios' : 'Enviar Solicitud'}
           </button>
         </div>

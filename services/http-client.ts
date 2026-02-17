@@ -18,17 +18,25 @@ export class HttpClient {
 
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      let errorMessage = `Error ${response.status}: ${response.statusText}`;
+      // Formatear mensaje base: "Error 401: Unauthorized" o simplemente "Error 401" si no hay texto
+      let errorMessage = `Error ${response.status}${response.statusText ? `: ${response.statusText}` : ''}`;
       let errorData: any = {};
       
       try {
-        errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
+        const text = await response.text();
+        if (text) {
+          try {
+            errorData = JSON.parse(text);
+            errorMessage = errorData.message || errorMessage;
+          } catch (e) {
+            // Si no es JSON, usamos el texto plano si existe
+            errorMessage = text.length < 100 ? text : errorMessage;
+          }
+        }
       } catch (e) {
-        // Fallback si la respuesta no es JSON
+        // Fallback silencioso
       }
       
-      // Creamos un objeto de error enriquecido
       const error: any = new Error(errorMessage);
       error.status = response.status;
       error.data = errorData;

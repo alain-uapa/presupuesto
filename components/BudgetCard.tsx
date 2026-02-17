@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { BudgetRequest, BudgetStatus } from '../types';
+import { useCatalogs } from '../context/CatalogContext';
 
 interface BudgetCardProps {
   request: BudgetRequest;
@@ -10,6 +11,8 @@ interface BudgetCardProps {
 }
 
 const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isCollaborator }) => {
+  const { ESTADO_CHOICES, getLabel } = useCatalogs();
+
   const getStatusStyle = (status: BudgetStatus) => {
     switch (status) {
       case BudgetStatus.APPROVED:
@@ -21,7 +24,6 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
     }
   };
 
-  // El formato del backend es "DD/MM/YYYY HH:mm"
   const formatDate = (dateStr: string) => {
     try {
       const [datePart] = dateStr.split(' ');
@@ -46,7 +48,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
       <div>
         <div className="flex justify-between items-start mb-4">
           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusStyle(request.estado)}`}>
-            {request.estado}
+            {getLabel(ESTADO_CHOICES, request.estado)}
           </span>
           <span className="text-xs text-slate-400 font-medium">{formatDate(request.fecha_solicitud)}</span>
         </div>

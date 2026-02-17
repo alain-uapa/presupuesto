@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { BudgetRequest, BudgetStatus, User, Role } from '../types';
+import { BudgetRequest, BudgetStatus, User } from '../types';
+import { useCatalogs } from '../context/CatalogContext';
 
 interface BudgetDetailsProps {
   user: User;
@@ -10,16 +11,18 @@ interface BudgetDetailsProps {
 }
 
 const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus }) => {
+  const { ESTADO_CHOICES, TIPO_CHOICES, RUBRO_CHOICES, getLabel } = useCatalogs();
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
   
   const getStatusBadge = (status: BudgetStatus) => {
+    const label = getLabel(ESTADO_CHOICES, status);
     switch (status) {
       case BudgetStatus.APPROVED:
-        return <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-bold rounded-full">Aprobada</span>;
+        return <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-bold rounded-full">{label}</span>;
       case BudgetStatus.REJECTED:
-        return <span className="px-3 py-1 bg-rose-100 text-rose-700 text-sm font-bold rounded-full">Rechazada</span>;
+        return <span className="px-3 py-1 bg-rose-100 text-rose-700 text-sm font-bold rounded-full">{label}</span>;
       default:
-        return <span className="px-3 py-1 bg-amber-100 text-amber-700 text-sm font-bold rounded-full">Pendiente</span>;
+        return <span className="px-3 py-1 bg-amber-100 text-amber-700 text-sm font-bold rounded-full">{label}</span>;
     }
   };
 
@@ -74,8 +77,8 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
           
           <section className="grid grid-cols-2 gap-4">
              <DetailItem label="Ubicación" value={request.ubicacion.nombre} />
-             <DetailItem label="Tipo de Solicitud" value={request.tipo_solicitud} />
-             <DetailItem label="Rubro Presupuestal" value={request.rubro_presupuestal} />
+             <DetailItem label="Tipo de Solicitud" value={getLabel(TIPO_CHOICES, request.tipo_solicitud)} />
+             <DetailItem label="Rubro Presupuestal" value={getLabel(RUBRO_CHOICES, request.rubro_presupuestal)} />
              <DetailItem label="Cuenta Analítica" value={request.cuenta_analitica.nombre} />
              <DetailItem label="Presupuesto Pre-aprobado" value={formatCurrency(request.presupuesto_pre_aprobado)} />
              <DetailItem label="Monto a Ejecutar" value={formatCurrency(request.monto_a_ejecutar)} />
@@ -118,7 +121,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
              </div>
           </div>
 
-          {user.role === Role.ADMINISTRADOR && request.estado === BudgetStatus.PENDING && (
+          {(user.role as any) === 'ADMINISTRADOR' && request.estado === BudgetStatus.PENDING && (
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Gestión</h3>
               
