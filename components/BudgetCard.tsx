@@ -21,14 +21,23 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
     }
   };
 
-  const formattedDate = new Intl.DateTimeFormat('es-DO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
-  }).format(new Date(request.requestDate));
+  // El formato del backend es "DD/MM/YYYY HH:mm"
+  const formatDate = (dateStr: string) => {
+    try {
+      const [datePart] = dateStr.split(' ');
+      const [day, month, year] = datePart.split('/');
+      return new Intl.DateTimeFormat('es-DO', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }).format(new Date(Number(year), Number(month) - 1, Number(day)));
+    } catch (e) {
+      return dateStr;
+    }
+  };
 
-  // Generamos un avatar de perfil consistente basado en el ID del usuario
-  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${request.userId}&backgroundColor=f1f5f9`;
+  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${request.colaborador.id}&backgroundColor=f1f5f9`;
+  const fullName = `${request.colaborador.first_name} ${request.colaborador.last_name}`;
 
   return (
     <div 
@@ -36,27 +45,27 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
     >
       <div>
         <div className="flex justify-between items-start mb-4">
-          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusStyle(request.status)}`}>
-            {request.status}
+          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusStyle(request.estado)}`}>
+            {request.estado}
           </span>
-          <span className="text-xs text-slate-400 font-medium">{formattedDate}</span>
+          <span className="text-xs text-slate-400 font-medium">{formatDate(request.fecha_solicitud)}</span>
         </div>
 
         <h3 className="font-bold text-[#333333] line-clamp-2 mb-2 group-hover:text-[#003B71] transition-colors">
-          {request.name}
+          {request.titulo}
         </h3>
         <p className="text-sm text-slate-500 line-clamp-3 mb-4">
-          {request.description}
+          {request.descripcion}
         </p>
 
-        {!isCollaborator && (
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border border-slate-200">
-               <img src={requesterAvatar} alt={request.userName} />
-            </div>
-            <span className="text-xs text-slate-600 font-medium">Por {request.userName}</span>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border border-slate-200">
+             <img src={requesterAvatar} alt={fullName} />
           </div>
-        )}
+          <span className="text-xs text-slate-600 font-medium">
+            {isCollaborator ? request.ubicacion.nombre : `Por ${fullName}`}
+          </span>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 pt-4 border-t border-slate-50">
@@ -66,7 +75,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
         >
           Ver Detalles
         </button>
-        {isCollaborator && request.status === BudgetStatus.PENDING && (
+        {isCollaborator && request.estado === BudgetStatus.PENDING && (
           <button 
             onClick={onEdit}
             className="p-2 text-slate-400 hover:text-[#003B71] hover:bg-blue-50 rounded-lg transition-colors"

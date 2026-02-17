@@ -17,27 +17,44 @@ export interface Attachment {
   data?: string; // Base64
 }
 
+export interface Ubicacion {
+  id: number;
+  nombre: string;
+}
+
+export interface CuentaAnalitica {
+  id: number;
+  codigo: string;
+  nombre: string;
+}
+
+export interface Colaborador {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 export interface BudgetRequest {
-  id: string;
-  userId: string;
-  userName: string;
-  name: string;
-  requestDate: string;
-  description: string;
-  status: BudgetStatus;
-  rejectionComments?: string;
-  attachments: Attachment[];
-  // Nuevos campos
-  location: string;
-  requestType: string;
-  budgetRubro: string;
-  analyticalAccount: string;
-  preApprovedBudget: number;
-  executionAmount: number;
+  id: number;
+  colaborador: Colaborador;
+  fecha_solicitud: string;
+  titulo: string;
+  descripcion: string;
+  tipo_solicitud: string;
+  rubro_presupuestal: string;
+  ubicacion: Ubicacion;
+  cuenta_analitica: CuentaAnalitica;
+  presupuesto_pre_aprobado: number;
+  monto_a_ejecutar: number;
+  estado: BudgetStatus;
+  observaciones_supervisor: string;
+  attachments?: Attachment[];
 }
 
 export interface User {
-  id: string;
+  id: string | number;
   name: string;
   email: string;
   role: Role;

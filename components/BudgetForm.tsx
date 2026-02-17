@@ -9,16 +9,19 @@ interface BudgetFormProps {
 }
 
 const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit }) => {
+  // Fix: map BudgetRequest properties (titulo, descripcion, etc.) to local form state correctly
   const [formData, setFormData] = useState({
-    name: initialData?.name || '',
-    description: initialData?.description || '',
-    requestDate: initialData?.requestDate || new Date().toISOString().split('T')[0],
-    location: initialData?.location || 'Sede Santiago',
-    requestType: initialData?.requestType || 'Desembolso',
-    budgetRubro: initialData?.budgetRubro || 'Gastos de servicios y suministros',
-    analyticalAccount: initialData?.analyticalAccount || 'CA-0164 RECTORIA',
-    preApprovedBudget: initialData?.preApprovedBudget || 0,
-    executionAmount: initialData?.executionAmount || 0,
+    name: initialData?.titulo || '',
+    description: initialData?.descripcion || '',
+    requestDate: initialData?.fecha_solicitud 
+      ? initialData.fecha_solicitud.split(' ')[0].split('/').reverse().join('-') 
+      : new Date().toISOString().split('T')[0],
+    location: initialData?.ubicacion?.nombre || 'Sede Santiago',
+    requestType: initialData?.tipo_solicitud || 'Desembolso',
+    budgetRubro: initialData?.rubro_presupuestal || 'Gastos de servicios y suministros',
+    analyticalAccount: initialData?.cuenta_analitica?.nombre || 'CA-0164 RECTORIA',
+    preApprovedBudget: initialData?.presupuesto_pre_aprobado || 0,
+    executionAmount: initialData?.monto_a_ejecutar || 0,
   });
   const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments || []);
 

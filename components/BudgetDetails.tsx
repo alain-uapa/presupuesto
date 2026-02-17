@@ -10,7 +10,7 @@ interface BudgetDetailsProps {
 }
 
 const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus }) => {
-  const [rejectionComments, setRejectionComments] = useState(request.rejectionComments || '');
+  const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
   
   const getStatusBadge = (status: BudgetStatus) => {
     switch (status) {
@@ -28,7 +28,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
       alert('Por favor especifique el motivo del rechazo.');
       return;
     }
-    onUpdateStatus(request.id, newStatus, newStatus === BudgetStatus.REJECTED ? rejectionComments : undefined);
+    onUpdateStatus(request.id.toString(), newStatus, newStatus === BudgetStatus.REJECTED ? rejectionComments : undefined);
   };
 
   const formatCurrency = (amount: number) => {
@@ -42,8 +42,8 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
     </div>
   );
 
-  // Avatar de perfil consistente para el solicitante
-  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${request.userId}&backgroundColor=f1f5f9`;
+  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${request.colaborador.id}&backgroundColor=f1f5f9`;
+  const fullName = `${request.colaborador.first_name} ${request.colaborador.last_name}`;
 
   return (
     <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
@@ -59,12 +59,12 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </svg>
           </button>
           <div>
-            <h2 className="text-xl font-bold text-[#333333]">{request.name}</h2>
-            <p className="text-sm text-slate-500">Solicitado el {new Date(request.requestDate).toLocaleDateString()}</p>
+            <h2 className="text-xl font-bold text-[#333333]">{request.titulo}</h2>
+            <p className="text-sm text-slate-500">Solicitado el {request.fecha_solicitud}</p>
           </div>
         </div>
         <div>
-          {getStatusBadge(request.status)}
+          {getStatusBadge(request.estado)}
         </div>
       </div>
 
@@ -73,56 +73,31 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
         <div className="md:col-span-2 space-y-8">
           
           <section className="grid grid-cols-2 gap-4">
-             <DetailItem label="Ubicación" value={request.location} />
-             <DetailItem label="Tipo de Solicitud" value={request.requestType} />
-             <DetailItem label="Rubro Presupuestal" value={request.budgetRubro} />
-             <DetailItem label="Cuenta Analítica" value={request.analyticalAccount} />
-             <DetailItem label="Presupuesto Pre-aprobado" value={formatCurrency(request.preApprovedBudget)} />
-             <DetailItem label="Monto a Ejecutar" value={formatCurrency(request.executionAmount)} />
+             <DetailItem label="Ubicación" value={request.ubicacion.nombre} />
+             <DetailItem label="Tipo de Solicitud" value={request.tipo_solicitud} />
+             <DetailItem label="Rubro Presupuestal" value={request.rubro_presupuestal} />
+             <DetailItem label="Cuenta Analítica" value={request.cuenta_analitica.nombre} />
+             <DetailItem label="Presupuesto Pre-aprobado" value={formatCurrency(request.presupuesto_pre_aprobado)} />
+             <DetailItem label="Monto a Ejecutar" value={formatCurrency(request.monto_a_ejecutar)} />
           </section>
 
           <section>
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2">Descripción de la Actividad</h3>
             <p className="text-[#333333] leading-relaxed whitespace-pre-wrap">
-              {request.description}
+              {request.descripcion}
             </p>
           </section>
 
           <section>
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2">Cotizaciones Adjuntas</h3>
-            {request.attachments.length > 0 ? (
-              <div className="grid gap-3">
-                {request.attachments.map((file, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-4 bg-[#F8F9FA] border border-slate-200 rounded-xl group hover:border-[#003B71] transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#003B71] shadow-sm">
-                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                         </svg>
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-[#333333]">{file.name}</p>
-                        <p className="text-xs text-slate-500">{file.size}</p>
-                      </div>
-                    </div>
-                    <button className="text-slate-400 hover:text-[#003B71] p-2">
-                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                       </svg>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-slate-400 italic">No se adjuntaron archivos.</p>
-            )}
+            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2">Documentación Adjunta</h3>
+            <p className="text-sm text-slate-400 italic">No se adjuntaron archivos adicionales en esta versión.</p>
           </section>
 
-          {request.status === BudgetStatus.REJECTED && (
+          {request.estado === BudgetStatus.REJECTED && (
             <section className="bg-rose-50 border border-rose-100 p-6 rounded-2xl">
-              <h3 className="text-sm font-bold text-rose-900 uppercase tracking-widest mb-2">Comentarios de Revisión</h3>
+              <h3 className="text-sm font-bold text-rose-900 uppercase tracking-widest mb-2">Observaciones del Supervisor</h3>
               <p className="text-rose-800 text-sm">
-                {request.rejectionComments || 'No se proporcionaron comentarios adicionales.'}
+                {request.observaciones_supervisor || 'No se proporcionaron comentarios adicionales.'}
               </p>
             </section>
           )}
@@ -134,16 +109,16 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
              <h3 className="text-sm font-bold text-[#333333] mb-4 uppercase tracking-wider">Solicitante</h3>
              <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full ring-2 ring-white shadow-sm overflow-hidden border border-slate-200 bg-white">
-                  <img src={requesterAvatar} alt={request.userName} />
+                  <img src={requesterAvatar} alt={fullName} />
                 </div>
                 <div>
-                   <p className="text-sm font-bold text-[#333333]">{request.userName}</p>
-                   <p className="text-xs text-slate-500">Colaborador Académico</p>
+                   <p className="text-sm font-bold text-[#333333]">{fullName}</p>
+                   <p className="text-xs text-slate-500">@{request.colaborador.username}</p>
                 </div>
              </div>
           </div>
 
-          {user.role === Role.ADMINISTRADOR && request.status === BudgetStatus.PENDING && (
+          {user.role === Role.ADMINISTRADOR && request.estado === BudgetStatus.PENDING && (
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Gestión</h3>
               

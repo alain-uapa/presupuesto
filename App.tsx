@@ -7,86 +7,76 @@ import BudgetDetails from './components/BudgetDetails';
 import BudgetForm from './components/BudgetForm';
 import ToastContainer from './components/Toast';
 import Navbar from './components/Navbar';
-
-const MOCK_REQUESTS: BudgetRequest[] = [
-  {
-    id: '1',
-    userId: 'user1',
-    userName: 'Juan Pérez',
-    name: 'Taller de Innovación Tecnológica',
-    requestDate: '2024-03-15',
-    description: 'Compra de kits de robótica para el taller de verano.',
-    status: BudgetStatus.PENDING,
-    attachments: [{ name: 'cotizacion1.pdf', size: '1.2MB', type: 'application/pdf' }],
-    location: 'Sede Santiago',
-    requestType: 'Desembolso',
-    budgetRubro: 'Plan de actividades',
-    analyticalAccount: 'CA-0164 RECTORIA',
-    preApprovedBudget: 50000,
-    executionAmount: 45000
-  },
-  {
-    id: '2',
-    userId: 'user1',
-    userName: 'Juan Pérez',
-    name: 'Remodelación Laboratorio B',
-    requestDate: '2023-11-20',
-    description: 'Actualización de mobiliario ergonómico.',
-    status: BudgetStatus.APPROVED,
-    attachments: [],
-    location: 'Santo Domingo',
-    requestType: 'Inversión',
-    budgetRubro: 'Inversión',
-    analyticalAccount: 'CA-0163 JUNTA DE DIRECTORES',
-    preApprovedBudget: 150000,
-    executionAmount: 148000
-  },
-  {
-    id: '3',
-    userId: 'user2',
-    userName: 'Maria Garcia',
-    name: 'Congreso de Psicología Educativa',
-    requestDate: '2024-02-10',
-    description: 'Patrocinio para 5 conferencistas internacionales.',
-    status: BudgetStatus.REJECTED,
-    rejectionComments: 'Fuera de presupuesto trimestral asignado.',
-    attachments: [{ name: 'vuelos.pdf', size: '450KB', type: 'application/pdf' }],
-    location: 'Cibao Oriental, Nagua',
-    requestType: 'Desviación',
-    budgetRubro: 'Gastos de servicios y suministros',
-    analyticalAccount: 'CA-0165 CASA SAMANA',
-    preApprovedBudget: 80000,
-    executionAmount: 95000
-  }
-];
+import { budgetService } from './services/budget.service';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [requests, setRequests] = useState<BudgetRequest[]>(MOCK_REQUESTS);
+  const [requests, setRequests] = useState<BudgetRequest[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastType[]>([]);
   const [view, setView] = useState<'dashboard' | 'details' | 'create' | 'edit'>('dashboard');
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | number | null>(null);
 
-  const addToast = (message: string, type: ToastType['type'] = 'info') => {
+  const addToast = useCallback((message: string, type: ToastType['type'] = 'info') => {
     const id = Math.random().toString(36).substring(2, 9);
-    setToasts(prev => [...prev, { id, message, type, duration: 3000 }]);
-  };
+    setToasts(prev => [...prev, { id, message, type, duration: 4000 }]);
+  }, []);
 
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(t => t.id !== id));
   };
 
-  const handleLogin = (role: Role) => {
-    const name = role === Role.COLABORADOR ? 'Colaborador UAPA' : 'Admin UAPA';
+  const handleLogout = useCallback(() => {
+    setUser(null);
+    setRequests([]);
+    setView('dashboard');
+    setSelectedRequestId(null);
+  }, []);
+
+  /**
+   * Manejador centralizado de errores de API
+   * Retorna true si el error fue de autenticación y ya se manejó la redirección
+   */
+  const handleApiError = useCallback((error: any, customMessage?: string) => {
+    console.error("API Error context:", error);
     
-    // Usamos un avatar de tipo "perfil" más estilizado usando multiavatar o ui-avatars con estilo de icono
-    // Para un look de "Avatar de perfil" corporativo, usamos una silueta limpia o un avatar generado por DiceBear (tipo 'avataaars' o 'pixel-art' pero más sobrio)
-    // En este caso, usaremos una silueta de usuario limpia de un CDN confiable o ui-avatars con un diseño circular elegante
+    // Si el error es 401, forzamos logout y redirigimos
+    if (error.status === 401) {
+      handleLogout();
+      addToast('Tu sesión ha expirado o no tienes autorización. Por favor inicia sesión nuevamente.', 'error');
+      return true;
+    }
+    
+    addToast(customMessage || `Error: ${error.message}`, 'error');
+    return false;
+  }, [addToast, handleLogout]);
+
+  const fetchAllRequests = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await budgetService.getAll();
+      setRequests(data);
+    } catch (error: any) {
+      handleApiError(error, 'No se pudieron cargar las solicitudes.');
+    } finally {
+      setLoading(false);
+    }
+  }, [handleApiError]);
+
+  useEffect(() => {
+    if (user) {
+      fetchAllRequests();
+    }
+  }, [user, fetchAllRequests]);
+
+  const handleLogin = (role: Role) => {
+    const id = role === Role.COLABORADOR ? 2 : 1; 
+    const name = role === Role.COLABORADOR ? 'Colaborador UAPA' : 'Admin UAPA';
     const seed = role === Role.COLABORADOR ? 'colaborador' : 'admin';
     const photoUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9&mood=happy`;
     
     const mockUser: User = {
-      id: role === Role.COLABORADOR ? 'user1' : 'admin1',
+      id: id,
       name: name,
       email: role === Role.COLABORADOR ? 'colaborador@uapa.edu.do' : 'admin@uapa.edu.do',
       role: role,
@@ -96,45 +86,95 @@ const App: React.FC = () => {
     addToast(`Sesión iniciada como ${mockUser.name}`, 'success');
   };
 
-  const handleLogout = () => {
-    setUser(null);
-    setView('dashboard');
+  const manualLogout = () => {
+    handleLogout();
     addToast('Sesión cerrada correctamente', 'info');
   };
 
-  const handleCreateRequest = (newRequest: Omit<BudgetRequest, 'id' | 'status' | 'userId' | 'userName'>) => {
+  const handleCreateRequest = async (formData: any) => {
     if (!user) return;
-    const request: BudgetRequest = {
-      ...newRequest,
-      id: Math.random().toString(36).substring(2, 9),
-      status: BudgetStatus.PENDING,
-      userId: user.id,
-      userName: user.name,
-    };
-    setRequests(prev => [request, ...prev]);
-    setView('dashboard');
-    addToast('Solicitud creada con éxito', 'success');
+    setLoading(true);
+    try {
+      const payload = {
+        titulo: formData.name,
+        descripcion: formData.description,
+        tipo_solicitud: formData.requestType,
+        rubro_presupuestal: formData.budgetRubro,
+        monto_a_ejecutar: formData.executionAmount,
+        presupuesto_pre_aprobado: formData.preApprovedBudget,
+        fecha_solicitud: new Date().toLocaleDateString('es-DO') + ' ' + new Date().toLocaleTimeString('es-DO', {hour: '2-digit', minute:'2-digit'}),
+      };
+      
+      try {
+        await budgetService.create(payload as any);
+        addToast('Solicitud enviada correctamente', 'success');
+        fetchAllRequests(); // Recargar datos
+      } catch (e: any) {
+        if (e.status === 401) {
+          handleApiError(e);
+          return;
+        }
+        
+        console.warn('POST no disponible, simulando localmente');
+        const localRequest: BudgetRequest = {
+          id: Math.floor(Math.random() * 1000),
+          titulo: payload.titulo,
+          descripcion: payload.descripcion,
+          tipo_solicitud: payload.tipo_solicitud,
+          rubro_presupuestal: payload.rubro_presupuestal,
+          monto_a_ejecutar: payload.monto_a_ejecutar,
+          presupuesto_pre_aprobado: payload.presupuesto_pre_aprobado,
+          fecha_solicitud: payload.fecha_solicitud,
+          estado: BudgetStatus.PENDING,
+          observaciones_supervisor: "",
+          colaborador: {
+             id: Number(user.id),
+             username: user.email.split('@')[0],
+             first_name: user.name.split(' ')[0],
+             last_name: user.name.split(' ')[1] || 'Usuario',
+             email: user.email
+          },
+          ubicacion: { id: 1, nombre: formData.location },
+          cuenta_analitica: { id: 1, codigo: "CA-001", nombre: formData.analyticalAccount }
+        };
+        setRequests(prev => [localRequest, ...prev]);
+        addToast('Solicitud guardada localmente (Modo Demo)', 'info');
+      }
+      
+      setView('dashboard');
+    } catch (error: any) {
+      handleApiError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUpdateStatus = (id: string, status: BudgetStatus, comments?: string) => {
-    setRequests(prev => prev.map(r => 
-      r.id === id ? { ...r, status, rejectionComments: comments } : r
-    ));
-    addToast(`Solicitud actualizada a ${status}`, 'success');
-  };
-
-  const handleEditRequest = (updatedData: Partial<BudgetRequest>) => {
-    if (!selectedRequestId) return;
-    setRequests(prev => prev.map(r => 
-      r.id === selectedRequestId ? { ...r, ...updatedData } : r
-    ));
-    setView('dashboard');
-    setSelectedRequestId(null);
-    addToast('Solicitud editada con éxito', 'success');
+  const handleUpdateStatus = async (id: string, status: BudgetStatus, comments?: string) => {
+    setLoading(true);
+    try {
+      try {
+        await budgetService.updateStatus(id, status, comments);
+      } catch (e: any) {
+        if (e.status === 401) {
+          handleApiError(e);
+          return;
+        }
+        console.warn('Modo demo: actualización local');
+      }
+      
+      setRequests(prev => prev.map(r => 
+        r.id.toString() === id ? { ...r, estado: status, observaciones_supervisor: comments || "" } : r
+      ));
+      addToast(`Solicitud ${status.toLowerCase()} con éxito`, 'success');
+    } catch (error: any) {
+      handleApiError(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const selectedRequest = useMemo(() => 
-    requests.find(r => r.id === selectedRequestId), 
+    requests.find(r => r.id.toString() === selectedRequestId?.toString()), 
     [requests, selectedRequestId]
   );
 
@@ -149,8 +189,14 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col">
-      <Navbar user={user} onLogout={handleLogout} />
+      <Navbar user={user} onLogout={manualLogout} />
       
+      {loading && (
+        <div className="fixed top-0 left-0 w-full h-1 z-[60]">
+          <div className="h-full bg-[#ff8300] animate-pulse"></div>
+        </div>
+      )}
+
       <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl text-[#333333]">
         {view === 'dashboard' && (
           <Dashboard 
@@ -184,14 +230,6 @@ const App: React.FC = () => {
           <BudgetForm 
             onCancel={() => setView('dashboard')}
             onSubmit={handleCreateRequest}
-          />
-        )}
-
-        {view === 'edit' && selectedRequest && (
-          <BudgetForm 
-            initialData={selectedRequest}
-            onCancel={() => setView('dashboard')}
-            onSubmit={handleEditRequest}
           />
         )}
       </main>
