@@ -34,7 +34,7 @@ const AppContent: React.FC<{
   useEffect(() => {
     if (user) {
       fetchAllRequests();
-      fetchCatalogs(); // Cargar catálogos al iniciar sesión
+      fetchCatalogs();
     }
   }, [user, fetchAllRequests, fetchCatalogs]);
 
@@ -66,50 +66,17 @@ const AppContent: React.FC<{
         monto_a_ejecutar: formData.executionAmount,
         presupuesto_pre_aprobado: formData.preApprovedBudget,
         fecha_solicitud: new Date().toLocaleDateString('es-DO') + ' ' + new Date().toLocaleTimeString('es-DO', {hour: '2-digit', minute:'2-digit'}),
-        // Enviamos IDs en lugar de nombres si el backend lo espera
         ubicacion_id: formData.locationId,
         cuenta_analitica_id: formData.analyticalAccountId
       };
       
-      try {
-        await budgetService.create(payload as any);
-        addToast('Solicitud enviada correctamente', 'success');
-        fetchAllRequests(); 
-      } catch (e: any) {
-        if (e.status === 401) {
-          handleApiError(e);
-          return;
-        }
-        
-        console.warn('POST no disponible, simulando localmente');
-        const localRequest: BudgetRequest = {
-          id: Math.floor(Math.random() * 1000),
-          titulo: payload.titulo,
-          descripcion: payload.descripcion,
-          tipo_solicitud: payload.tipo_solicitud,
-          rubro_presupuestal: payload.rubro_presupuestal,
-          monto_a_ejecutar: payload.monto_a_ejecutar,
-          presupuesto_pre_aprobado: payload.presupuesto_pre_aprobado,
-          fecha_solicitud: payload.fecha_solicitud,
-          estado: BudgetStatus.PENDING,
-          observaciones_supervisor: "",
-          colaborador: {
-             id: Number(user.id),
-             username: user.email.split('@')[0],
-             first_name: user.name.split(' ')[0],
-             last_name: user.name.split(' ')[1] || 'Usuario',
-             email: user.email
-          },
-          ubicacion: { id: formData.locationId, nombre: formData.locationName },
-          cuenta_analitica: { id: formData.analyticalAccountId, codigo: "CA-001", nombre: formData.analyticalAccountName }
-        };
-        setRequests(prev => [localRequest, ...prev]);
-        addToast('Solicitud guardada localmente (Modo Demo)', 'info');
-      }
+      await budgetService.create(payload as any);
       
+      addToast('Solicitud enviada correctamente', 'success');
+      await fetchAllRequests(); 
       setView('dashboard');
     } catch (error: any) {
-      handleApiError(error);
+      handleApiError(error, 'No se pudo crear la solicitud. Verifique los datos e intente de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -119,6 +86,7 @@ const AppContent: React.FC<{
     if (!user || !selectedRequestId) return;
     setLoading(true);
     try {
+      // La fecha_solicitud no se envía en la edición según requerimiento
       const payload = {
         titulo: formData.name,
         descripcion: formData.description,
@@ -130,33 +98,14 @@ const AppContent: React.FC<{
         cuenta_analitica_id: formData.analyticalAccountId
       };
 
-      try {
-        await budgetService.update(selectedRequestId, payload as any);
-        addToast('Solicitud actualizada correctamente', 'success');
-        fetchAllRequests();
-      } catch (e: any) {
-        if (e.status === 401) {
-          handleApiError(e);
-          return;
-        }
-        console.warn('PATCH no disponible, simulando actualización local');
-        setRequests(prev => prev.map(r => 
-          r.id.toString() === selectedRequestId.toString() 
-          ? { 
-              ...r, 
-              ...payload, 
-              ubicacion: { ...r.ubicacion, id: formData.locationId, nombre: formData.locationName },
-              cuenta_analitica: { ...r.cuenta_analitica, id: formData.analyticalAccountId, nombre: formData.analyticalAccountName } 
-            } 
-          : r
-        ));
-        addToast('Cambios guardados localmente (Modo Demo)', 'info');
-      }
-
+      await budgetService.update(selectedRequestId, payload as any);
+      
+      addToast('Solicitud actualizada correctamente', 'success');
+      await fetchAllRequests();
       setView('dashboard');
       setSelectedRequestId(null);
     } catch (error: any) {
-      handleApiError(error);
+      handleApiError(error, 'Error al actualizar la solicitud. Por favor reintente.');
     } finally {
       setLoading(false);
     }
@@ -165,22 +114,14 @@ const AppContent: React.FC<{
   const handleUpdateStatus = async (id: string, status: BudgetStatus, comments?: string) => {
     setLoading(true);
     try {
-      try {
-        await budgetService.updateStatus(id, status, comments);
-      } catch (e: any) {
-        if (e.status === 401) {
-          handleApiError(e);
-          return;
-        }
-        console.warn('Modo demo: actualización local');
-      }
+      await budgetService.updateStatus(id, status, comments);
       
       setRequests(prev => prev.map(r => 
         r.id.toString() === id ? { ...r, estado: status, observaciones_supervisor: comments || "" } : r
       ));
       addToast(`Solicitud ${status.toLowerCase()} con éxito`, 'success');
     } catch (error: any) {
-      handleApiError(error);
+      handleApiError(error, 'Error al cambiar el estado de la solicitud.');
     } finally {
       setLoading(false);
     }

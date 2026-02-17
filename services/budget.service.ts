@@ -22,10 +22,12 @@ class BudgetService extends HttpClient {
   }
 
   /**
-   * Actualiza una solicitud existente.
+   * Actualiza una solicitud existente utilizando PUT.
+   * Endpoint: /solicitudes/editar/<id>/
    */
   async update(id: string | number, data: Partial<BudgetRequest>): Promise<BudgetRequest> {
-    return this.patch<BudgetRequest>(`/solicitudes/update/${id}`, data);
+    // Agregamos el slash final / por convención de Django para evitar problemas con el body en redirecciones
+    return this.put<BudgetRequest>(`/solicitudes/editar/${id}/`, data);
   }
 
   /**

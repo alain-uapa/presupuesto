@@ -119,7 +119,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               value={formData.requestDate}
               onChange={e => setFormData(prev => ({ ...prev, requestDate: e.target.value }))}
               className={inputClass}
+              disabled={!!initialData} // Deshabilitar en edición según requerimiento
             />
+            {initialData && <p className="text-[10px] text-slate-400 italic">La fecha de solicitud no es editable.</p>}
           </div>
 
           <div className="space-y-2">
