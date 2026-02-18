@@ -66,9 +66,10 @@ const AppContent: React.FC<{
       
       await budgetService.create(payload as any);
       
-      addToast('Solicitud enviada correctamente', 'success');
-      await fetchAllRequests(); 
+      await fetchAllRequests();      
       setView('dashboard');
+      addToast('Solicitud enviada correctamente', 'success');
+      setLoading(false);
     } catch (error: any) {
       handleApiError(error, 'No se pudo crear la solicitud. Verifique los datos e intente de nuevo.');
     } finally {
@@ -93,10 +94,11 @@ const AppContent: React.FC<{
 
       await budgetService.update(selectedRequestId, payload as any);
       
-      addToast('Solicitud actualizada correctamente', 'success');
       await fetchAllRequests();
       setView('dashboard');
       setSelectedRequestId(null);
+      setLoading(false);
+      addToast('Solicitud actualizada correctamente', 'success');
     } catch (error: any) {
       handleApiError(error, 'Error al actualizar la solicitud. Por favor reintente.');
     } finally {
@@ -112,6 +114,7 @@ const AppContent: React.FC<{
       setRequests(prev => prev.map(r => 
         String(r.id) === String(id) ? { ...r, estado: status, observaciones_supervisor: comments || "" } : r
       ));
+      setLoading(false);
       addToast(`Solicitud ${status.toLowerCase()} con éxito`, 'success');
     } catch (error: any) {
       handleApiError(error, 'Error al cambiar el estado de la solicitud.');
@@ -142,7 +145,9 @@ const AppContent: React.FC<{
       <Navbar user={user} onLogout={handleLogout} />
       
       {(loading || loadingCatalogs) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center">\n          <div className="loader"></div>\n        </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center">
+          <div className="loader"></div>
+        </div>
       )}
 
       <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl text-[#333333]">
