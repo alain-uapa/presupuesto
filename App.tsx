@@ -8,6 +8,7 @@ import BudgetForm from './components/BudgetForm';
 import ToastContainer from './components/Toast';
 import Navbar from './components/Navbar';
 import { budgetService } from './services/budget.service';
+import { authService } from './services/auth.service';
 import { CatalogProvider, useCatalogs } from './context/CatalogContext';
 
 const AppContent: React.FC<{ 
@@ -38,26 +39,12 @@ const AppContent: React.FC<{
     }
   }, [user, fetchAllRequests, fetchCatalogs]);
 
-  const handleLogin = (role: Role) => {
-    const id = role === Role.COLABORADOR ? 2 : 1; 
-    const name = role === Role.COLABORADOR ? 'Colaborador UAPA' : 'Admin UAPA';
-    const seed = role === Role.COLABORADOR ? 'colaborador' : 'admin';
-    const photoUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}&backgroundColor=b6e3f4,c0aede,d1d4f9&mood=happy`;
-    
-    const mockUser: User = {
-      id: id,
-      name: name,
-      email: role === Role.COLABORADOR ? 'colaborador@uapa.edu.do' : 'admin@uapa.edu.do',
-      role: role,
-      photoUrl: photoUrl
-    };
-    setUser(mockUser);
-  };
-
   const handleCreateRequest = async (formData: any) => {
     if (!user) return;
     setLoading(true);
     try {
+      // Simplificamos el payload para evitar errores 400.
+      // No enviamos fecha_solicitud ya que debe gestionarla el backend.
       const payload = {
         titulo: formData.name,
         descripcion: formData.description,
@@ -65,7 +52,6 @@ const AppContent: React.FC<{
         rubro_presupuestal: formData.budgetRubro,
         monto_a_ejecutar: formData.executionAmount,
         presupuesto_pre_aprobado: formData.preApprovedBudget,
-        fecha_solicitud: new Date().toLocaleDateString('es-DO') + ' ' + new Date().toLocaleTimeString('es-DO', {hour: '2-digit', minute:'2-digit'}),
         ubicacion_id: formData.locationId,
         cuenta_analitica_id: formData.analyticalAccountId
       };
@@ -86,7 +72,6 @@ const AppContent: React.FC<{
     if (!user || !selectedRequestId) return;
     setLoading(true);
     try {
-      // La fecha_solicitud no se envía en la edición según requerimiento
       const payload = {
         titulo: formData.name,
         descripcion: formData.description,
@@ -135,7 +120,10 @@ const AppContent: React.FC<{
   if (!user) {
     return (
       <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-center items-center p-4">
-        <Login onLogin={handleLogin} />
+        <Login 
+          onLoginSuccess={(u) => setUser(u)} 
+          onLoginError={(err) => addToast(err, 'error')} 
+        />
         <ToastContainer toasts={toasts} onRemove={removeToast} />
       </div>
     );
@@ -217,7 +205,7 @@ const AppContent: React.FC<{
 };
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => authService.getSavedUser());
   const [requests, setRequests] = useState<BudgetRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastType[]>([]);
@@ -232,6 +220,7 @@ const App: React.FC = () => {
   };
 
   const handleLogout = useCallback(() => {
+    authService.logout();
     setUser(null);
     setRequests([]);
   }, []);

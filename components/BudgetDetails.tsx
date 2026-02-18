@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { BudgetRequest, BudgetStatus, User } from '../types';
+import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 
 interface BudgetDetailsProps {
@@ -121,7 +121,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
              </div>
           </div>
 
-          {(user.role as any) === 'ADMINISTRADOR' && request.estado === BudgetStatus.PENDING && (
+          {user.role === Role.SUPERVISOR && request.estado === BudgetStatus.PENDING && (
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Gestión</h3>
               

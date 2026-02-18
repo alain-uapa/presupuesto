@@ -1,12 +1,73 @@
 
-import React from 'react';
-import { Role } from '../types';
+import React, { useEffect, useRef } from 'react';
+import { authService } from '../services/auth.service';
+import { User, Role } from '../types';
 
 interface LoginProps {
-  onLogin: (role: Role) => void;
+  onLoginSuccess: (user: User) => void;
+  onLoginError: (error: string) => void;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const GOOGLE_CLIENT_ID = "583274939927-8jfvbaucg7om5q611ccgl41ii2i1lejg.apps.googleusercontent.com";
+
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
+const Login: React.FC<LoginProps> = ({ onLoginSuccess, onLoginError }) => {
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const initializeGoogle = () => {
+      if (window.google && window.google.accounts && googleButtonRef.current) {
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: 'outline',
+          size: 'large',
+          width: 320,
+          text: 'signin_with',
+          shape: 'pill',
+        });
+      } else {
+        setTimeout(initializeGoogle, 200);
+      }
+    };
+
+    initializeGoogle();
+  }, []);
+
+  const handleCredentialResponse = async (response: any) => {
+    try {
+      const { credential } = response;
+      const loginData = await authService.googleLogin(credential);
+      
+      // Normalizamos el rol a Mayúsculas para que coincida con el Enum Role
+      const normalizedRole = loginData.user.role.toUpperCase() as Role;
+
+      const user: User = {
+        id: loginData.user.id,
+        name: `${loginData.user.first_name} ${loginData.user.last_name}`,
+        email: loginData.user.email,
+        role: normalizedRole,
+        photoUrl: loginData.user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginData.user.email}&backgroundColor=b6e3f4,c0aede,d1d4f9`
+      };
+
+      authService.saveSession(loginData.token, user);
+      onLoginSuccess(user);
+    } catch (error: any) {
+      console.error("Google Login Error:", error);
+      onLoginError(error.message || "Error al autenticar con Google");
+    }
+  };
+
   return (
     <div className="flex flex-col items-center">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-100 p-8 flex flex-col items-center">
@@ -14,37 +75,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <span className="text-white font-bold text-4xl">U</span>
         </div>
         
-        <h2 className="text-2xl font-bold text-[#333333] mb-2">Bienvenido a UAPA</h2>
+        <h2 className="text-2xl font-bold text-[#333333] mb-2 text-center">Bienvenido a UAPA</h2>
         <p className="text-slate-500 text-center mb-10">
-          Accede al portal de gestión presupuestaria utilizando tu cuenta institucional.
+          Accede al portal de gestión presupuestaria utilizando tu cuenta institucional de Google.
         </p>
 
-        <div className="space-y-4 w-full">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest text-center">Acceso Rápido (Demo)</p>
-          
-          <button 
-            onClick={() => onLogin(Role.COLABORADOR)}
-            className="w-full flex items-center justify-center gap-3 bg-[#ff8300] hover:bg-[#e67600] text-white py-3 px-6 rounded-xl font-bold transition-all shadow-md shadow-orange-100"
-          >
-            <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-            <span>Entrar como Colaborador</span>
-          </button>
-
-          <button 
-            onClick={() => onLogin(Role.ADMINISTRADOR)}
-            className="w-full flex items-center justify-center gap-3 bg-white border-2 border-slate-100 hover:border-[#003B71] hover:bg-[#F8F9FA] text-[#333333] py-3 px-6 rounded-xl font-medium transition-all group"
-          >
-            <div className="w-6 h-6 bg-slate-100 group-hover:bg-blue-100 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-600 group-hover:text-[#003B71]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <span>Entrar como Administrador</span>
-          </button>
+        <div className="w-full flex justify-center py-4">
+          <div ref={googleButtonRef}></div>
         </div>
 
         <div className="mt-10 pt-6 border-t border-slate-100 w-full text-center">

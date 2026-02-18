@@ -16,9 +16,11 @@ class BudgetService extends HttpClient {
 
   /**
    * Envía una nueva solicitud de presupuesto.
+   * Endpoint: /solicitudes/crear/
    */
-  async create(data: Omit<BudgetRequest, 'id' | 'status'>): Promise<BudgetRequest> {
-    return this.post<BudgetRequest>('/solicitudes/create', data);
+  async create(data: any): Promise<BudgetRequest> {
+    // Agregamos el slash final / por consistencia con el endpoint de editar
+    return this.post<BudgetRequest>('/solicitudes/crear/', data);
   }
 
   /**

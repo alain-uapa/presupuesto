@@ -10,15 +10,21 @@ export class HttpClient {
   }
 
   private getHeaders(): HeadersInit {
-    return {
+    const headers: any = {
       'Content-Type': 'application/json',
       'ngrok-skip-browser-warning': '69420',
     };
+    
+    const token = localStorage.getItem('uapa_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return headers;
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {
-      // Formatear mensaje base: "Error 401: Unauthorized" o simplemente "Error 401" si no hay texto
       let errorMessage = `Error ${response.status}${response.statusText ? `: ${response.statusText}` : ''}`;
       let errorData: any = {};
       
@@ -29,7 +35,6 @@ export class HttpClient {
             errorData = JSON.parse(text);
             errorMessage = errorData.message || errorMessage;
           } catch (e) {
-            // Si no es JSON, usamos el texto plano si existe
             errorMessage = text.length < 100 ? text : errorMessage;
           }
         }
