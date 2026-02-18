@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BudgetRequest, Attachment } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
@@ -112,14 +111,13 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-bold text-[#333333]">Fecha Prevista</label>
+            <label className="text-sm font-bold text-[#333333]">Fecha de Solicitud</label>
             <input 
               type="date"
               required
-              value={formData.requestDate}
-              onChange={e => setFormData(prev => ({ ...prev, requestDate: e.target.value }))}
+              value={formData.requestDate || new Date().toISOString().split('T')[0]} // Fecha actual si se está creando
+              readOnly // Campo solo lectura
               className={inputClass}
-              disabled={!!initialData} // Deshabilitar en edición según requerimiento
             />
             {initialData && <p className="text-[10px] text-slate-400 italic">La fecha de solicitud no es editable.</p>}
           </div>
