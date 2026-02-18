@@ -39,6 +39,14 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('es-DO', { 
+      style: 'currency', 
+      currency: 'DOP',
+      maximumFractionDigits: 0 
+    }).format(amount || 0);
+  };
+
   const requesterId = request.colaborador?.id || 'unknown';
   const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${requesterId}&backgroundColor=f1f5f9`;
   const fullName = request.colaborador 
@@ -60,18 +68,38 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
         <h3 className="font-bold text-[#333333] line-clamp-2 mb-2 group-hover:text-[#003B71] transition-colors">
           {request.titulo}
         </h3>
-        <p className="text-sm text-slate-500 line-clamp-3 mb-4">
+        <p className="text-sm text-slate-500 line-clamp-2 mb-4">
           {request.descripcion}
         </p>
 
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border border-slate-200">
-             <img src={requesterAvatar} alt={fullName} />
+        {isCollaborator ? (
+          /* Vista para Colaborador: Muestra montos */
+          <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Presupuesto</p>
+              <p className="text-xs font-bold text-[#333333]">{formatCurrency(request.presupuesto_pre_aprobado)}</p>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">A Ejecutar</p>
+              <p className="text-xs font-bold text-[#ff8300]">{formatCurrency(request.monto_a_ejecutar)}</p>
+            </div>
           </div>
-          <span className="text-xs text-slate-600 font-medium">
-            {isCollaborator ? (request.ubicacion?.nombre || 'Sede') : `Por ${fullName}`}
-          </span>
-        </div>
+        ) : (
+          /* Vista para Supervisor: Muestra solicitante y ubicación */
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border border-slate-200">
+               <img src={requesterAvatar} alt={fullName} />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] text-slate-600 font-bold leading-none mb-0.5">
+                {fullName}
+              </span>
+              <span className="text-[9px] text-slate-400 font-medium">
+                {request.ubicacion?.nombre || 'Sede'}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2 pt-4 border-t border-slate-50">
