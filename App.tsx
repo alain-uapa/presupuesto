@@ -123,6 +123,23 @@ const AppContent: React.FC<{
     }
   };
 
+  const handleDeleteBudget = async (id: string) => {
+    setLoading(true);
+    try {
+      await budgetService.delete(id);
+      
+      setRequests(prev => prev.filter(r => 
+        String(r.id) !== String(id)
+      ));
+      setLoading(false);
+      addToast(`Solicitud eliminada con éxito`, 'success');
+    } catch (error: any) {
+      handleApiError(error, 'Error al eliminar la solicitud.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const selectedRequest = useMemo(() => 
     requests.find(r => String(r.id) === String(selectedRequestId)), 
     [requests, selectedRequestId]
@@ -164,6 +181,7 @@ const AppContent: React.FC<{
               setView('edit');
             }}
             onCreate={() => setView('create')}
+            onDelete={(id)=> handleDeleteBudget(id)}        
           />
         )}
 

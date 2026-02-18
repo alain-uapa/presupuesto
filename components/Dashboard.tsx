@@ -8,9 +8,10 @@ interface DashboardProps {
   onViewDetails: (id: string) => void;
   onEdit: (id: string) => void;
   onCreate: () => void;
+  onDelete: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, onEdit, onCreate }) => {
+const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, onEdit, onCreate, onDelete }) => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [statusFilter, setStatusFilter] = useState<BudgetStatus | 'TODOS'>('TODOS');
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
@@ -148,6 +149,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
               request={req} 
               onView={() => onViewDetails(String(req.id))}
               onEdit={() => onEdit(String(req.id))}
+              onDelete={() => onDelete(String(req.id))}              
               isCollaborator={user.role === Role.COLABORADOR}
               avatar={<UnisexAvatar />} // Added unisex avatar
             />

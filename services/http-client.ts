@@ -121,7 +121,7 @@ export class HttpClient {
     return this.handleResponse<T>(response);
   }
 
-  protected async delete<T>(endpoint: string): Promise<T> {
+  protected async del<T>(endpoint: string): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'DELETE',
       headers: this.getHeaders(),

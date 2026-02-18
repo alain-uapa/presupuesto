@@ -40,6 +40,13 @@ class BudgetService extends HttpClient {
   }
 
   /**
+   * Elimina una solicitud de presupuesto.
+   * Endpoint: /solicitudes/delete/{id}/
+   */
+  async delete(id: string | number): Promise<BudgetRequest> {
+    return this.del<BudgetRequest>(`/solicitudes/delete/${id}/`);    
+  }
+  /**
    * Obtiene una solicitud específica por su ID.
    */
   async getById(id: string | number): Promise<BudgetRequest> {
