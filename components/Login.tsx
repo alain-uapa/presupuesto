@@ -8,7 +8,7 @@ interface LoginProps {
   onLoginError: (error: string) => void;
 }
 
-const GOOGLE_CLIENT_ID = "583274939927-8jfvbaucg7om5q611ccgl41ii2i1lejg.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "478848519153-0tklbkp5d7252099relj297632eka3qg.apps.googleusercontent.com";
 
 declare global {
   interface Window {

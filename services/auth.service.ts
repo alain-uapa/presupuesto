@@ -17,7 +17,7 @@ interface GoogleLoginResponse {
 class AuthService extends HttpClient {
   async googleLogin(idToken: string): Promise<GoogleLoginResponse> {
     // URL especificada por el usuario: google_login
-    return this.post<GoogleLoginResponse>('/google_login/', { token: idToken });
+    return this.post<GoogleLoginResponse>('/google-auth/', { token: idToken });
   }
 
   logout() {
