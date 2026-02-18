@@ -71,11 +71,23 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[#333333]">
-          {initialData ? 'Editar Solicitud' : 'Nueva Solicitud de Presupuesto'}
-        </h2>
-        <p className="text-slate-500">Complete la información detallada para que administración pueda evaluar su caso.</p>
+      <div className="mb-6">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={onCancel}
+            className="p-2 hover:bg-white rounded-full transition-colors text-slate-500 shadow-sm border border-transparent hover:border-slate-200"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+          <div>
+            <h2 className="text-2xl font-bold text-[#333333]">
+              {initialData ? 'Editar Solicitud' : 'Nueva Solicitud de Presupuesto'}
+            </h2>
+            <p className="text-slate-500">Complete la información detallada para que administración pueda evaluar su caso.</p>
+          </div>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 space-y-6">
