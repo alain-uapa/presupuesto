@@ -32,12 +32,21 @@ const AppContent: React.FC<{
   const [view, setView] = useState<'dashboard' | 'details' | 'create' | 'edit'>('dashboard');
   const [selectedRequestId, setSelectedRequestId] = useState<string | number | null>(null);
 
+  // Efecto para cargar datos iniciales cuando el usuario se loguea
   useEffect(() => {
     if (user) {
       fetchAllRequests();
       fetchCatalogs();
     }
   }, [user, fetchAllRequests, fetchCatalogs]);
+
+  // FIX: Resetear la navegación cuando el usuario cierra sesión o cambia
+  useEffect(() => {
+    if (!user) {
+      setView('dashboard');
+      setSelectedRequestId(null);
+    }
+  }, [user]);
 
   const handleCreateRequest = async (formData: any) => {
     if (!user) return;
