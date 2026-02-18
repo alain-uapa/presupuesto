@@ -57,7 +57,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onLoginError }) => {
         name: `${loginData.user.first_name} ${loginData.user.last_name}`,
         email: loginData.user.email,
         role: normalizedRole,
-        photoUrl: loginData.user.photo_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginData.user.email}&backgroundColor=b6e3f4,c0aede,d1d4f9`
+        photoUrl: loginData.user.photo_url || `https://api.dicebear.com/7.x/personas/svg?seed=${loginData.user.email}&backgroundColor=003B71`
       };
 
       authService.saveSession(loginData.token, user);

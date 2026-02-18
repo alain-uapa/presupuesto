@@ -47,15 +47,15 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
   };
 
   const requesterId = request.colaborador?.id || 'unknown';
-  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${requesterId}&backgroundColor=f1f5f9`;
+  const requesterAvatar = `https://api.dicebear.com/7.x/personas/svg?seed=${requesterId}&backgroundColor=003B71`;
   const fullName = request.colaborador 
     ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
     : 'Colaborador';
 
   const UnisexAvatar = () => (
-    <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14c3.866 0 7-3.134 7-7S15.866 0 12 0 5 3.134 5 7s3.134 7 7 7zm0 2c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8z" />
+    <div className="w-6 h-6 bg-[#003B71] rounded-full flex items-center justify-center shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
       </svg>
     </div>
   );
