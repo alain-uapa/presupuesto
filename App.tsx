@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Role, User, BudgetRequest, BudgetStatus, ToastType } from './types';
+import './styles/loader.css';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import BudgetDetails from './components/BudgetDetails';
@@ -141,9 +142,7 @@ const AppContent: React.FC<{
       <Navbar user={user} onLogout={handleLogout} />
       
       {(loading || loadingCatalogs) && (
-        <div className="fixed top-0 left-0 w-full h-1 z-[60]">
-          <div className="h-full bg-[#ff8300] animate-pulse"></div>
-        </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60] flex items-center justify-center">\n          <div className="loader"></div>\n        </div>
       )}
 
       <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl text-[#333333]">
