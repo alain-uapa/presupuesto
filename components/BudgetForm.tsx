@@ -81,7 +81,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2 col-span-1 md:col-span-2">
-            <label className="text-sm font-bold text-[#333333]">Nombre de la Actividad</label>
+            <label className="text-sm font-bold text-[#333333]">Concepto</label>
             <input 
               type="text"
               required
