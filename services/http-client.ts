@@ -9,12 +9,38 @@ export class HttpClient {
     }
   }
 
+  /**
+   * Obtiene el valor de una cookie por su nombre.
+   * Útil para recuperar el csrftoken de Django.
+   */
+  private getCookie(name: string): string | null {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
   private getHeaders(): HeadersInit {
     const headers: any = {
       'Content-Type': 'application/json',
       'ngrok-skip-browser-warning': '69420',
     };
     
+    // Incluir el token CSRF para Django
+    const csrfToken = this.getCookie('csrftoken');
+    if (csrfToken) {
+      headers['X-CSRFToken'] = csrfToken;
+    }
+
+    // Soporte para token Bearer si existe en localStorage
     const token = localStorage.getItem('uapa_token');
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
@@ -60,6 +86,7 @@ export class HttpClient {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'GET',
       headers: this.getHeaders(),
+      credentials: 'include', // Permite envío/recepción de cookies HttpOnly (Session)
     });
     return this.handleResponse<T>(response);
   }
@@ -69,6 +96,7 @@ export class HttpClient {
       method: 'POST',
       headers: this.getHeaders(),
       body: JSON.stringify(body),
+      credentials: 'include',
     });
     return this.handleResponse<T>(response);
   }
@@ -78,6 +106,7 @@ export class HttpClient {
       method: 'PATCH',
       headers: this.getHeaders(),
       body: JSON.stringify(body),
+      credentials: 'include',
     });
     return this.handleResponse<T>(response);
   }
@@ -87,6 +116,7 @@ export class HttpClient {
       method: 'PUT',
       headers: this.getHeaders(),
       body: JSON.stringify(body),
+      credentials: 'include',
     });
     return this.handleResponse<T>(response);
   }
@@ -95,6 +125,7 @@ export class HttpClient {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'DELETE',
       headers: this.getHeaders(),
+      credentials: 'include',
     });
     return this.handleResponse<T>(response);
   }
