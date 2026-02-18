@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { User, Role, BudgetRequest, BudgetStatus } from '../types';
 import BudgetCard from './BudgetCard';
@@ -14,11 +13,27 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, onEdit, onCreate }) => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [statusFilter, setStatusFilter] = useState<BudgetStatus | 'TODOS'>('TODOS');
-  
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 5 }, (_, i) => currentYear - i);
   }, []);
+
+  const months = [
+    { value: 1, label: 'Enero' },
+    { value: 2, label: 'Febrero' },
+    { value: 3, label: 'Marzo' },
+    { value: 4, label: 'Abril' },
+    { value: 5, label: 'Mayo' },
+    { value: 6, label: 'Junio' },
+    { value: 7, label: 'Julio' },
+    { value: 8, label: 'Agosto' },
+    { value: 9, label: 'Septiembre' },
+    { value: 10, label: 'Octubre' },
+    { value: 11, label: 'Noviembre' },
+    { value: 12, label: 'Diciembre' },
+  ];
 
   const filteredRequests = useMemo(() => {
     let list = requests || [];
@@ -31,13 +46,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
       );
     }
 
-    // Filtro por año basado en "DD/MM/YYYY"
+    // Filtro por año y mes basado en "DD/MM/YYYY"
     list = list.filter(r => {
       if (!r.fecha_solicitud) return true;
       try {
-        const yearPart = r.fecha_solicitud.split('/')[2]?.split(' ')[0];
-        return yearPart === selectedYear.toString();
+        const [day, month, year] = r.fecha_solicitud.split('/');
+        return (
+          parseInt(year) === selectedYear &&
+          parseInt(month) === selectedMonth
+        );
       } catch (e) {
+        console.error("Error parsing fecha_solicitud:", e);
         return true;
       }
     });
@@ -48,7 +67,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
     }
 
     return list;
-  }, [requests, user, selectedYear, statusFilter]);
+  }, [requests, user, selectedYear, selectedMonth, statusFilter]);
 
   return (
     <div className="space-y-6">
@@ -74,6 +93,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
               </button>
             ))}
           </div>
+
+          <select 
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+            className="bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm font-medium text-[#333333] outline-none focus:ring-2 focus:ring-[#003B71] shadow-sm"
+          >
+            {months.map(month => (
+              <option key={month.value} value={month.value}>{month.label}</option>
+            ))}
+          </select>
 
           {user.role === Role.SUPERVISOR && (
             <select 
@@ -120,6 +149,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
               onView={() => onViewDetails(String(req.id))}
               onEdit={() => onEdit(String(req.id))}
               isCollaborator={user.role === Role.COLABORADOR}
+              avatar={<UnisexAvatar />} // Added unisex avatar
             />
           ))}
         </div>
@@ -127,5 +157,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
     </div>
   );
 };
+
+const UnisexAvatar = () => (
+  <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14c3.866 0 7-3.134 7-7S15.866 0 12 0 5 3.134 5 7s3.134 7 7 7zm0 2c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8z" />
+    </svg>
+  </div>
+);
 
 export default Dashboard;

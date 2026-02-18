@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BudgetRequest, BudgetStatus } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
@@ -53,6 +52,14 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
     ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
     : 'Colaborador';
 
+  const UnisexAvatar = () => (
+    <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14c3.866 0 7-3.134 7-7S15.866 0 12 0 5 3.134 5 7s3.134 7 7 7zm0 2c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8z" />
+      </svg>
+    </div>
+  );
+
   return (
     <div 
       className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between"
@@ -87,9 +94,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
         ) : (
           /* Vista para Supervisor: Muestra solicitante y ubicación */
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden border border-slate-200">
-               <img src={requesterAvatar} alt={fullName} />
-            </div>
+            <UnisexAvatar />
             <div className="flex flex-col">
               <span className="text-[10px] text-slate-600 font-bold leading-none mb-0.5">
                 {fullName}

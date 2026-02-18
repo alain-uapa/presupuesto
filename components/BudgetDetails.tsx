@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
@@ -46,10 +45,17 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   );
 
   const requesterId = request.colaborador?.id || 'unknown';
-  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${requesterId}&backgroundColor=f1f5f9`;
   const fullName = request.colaborador 
     ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
     : 'Colaborador';
+
+  const UnisexAvatar = () => (
+    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14c3.866 0 7-3.134 7-7S15.866 0 12 0 5 3.134 5 7s3.134 7 7 7zm0 2c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8z" />
+      </svg>
+    </div>
+  );
 
   return (
     <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
@@ -114,9 +120,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
           <div className="bg-[#F8F9FA] p-6 rounded-2xl border border-slate-200">
              <h3 className="text-sm font-bold text-[#333333] mb-4 uppercase tracking-wider">Solicitante</h3>
              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full ring-2 ring-white shadow-sm overflow-hidden border border-slate-200 bg-white">
-                  <img src={requesterAvatar} alt={fullName} />
-                </div>
+                <UnisexAvatar />
                 <div>
                    <p className="text-sm font-bold text-[#333333]">{fullName}</p>
                    <p className="text-xs text-slate-500">{request.colaborador?.username ? `@${request.colaborador.username}` : ''}</p>
