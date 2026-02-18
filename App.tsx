@@ -43,8 +43,6 @@ const AppContent: React.FC<{
     if (!user) return;
     setLoading(true);
     try {
-      // Simplificamos el payload para evitar errores 400.
-      // No enviamos fecha_solicitud ya que debe gestionarla el backend.
       const payload = {
         titulo: formData.name,
         descripcion: formData.description,
@@ -102,7 +100,7 @@ const AppContent: React.FC<{
       await budgetService.updateStatus(id, status, comments);
       
       setRequests(prev => prev.map(r => 
-        r.id.toString() === id ? { ...r, estado: status, observaciones_supervisor: comments || "" } : r
+        String(r.id) === String(id) ? { ...r, estado: status, observaciones_supervisor: comments || "" } : r
       ));
       addToast(`Solicitud ${status.toLowerCase()} con éxito`, 'success');
     } catch (error: any) {
@@ -113,7 +111,7 @@ const AppContent: React.FC<{
   };
 
   const selectedRequest = useMemo(() => 
-    requests.find(r => r.id.toString() === selectedRequestId?.toString()), 
+    requests.find(r => String(r.id) === String(selectedRequestId)), 
     [requests, selectedRequestId]
   );
 

@@ -21,15 +21,19 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
   }, []);
 
   const filteredRequests = useMemo(() => {
-    let list = requests;
+    let list = requests || [];
 
     // Colaborador solo ve lo suyo
     if (user.role === Role.COLABORADOR) {
-      list = list.filter(r => r.colaborador.id.toString() === user.id.toString());
+      list = list.filter(r => 
+        r.colaborador && 
+        String(r.colaborador.id) === String(user.id)
+      );
     }
 
     // Filtro por año basado en "DD/MM/YYYY"
     list = list.filter(r => {
+      if (!r.fecha_solicitud) return true;
       try {
         const yearPart = r.fecha_solicitud.split('/')[2]?.split(' ')[0];
         return yearPart === selectedYear.toString();
@@ -113,8 +117,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
             <BudgetCard 
               key={req.id} 
               request={req} 
-              onView={() => onViewDetails(req.id.toString())}
-              onEdit={() => onEdit(req.id.toString())}
+              onView={() => onViewDetails(String(req.id))}
+              onEdit={() => onEdit(String(req.id))}
               isCollaborator={user.role === Role.COLABORADOR}
             />
           ))}

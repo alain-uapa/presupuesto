@@ -31,22 +31,25 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
       alert('Por favor especifique el motivo del rechazo.');
       return;
     }
-    onUpdateStatus(request.id.toString(), newStatus, newStatus === BudgetStatus.REJECTED ? rejectionComments : undefined);
+    onUpdateStatus(String(request.id), newStatus, newStatus === BudgetStatus.REJECTED ? rejectionComments : undefined);
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(amount);
+    return new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(amount || 0);
   };
 
   const DetailItem = ({ label, value }: { label: string, value: string | number }) => (
     <div className="bg-[#F8F9FA] p-4 rounded-xl border border-slate-100">
       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-      <p className="text-sm font-semibold text-[#333333]">{value}</p>
+      <p className="text-sm font-semibold text-[#333333]">{value || 'N/A'}</p>
     </div>
   );
 
-  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${request.colaborador.id}&backgroundColor=f1f5f9`;
-  const fullName = `${request.colaborador.first_name} ${request.colaborador.last_name}`;
+  const requesterId = request.colaborador?.id || 'unknown';
+  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${requesterId}&backgroundColor=f1f5f9`;
+  const fullName = request.colaborador 
+    ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
+    : 'Colaborador';
 
   return (
     <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
@@ -76,10 +79,10 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
         <div className="md:col-span-2 space-y-8">
           
           <section className="grid grid-cols-2 gap-4">
-             <DetailItem label="Ubicación" value={request.ubicacion.nombre} />
+             <DetailItem label="Ubicación" value={request.ubicacion?.nombre} />
              <DetailItem label="Tipo de Solicitud" value={getLabel(TIPO_CHOICES, request.tipo_solicitud)} />
              <DetailItem label="Rubro Presupuestal" value={getLabel(RUBRO_CHOICES, request.rubro_presupuestal)} />
-             <DetailItem label="Cuenta Analítica" value={request.cuenta_analitica.nombre} />
+             <DetailItem label="Cuenta Analítica" value={request.cuenta_analitica?.nombre} />
              <DetailItem label="Presupuesto Pre-aprobado" value={formatCurrency(request.presupuesto_pre_aprobado)} />
              <DetailItem label="Monto a Ejecutar" value={formatCurrency(request.monto_a_ejecutar)} />
           </section>
@@ -116,7 +119,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                 </div>
                 <div>
                    <p className="text-sm font-bold text-[#333333]">{fullName}</p>
-                   <p className="text-xs text-slate-500">@{request.colaborador.username}</p>
+                   <p className="text-xs text-slate-500">{request.colaborador?.username ? `@${request.colaborador.username}` : ''}</p>
                 </div>
              </div>
           </div>

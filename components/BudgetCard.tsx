@@ -25,6 +25,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
   };
 
   const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
     try {
       const [datePart] = dateStr.split(' ');
       const [day, month, year] = datePart.split('/');
@@ -38,8 +39,11 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
     }
   };
 
-  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${request.colaborador.id}&backgroundColor=f1f5f9`;
-  const fullName = `${request.colaborador.first_name} ${request.colaborador.last_name}`;
+  const requesterId = request.colaborador?.id || 'unknown';
+  const requesterAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${requesterId}&backgroundColor=f1f5f9`;
+  const fullName = request.colaborador 
+    ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
+    : 'Colaborador';
 
   return (
     <div 
@@ -65,7 +69,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
              <img src={requesterAvatar} alt={fullName} />
           </div>
           <span className="text-xs text-slate-600 font-medium">
-            {isCollaborator ? request.ubicacion.nombre : `Por ${fullName}`}
+            {isCollaborator ? (request.ubicacion?.nombre || 'Sede') : `Por ${fullName}`}
           </span>
         </div>
       </div>
@@ -73,7 +77,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, isColl
       <div className="flex items-center gap-2 pt-4 border-t border-slate-50">
         <button 
           onClick={onView}
-          className="flex-grow bg-[#F8F9FA] hover:bg-slate-100 text-[#333333] py-2 rounded-lg text-sm font-semibold transition-colors"
+          className="flex-grow bg-white hover:bg-slate-50 border border-slate-200 text-[#333333] py-2 rounded-lg text-sm font-semibold transition-colors"
         >
           Ver Detalles
         </button>
