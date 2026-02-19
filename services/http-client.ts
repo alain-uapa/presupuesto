@@ -28,12 +28,14 @@ export class HttpClient {
     return cookieValue;
   }
 
-  private getHeaders(): HeadersInit {
+  private getHeaders(contentType?: string): HeadersInit {
     const headers: any = {
-      'Content-Type': 'application/json',
+      'Content-Type': contentType || 'application/json',
       'ngrok-skip-browser-warning': '69420',
     };
-    
+    if (contentType === 'multipart/form-data') {
+      delete headers['Content-Type'];
+    }
     // Incluir el token CSRF para Django
     const csrfToken = this.getCookie('csrftoken');
     if (csrfToken) {
@@ -92,10 +94,11 @@ export class HttpClient {
   }
 
   protected async post<T>(endpoint: string, body: any): Promise<T> {
+    const isFormData = body instanceof FormData;
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'POST',
-      headers: this.getHeaders(),
-      body: JSON.stringify(body),
+      headers: this.getHeaders(isFormData ? 'multipart/form-data' : undefined),
+      body: isFormData ? body : JSON.stringify(body),
       credentials: 'include',
     });
     return this.handleResponse<T>(response);
@@ -112,10 +115,11 @@ export class HttpClient {
   }
 
   protected async put<T>(endpoint: string, body: any): Promise<T> {
+    const isFormData = body instanceof FormData;
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'PUT',
-      headers: this.getHeaders(),
-      body: JSON.stringify(body),
+      headers: this.getHeaders(isFormData ? 'multipart/form-data' : undefined),
+      body: isFormData ? body : JSON.stringify(body),
       credentials: 'include',
     });
     return this.handleResponse<T>(response);

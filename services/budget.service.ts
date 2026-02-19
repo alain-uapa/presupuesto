@@ -29,7 +29,7 @@ class BudgetService extends HttpClient {
    */
   async update(id: string | number, data: Partial<BudgetRequest>): Promise<BudgetRequest> {
     // Agregamos el slash final / por convención de Django para evitar problemas con el body en redirecciones
-    return this.put<BudgetRequest>(`/solicitudes/editar/${id}/`, data);
+    return this.post<BudgetRequest>(`/solicitudes/editar/${id}/`, data);
   }
 
   /**
@@ -46,6 +46,10 @@ class BudgetService extends HttpClient {
   async delete(id: string | number): Promise<BudgetRequest> {
     return this.del<BudgetRequest>(`/solicitudes/delete/${id}/`);    
   }
+    async deleteAttachment(id: string | number): Promise<BudgetRequest> {
+    return this.del<BudgetRequest>(`/solicitudes/delete_attachment/${id}/`);    
+  }
+  
   /**
    * Obtiene una solicitud específica por su ID.
    */

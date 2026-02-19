@@ -49,22 +49,27 @@ const AppContent: React.FC<{
     }
   }, [user]);
 
-  const handleCreateRequest = async (formData: any) => {
+  const handleCreateRequest = async (formValues: any) => {
     if (!user) return;
     setLoading(true);
+        
     try {
-      const payload = {
-        titulo: formData.name,
-        descripcion: formData.description,
-        tipo_solicitud: formData.requestType,
-        rubro_presupuestal: formData.budgetRubro,
-        monto_a_ejecutar: formData.executionAmount,
-        presupuesto_pre_aprobado: formData.preApprovedBudget,
-        ubicacion_id: formData.locationId,
-        cuenta_analitica_id: formData.analyticalAccountId
-      };
+      const formData = new FormData();
+
+      formData.append('titulo', formValues.name);
+      formData.append('descripcion', formValues.description);
+      formData.append('tipo_solicitud', formValues.requestType);
+      formData.append('rubro_presupuestal', formValues.budgetRubro);
+      formData.append('monto_a_ejecutar', formValues.executionAmount);
+      formData.append('presupuesto_pre_aprobado', formValues.preApprovedBudget);
+      formData.append('ubicacion_id', formValues.locationId);
+      formData.append('cuenta_analitica_id', formValues.analyticalAccountId);
       
-      await budgetService.create(payload as any);
+      formValues.attachments.forEach((attachment) => {
+        formData.append('files', attachment.file); // Django los agrupará
+      });
+
+      await budgetService.create(formData);
       
       await fetchAllRequests();      
       setView('dashboard');
@@ -77,22 +82,26 @@ const AppContent: React.FC<{
     }
   };
 
-  const handleEditRequest = async (formData: any) => {
+  const handleEditRequest = async (formValues: any) => {
     if (!user || !selectedRequestId) return;
     setLoading(true);
     try {
-      const payload = {
-        titulo: formData.name,
-        descripcion: formData.description,
-        tipo_solicitud: formData.requestType,
-        rubro_presupuestal: formData.budgetRubro,
-        monto_a_ejecutar: formData.executionAmount,
-        presupuesto_pre_aprobado: formData.preApprovedBudget,
-        ubicacion_id: formData.locationId,
-        cuenta_analitica_id: formData.analyticalAccountId
-      };
+      const formData = new FormData();
 
-      await budgetService.update(selectedRequestId, payload as any);
+      formData.append('titulo', formValues.name);
+      formData.append('descripcion', formValues.description);
+      formData.append('tipo_solicitud', formValues.requestType);
+      formData.append('rubro_presupuestal', formValues.budgetRubro);
+      formData.append('monto_a_ejecutar', formValues.executionAmount);
+      formData.append('presupuesto_pre_aprobado', formValues.preApprovedBudget);
+      formData.append('ubicacion_id', formValues.locationId);
+      formData.append('cuenta_analitica_id', formValues.analyticalAccountId);
+      
+      formValues.attachments.forEach((attachment) => {
+        formData.append('files', attachment.file); // Django los agrupará
+      });
+
+      await budgetService.update(selectedRequestId, formData as any);
       
       await fetchAllRequests();
       setView('dashboard');
@@ -139,6 +148,33 @@ const AppContent: React.FC<{
       setLoading(false);
     }
   };
+
+    const handleEliminarAdjunto = async(id: number) => {
+      if (window.confirm('¿Estás seguro de eliminar el documento adjunto?')) { 
+        try {             
+            setLoading(true);
+            await budgetService.deleteAttachment(id);
+            setRequests(prev => prev.map(r => {
+              if (String(r.id) === String(selectedRequestId)) {
+                return {
+                  ...r,
+                  files: r.files ? r.files.filter(a => String(a.id) !== String(id)) : []
+                };
+              }
+              console.log(r);
+              return r;
+            }));
+            setView('edit');            
+            addToast(`Documento adjunto eliminado con éxito`, 'success');
+          }      
+        catch (error: any) {
+            handleApiError(error, 'Error al eliminar el documento adjunto.');
+            
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
 
   const selectedRequest = useMemo(() => 
     requests.find(r => String(r.id) === String(selectedRequestId)), 
@@ -199,18 +235,23 @@ const AppContent: React.FC<{
 
         {view === 'create' && (
           <BudgetForm 
+            setLoading={setLoading}
             onCancel={() => setView('dashboard')}
+            onDeleteAttachment={handleEliminarAdjunto}
             onSubmit={handleCreateRequest}
           />
         )}
 
         {view === 'edit' && selectedRequest && (
           <BudgetForm 
+            //files={selectedRequest.files} //Force update BudgetForm when files change in selectedRequest
             initialData={selectedRequest}
+            setLoading={setLoading}
             onCancel={() => {
               setView('dashboard');
               setSelectedRequestId(null);
             }}
+            onDeleteAttachment={handleEliminarAdjunto}
             onSubmit={handleEditRequest}
           />
         )}
