@@ -130,7 +130,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                 <UnisexAvatar />
                 <div>
                    <p className="text-sm font-bold text-[#333333]">{fullName}</p>
-                   <p className="text-xs text-slate-500">{request.colaborador?.username ? `@${request.colaborador.username}` : ''}</p>
+                   <p className="text-xs text-slate-500">{request.colaborador?.username ? `${request.colaborador.username}` : ''}</p>
                 </div>
              </div>
           </div>
