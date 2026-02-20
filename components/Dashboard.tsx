@@ -18,7 +18,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
 
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
-    return Array.from({ length: 5 }, (_, i) => currentYear - i);
+    return [currentYear, currentYear - 1];
   }, []);
 
   const months = [
