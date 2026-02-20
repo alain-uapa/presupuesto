@@ -1,11 +1,13 @@
 
 import React, { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
 import { User, Role } from '../types';
 
 interface LoginProps {
   onLoginSuccess: (user: User) => void;
   onLoginError: (error: string) => void;
+  returnTo?: string;
 }
 
 const GOOGLE_CLIENT_ID = "478848519153-0tklbkp5d7252099relj297632eka3qg.apps.googleusercontent.com";
@@ -16,7 +18,8 @@ declare global {
   }
 }
 
-const Login: React.FC<LoginProps> = ({ onLoginSuccess, onLoginError }) => {
+const Login: React.FC<LoginProps> = ({ onLoginSuccess, onLoginError, returnTo }) => {
+  const navigate = useNavigate();
   const googleButtonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -62,6 +65,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess, onLoginError }) => {
 
       authService.saveSession(loginData.token, user);
       onLoginSuccess(user);
+      
+      // Redirigir a la URL original o al dashboard
+      const redirectUrl = returnTo && returnTo !== '/' ? returnTo : '/';
+      navigate(redirectUrl, { replace: true });
     } catch (error: any) {
       console.error("Google Login Error:", error);
       onLoginError(error.message || "Error al autenticar con Google");

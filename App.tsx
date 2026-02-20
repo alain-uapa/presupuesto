@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Role, User, BudgetRequest, BudgetStatus, ToastType } from './types';
 import './styles/loader.css';
 import Login from './components/Login';
@@ -11,6 +12,120 @@ import Navbar from './components/Navbar';
 import { budgetService } from './services/budget.service';
 import { authService } from './services/auth.service';
 import { CatalogProvider, useCatalogs } from './context/CatalogContext';
+
+interface DashboardViewProps {
+  user: User;
+  requests: BudgetRequest[];
+  onViewDetails: (id: number | string) => void;
+  onEdit: (id: number | string) => void;
+  onDelete: (id: number | string) => void;
+}
+
+const DashboardView: React.FC<DashboardViewProps> = ({ user, requests, onViewDetails, onEdit, onDelete }) => {
+  const navigate = useNavigate();
+  return (
+    <Dashboard 
+      user={user} 
+      requests={requests} 
+      onViewDetails={onViewDetails}
+      onEdit={onEdit}
+      onCreate={() => navigate('/create')}
+      onDelete={onDelete}        
+    />
+  );
+};
+
+interface BudgetDetailsViewProps {
+  user: User;
+  requests: BudgetRequest[];
+  loading: boolean;
+  onUpdateStatus: (id: string, status: BudgetStatus, comments?: string) => void;
+  onDeleteAttachment?: (id: number | string, requestId?: string) => void;
+}
+
+const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, loading, onUpdateStatus, onDeleteAttachment }) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  
+  const request = useMemo(() => 
+    requests.find(r => String(r.id) === id), 
+    [requests, id]
+  );
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003B71] mb-4"></div>
+        <p className="text-slate-500">Cargando solicitud...</p>
+      </div>
+    );
+  }
+
+  if (!request) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <svg className="w-16 h-16 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p className="text-slate-500 text-lg">Solicitud no encontrada</p>
+        <button 
+          onClick={() => navigate('/')}
+          className="mt-4 px-4 py-2 bg-[#003B71] text-white rounded-lg hover:bg-[#002a52] transition-colors"
+        >
+          Volver al Dashboard
+        </button>
+      </div>
+    );
+  }
+
+  const handleDeleteAttachment = (attachmentId: number | string) => {
+    if (onDeleteAttachment) {
+      onDeleteAttachment(attachmentId, id);
+    }
+  };
+
+  return (
+    <BudgetDetails 
+      user={user}
+      request={request} 
+      onBack={() => navigate('/')}
+      onUpdateStatus={onUpdateStatus}
+      onDeleteAttachment={handleDeleteAttachment}
+    />
+  );
+};
+
+interface BudgetFormViewProps {
+  requests: BudgetRequest[];
+  onSubmit: (formValues: any, id?: string) => Promise<void>;
+  onCancel: () => void;
+}
+
+const BudgetFormView: React.FC<BudgetFormViewProps> = ({ requests, onSubmit, onCancel }) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  
+  const initialData = useMemo(() => 
+    id ? requests.find(r => String(r.id) === id) : undefined,
+    [requests, id]
+  );
+
+  const handleSubmit = (formValues: any) => {
+    onSubmit(formValues, id);
+  };
+
+  const handleCancel = () => {
+    navigate('/');
+  };
+
+  return (
+    <BudgetForm 
+      initialData={initialData}
+      onSubmit={handleSubmit}
+      onCancel={handleCancel}
+    />
+  );
+};
 
 const AppContent: React.FC<{ 
   user: User | null; 
@@ -29,11 +144,10 @@ const AppContent: React.FC<{
   user, setUser, requests, setRequests, loading, setLoading, 
   toasts, addToast, removeToast, handleLogout, fetchAllRequests, handleApiError 
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { fetchCatalogs, loadingCatalogs } = useCatalogs();
-  const [view, setView] = useState<'dashboard' | 'details' | 'create' | 'edit'>('dashboard');
-  const [selectedRequestId, setSelectedRequestId] = useState<string | number | null>(null);
 
-  // Efecto para cargar datos iniciales cuando el usuario se loguea
   useEffect(() => {
     if (user) {
       fetchAllRequests();
@@ -41,13 +155,20 @@ const AppContent: React.FC<{
     }
   }, [user, fetchAllRequests, fetchCatalogs]);
 
-  // FIX: Resetear la navegación cuando el usuario cierra sesión o cambia
+  // Guard: si no hay usuario, redirigir a /login con la URL actual
   useEffect(() => {
-    if (!user) {
-      setView('dashboard');
-      setSelectedRequestId(null);
+    if (!user && location.pathname !== '/login') {
+      navigate('/login', { state: { from: location.pathname } });
     }
-  }, [user]);
+  }, [user, location.pathname, navigate]);
+
+  // Si está en /login y ya tiene usuario, redirigir a la ruta original o al dashboard
+  useEffect(() => {
+    if (user && location.pathname === '/login') {
+      const redirectTo = location.state?.from || '/';
+      navigate(redirectTo, { replace: true });
+    }
+  }, [user, location.pathname, location.state?.from, navigate]);
 
   const handleCreateRequest = async (formValues: any) => {
     if (!user) return;
@@ -66,15 +187,14 @@ const AppContent: React.FC<{
       formData.append('cuenta_analitica_id', formValues.analyticalAccountId);
       
       formValues.attachments.forEach((attachment) => {
-        formData.append('files', attachment.file); // Django los agrupará
+        formData.append('files', attachment.file);
       });
 
       await budgetService.create(formData);
       
       await fetchAllRequests();      
-      setView('dashboard');
+      navigate('/');
       addToast('Solicitud enviada correctamente', 'success');
-      setLoading(false);
     } catch (error: any) {
       handleApiError(error, 'No se pudo crear la solicitud. Verifique los datos e intente de nuevo.');
     } finally {
@@ -82,8 +202,8 @@ const AppContent: React.FC<{
     }
   };
 
-  const handleEditRequest = async (formValues: any) => {
-    if (!user || !selectedRequestId) return;
+  const handleEditRequest = async (formValues: any, id?: string) => {
+    if (!user || !id) return;
     setLoading(true);
     try {
       const formData = new FormData();
@@ -98,15 +218,13 @@ const AppContent: React.FC<{
       formData.append('cuenta_analitica_id', formValues.analyticalAccountId);
       
       formValues.attachments.forEach((attachment) => {
-        formData.append('files', attachment.file); // Django los agrupará
+        formData.append('files', attachment.file);
       });
 
-      await budgetService.update(selectedRequestId, formData as any);
+      await budgetService.update(id, formData as any);
       
       await fetchAllRequests();
-      setView('dashboard');
-      setSelectedRequestId(null);
-      setLoading(false);
+      navigate('/');
       addToast('Solicitud actualizada correctamente', 'success');
     } catch (error: any) {
       handleApiError(error, 'Error al actualizar la solicitud. Por favor reintente.');
@@ -123,7 +241,6 @@ const AppContent: React.FC<{
       setRequests(prev => prev.map(r => 
         String(r.id) === String(id) ? { ...r, estado: status, observaciones_supervisor: comments || "" } : r
       ));
-      setLoading(false);
       addToast(`Solicitud ${status.toLowerCase()} con éxito`, 'success');
     } catch (error: any) {
       handleApiError(error, 'Error al cambiar el estado de la solicitud.');
@@ -140,7 +257,6 @@ const AppContent: React.FC<{
       setRequests(prev => prev.filter(r => 
         String(r.id) !== String(id)
       ));
-      setLoading(false);
       addToast(`Solicitud eliminada con éxito`, 'success');
     } catch (error: any) {
       handleApiError(error, 'Error al eliminar la solicitud.');
@@ -149,45 +265,43 @@ const AppContent: React.FC<{
     }
   };
 
-    const handleEliminarAdjunto = async(id: number) => {
-      if (window.confirm('¿Estás seguro de eliminar el documento adjunto?')) { 
-        try {             
-            setLoading(true);
-            await budgetService.deleteAttachment(id);
-            setRequests(prev => prev.map(r => {
-              if (String(r.id) === String(selectedRequestId)) {
-                return {
-                  ...r,
-                  files: r.files ? r.files.filter(a => String(a.id) !== String(id)) : []
-                };
-              }
-              console.log(r);
-              return r;
-            }));
-            setView('edit');            
-            addToast(`Documento adjunto eliminado con éxito`, 'success');
-          }      
-        catch (error: any) {
-            handleApiError(error, 'Error al eliminar el documento adjunto.');
-            
-        } finally {
-          setLoading(false);
-        }
+  const handleEliminarAdjunto = async (id: number, requestId?: string) => {
+    if (window.confirm('¿Estás seguro de eliminar el documento adjunto?')) { 
+      try {             
+        setLoading(true);
+        await budgetService.deleteAttachment(id);
+        setRequests(prev => prev.map(r => {
+          if (String(r.id) === String(requestId)) {
+            return {
+              ...r,
+              files: r.files ? r.files.filter(a => String(a.id) !== String(id)) : []
+            };
+          }
+          return r;
+        }));
+        addToast(`Documento adjunto eliminado con éxito`, 'success');
+      } catch (error: any) {
+        handleApiError(error, 'Error al eliminar el documento adjunto.');
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  };
 
-  const selectedRequest = useMemo(() => 
-    requests.find(r => String(r.id) === String(selectedRequestId)), 
-    [requests, selectedRequestId]
-  );
-
+  // Si no hay usuario, mostrar solo el Login (las rutas protegidas redirigirán a /login)
   if (!user) {
     return (
       <div className="min-h-screen bg-[#F8F9FA] flex flex-col justify-center items-center p-4">
-        <Login 
-          onLoginSuccess={(u) => setUser(u)} 
-          onLoginError={(err) => addToast(err, 'error')} 
-        />
+        <Routes>
+          <Route path="/login" element={
+            <Login 
+              onLoginSuccess={(u) => setUser(u)} 
+              onLoginError={(err) => addToast(err, 'error')} 
+              returnTo={location.state?.from}
+            />
+          } />
+          <Route path="*" element={null} />
+        </Routes>
         <ToastContainer toasts={toasts} onRemove={removeToast} />
       </div>
     );
@@ -204,57 +318,46 @@ const AppContent: React.FC<{
       )}
 
       <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl text-[#333333]">
-        {view === 'dashboard' && (
-          <Dashboard 
-            user={user} 
-            requests={requests} 
-            onViewDetails={(id) => {
-              setSelectedRequestId(id);
-              setView('details');
-            }}
-            onEdit={(id) => {
-              setSelectedRequestId(id);
-              setView('edit');
-            }}
-            onCreate={() => setView('create')}
-            onDelete={(id)=> handleDeleteBudget(id)}        
-          />
-        )}
-
-        {view === 'details' && selectedRequest && (
-          <BudgetDetails 
-            user={user}
-            request={selectedRequest} 
-            onBack={() => {
-              setView('dashboard');
-              setSelectedRequestId(null);
-            }}
-            onUpdateStatus={handleUpdateStatus}
-          />
-        )}
-
-        {view === 'create' && (
-          <BudgetForm 
-            setLoading={setLoading}
-            onCancel={() => setView('dashboard')}
-            onDeleteAttachment={handleEliminarAdjunto}
-            onSubmit={handleCreateRequest}
-          />
-        )}
-
-        {view === 'edit' && selectedRequest && (
-          <BudgetForm 
-            //files={selectedRequest.files} //Force update BudgetForm when files change in selectedRequest
-            initialData={selectedRequest}
-            setLoading={setLoading}
-            onCancel={() => {
-              setView('dashboard');
-              setSelectedRequestId(null);
-            }}
-            onDeleteAttachment={handleEliminarAdjunto}
-            onSubmit={handleEditRequest}
-          />
-        )}
+        <Routes>
+          <Route path="/login" element={
+            <Login 
+              onLoginSuccess={(u) => setUser(u)} 
+              onLoginError={(err) => addToast(err, 'error')} 
+              returnTo={location.state?.from}
+            />
+          } />
+          <Route path="/" element={
+            <DashboardView 
+              user={user} 
+              requests={requests}
+              onViewDetails={(id) => navigate(`/request/${id}`)}
+              onEdit={(id) => navigate(`/request/${id}/edit`)}
+              onDelete={handleDeleteBudget}
+            />
+          } />
+          <Route path="/create" element={
+            <BudgetFormView 
+              requests={requests}
+              onSubmit={handleCreateRequest}
+              onCancel={() => navigate('/')}
+            />
+          } />
+          <Route path="/request/:id" element={
+            <BudgetDetailsView 
+              user={user}
+              requests={requests}
+              loading={loading}
+              onUpdateStatus={handleUpdateStatus}
+            />
+          } />
+          <Route path="/request/:id/edit" element={
+            <BudgetFormView 
+              requests={requests}
+              onSubmit={handleEditRequest}
+              onCancel={() => navigate('/')}
+            />
+          } />
+        </Routes>
       </main>
 
       <footer className="bg-white border-t border-slate-200 py-6">
