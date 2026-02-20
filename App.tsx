@@ -52,13 +52,9 @@ const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, l
     [requests, id]
   );
 
+  // Si está cargando, no mostrar nada (el loader global se encarga)
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003B71] mb-4"></div>
-        <p className="text-slate-500">Cargando solicitud...</p>
-      </div>
-    );
+    return null;
   }
 
   if (!request) {
