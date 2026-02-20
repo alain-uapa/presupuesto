@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
+import AttachmentList from './AttachmentList';
 
 interface BudgetDetailsProps {
   user: User;
   request: BudgetRequest;
   onBack: () => void;
   onUpdateStatus: (id: string, status: BudgetStatus, comments?: string) => void;
+  onDeleteAttachment?: (id: number | string) => void;
 }
 
-const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus }) => {
+const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus, onDeleteAttachment }) => {
   const { ESTADO_CHOICES, TIPO_CHOICES, RUBRO_CHOICES, getLabel } = useCatalogs();
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
   
@@ -101,8 +103,13 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
           </section>
 
           <section>
+            {/* ---   ATTACHMENTS --- */}
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2">Documentación Adjunta</h3>
-            <p className="text-sm text-slate-400 italic">No se adjuntaron archivos adicionales en esta versión.</p>
+            <AttachmentList 
+              files={request.files} 
+              onDeleteAttachment={onDeleteAttachment ?? undefined}
+            />
+            {/* ---   END ATTACHMENTS --- */}
           </section>
 
           {request.estado === BudgetStatus.REJECTED && (
