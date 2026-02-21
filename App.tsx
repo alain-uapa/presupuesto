@@ -41,9 +41,10 @@ interface BudgetDetailsViewProps {
   loading: boolean;
   onUpdateStatus: (id: string, status: BudgetStatus, comments?: string) => void;
   onDeleteAttachment?: (id: number | string, requestId?: string) => void;
+  onCertificateCreated: () => void;
 }
 
-const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, loading, onUpdateStatus, onDeleteAttachment }) => {
+const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, loading, onUpdateStatus, onDeleteAttachment, onCertificateCreated }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
@@ -87,6 +88,7 @@ const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, l
       onBack={() => navigate('/')}
       onUpdateStatus={onUpdateStatus}
       onDeleteAttachment={handleDeleteAttachment}
+      onCertificateCreated={onCertificateCreated}
     />
   );
 };
@@ -284,6 +286,12 @@ const AppContent: React.FC<{
     }
   };
 
+  const handleCertificateCreated = async () => {
+    await fetchAllRequests();
+    navigate('/');
+    addToast('Certificado generado correctamente', 'success');
+  };
+
   // Si no hay usuario, mostrar solo el Login (las rutas protegidas redirigirán a /login)
   if (!user) {
     return (
@@ -344,6 +352,8 @@ const AppContent: React.FC<{
               requests={requests}
               loading={loading}
               onUpdateStatus={handleUpdateStatus}
+              onDeleteAttachment={handleEliminarAdjunto}
+              onCertificateCreated={handleCertificateCreated}
             />
           } />
           <Route path="/request/:id/edit" element={

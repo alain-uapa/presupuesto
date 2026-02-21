@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
-import CertificateForm, { CertificateData } from './CertificateForm';
+import CertificateForm from './CertificateForm';
 
 interface BudgetDetailsProps {
   user: User;
@@ -10,19 +10,21 @@ interface BudgetDetailsProps {
   onBack: () => void;
   onUpdateStatus: (id: string, status: BudgetStatus, comments?: string) => void;
   onDeleteAttachment?: (id: number | string) => void;
+  onCertificateCreated?: () => void;
 }
 
-const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus, onDeleteAttachment }) => {
+const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus, onDeleteAttachment, onCertificateCreated }) => {
   const { ESTADO_CHOICES, TIPO_CHOICES, RUBRO_CHOICES, getLabel } = useCatalogs();
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
   const [showCertificateForm, setShowCertificateForm] = useState(false);
-  const [certificadoUrl, setCertificadoUrl] = useState<string | undefined>(request.certificado_url);
-  
-  const handleGenerateCertificate = async (data: CertificateData) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const mockUrl = 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.jpg';
-    setCertificadoUrl(mockUrl);
-    setShowCertificateForm(false);
+
+  const certificadoFile = request.files?.find(f => f.es_certificado);
+  const certificadoUrl = certificadoFile?.url_view;
+
+  const handleCertificateCreated = () => {
+    if (onCertificateCreated) {
+      onCertificateCreated();
+    }
   };
   
   const getStatusBadge = (status: BudgetStatus) => {
@@ -74,7 +76,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
       <CertificateForm 
         request={request}
         onCancel={() => setShowCertificateForm(false)}
-        onGenerate={handleGenerateCertificate}
+        onCertificateCreated={handleCertificateCreated}
       />
     );
   }

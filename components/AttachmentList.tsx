@@ -5,6 +5,7 @@ export interface FileAttachment {
   nombre?: string;
   name?: string;
   url_view?: string;
+  es_certificado?: boolean;
 }
 
 interface AttachmentListProps {
@@ -18,7 +19,9 @@ const AttachmentList: React.FC<AttachmentListProps> = ({
   onDeleteAttachment,
   emptyMessage = 'No se adjuntaron archivos adicionales en esta versión.'
 }) => {
-  if (!files || files.length === 0) {
+  const regularFiles = files?.filter(f => !f.es_certificado) || [];
+
+  if (regularFiles.length === 0) {
     return (
       <p className="text-sm text-slate-400 italic">{emptyMessage}</p>
     );
@@ -26,7 +29,7 @@ const AttachmentList: React.FC<AttachmentListProps> = ({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {files.map((archivo, idx) => {
+      {regularFiles.map((archivo, idx) => {
         const fileId = archivo.id ?? idx;
         const fileName = archivo.nombre ?? archivo.name ?? 'Archivo';
         

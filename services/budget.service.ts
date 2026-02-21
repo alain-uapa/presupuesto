@@ -56,6 +56,14 @@ class BudgetService extends HttpClient {
   async getById(id: string | number): Promise<BudgetRequest> {
     return this.get<BudgetRequest>(`/solicitudes/${id}`);
   }
+
+  /**
+   * Crea un certificado de disponibilidad presupuestal.
+   * Envía el PDF generado al backend para subirlo a Google Drive.
+   */
+  async createCertificate(id: string | number, formData: FormData): Promise<BudgetRequest> {
+    return this.post<BudgetRequest>(`/certificados/crear/${id}/`, formData);
+  }
 }
 
 export const budgetService = new BudgetService();
