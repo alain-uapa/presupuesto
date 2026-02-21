@@ -43,9 +43,10 @@ interface BudgetDetailsViewProps {
   onUpdateStatus: (id: string, status: BudgetStatus, comments?: string) => void;
   onDeleteAttachment?: (id: number | string, requestId?: string) => void;
   onCertificateCreated: () => void;
+  addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, loading, onUpdateStatus, onDeleteAttachment, onCertificateCreated }) => {
+const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, loading, onUpdateStatus, onDeleteAttachment, onCertificateCreated, addToast }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
@@ -90,6 +91,7 @@ const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, l
       onUpdateStatus={onUpdateStatus}
       onDeleteAttachment={handleDeleteAttachment}
       onCertificateCreated={onCertificateCreated}
+      addToast={addToast}
     />
   );
 };
@@ -355,6 +357,7 @@ const AppContent: React.FC<{
               onUpdateStatus={handleUpdateStatus}
               onDeleteAttachment={handleEliminarAdjunto}
               onCertificateCreated={handleCertificateCreated}
+              addToast={addToast}
             />
           } />
           <Route path="/request/:id/edit" element={
