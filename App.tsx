@@ -100,9 +100,10 @@ interface BudgetFormViewProps {
   requests: BudgetRequest[];
   onSubmit: (formValues: any, id?: string) => Promise<void>;
   onCancel: () => void;
+  onDeleteAttachment?: (id: number | string, requestId?: string) => void;
 }
 
-const BudgetFormView: React.FC<BudgetFormViewProps> = ({ requests, onSubmit, onCancel }) => {
+const BudgetFormView: React.FC<BudgetFormViewProps> = ({ requests, onSubmit, onCancel, onDeleteAttachment }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
@@ -124,6 +125,7 @@ const BudgetFormView: React.FC<BudgetFormViewProps> = ({ requests, onSubmit, onC
       initialData={initialData}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
+      onDeleteAttachment={onDeleteAttachment}
     />
   );
 };
@@ -347,6 +349,7 @@ const AppContent: React.FC<{
               requests={requests}
               onSubmit={handleCreateRequest}
               onCancel={() => navigate('/')}
+              onDeleteAttachment={handleEliminarAdjunto}
             />
           } />
           <Route path="/request/:id" element={
@@ -365,6 +368,7 @@ const AppContent: React.FC<{
               requests={requests}
               onSubmit={handleEditRequest}
               onCancel={() => navigate('/')}
+              onDeleteAttachment={handleEliminarAdjunto}
             />
           } />
           <Route path="/certificado-preview" element={

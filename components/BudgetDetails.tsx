@@ -190,7 +190,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2">Documentación Adjunta</h3>
             <AttachmentList 
               files={request.files} 
-              onDeleteAttachment={onDeleteAttachment ?? undefined}
             />
           </section>
 

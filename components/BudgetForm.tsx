@@ -26,6 +26,16 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
     executionAmount: initialData?.monto_a_ejecutar || 0,
     files: initialData?.files || [],
   });
+  
+  const handleDeleteAttachment = async (id: number | string) => {
+    if (onDeleteAttachment && initialData?.id) {
+      await onDeleteAttachment(id, String(initialData.id));
+      setFormData(prev => ({
+        ...prev,
+        files: prev.files?.filter(f => String(f.id) !== String(id)) || []
+      }));
+    }
+  };
   console.log(initialData?.files);
   const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments || []);
 
@@ -240,7 +250,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
           {/* ---   ATTACHMENTS --- */}
             <AttachmentList 
               files={formData.files} 
-              onDeleteAttachment={onDeleteAttachment ?? undefined}
+              onDeleteAttachment={handleDeleteAttachment}
             />
           {/* ---   END ATTACHMENTS --- */}
           <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:bg-[#F8F9FA] transition-colors cursor-pointer relative">
