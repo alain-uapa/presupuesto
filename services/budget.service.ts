@@ -1,4 +1,3 @@
-
 import { HttpClient } from './http-client';
 import { BudgetRequest, BudgetStatus } from '../types';
 
@@ -19,8 +18,14 @@ class BudgetService extends HttpClient {
    * Endpoint: /solicitudes/crear/
    */
   async create(data: any): Promise<BudgetRequest> {
-    // Agregamos el slash final / por consistencia con el endpoint de editar
     return this.post<BudgetRequest>('/solicitudes/crear/', data);
+  }
+
+  /**
+   * Obtiene el contenido HTML del certificado.
+   */
+  async getCertificateTemplate(): Promise<string> {
+    return this.getText('/certificado/edit/');
   }
 
   /**
@@ -28,7 +33,6 @@ class BudgetService extends HttpClient {
    * Endpoint: /solicitudes/editar/<id>/
    */
   async update(id: string | number, data: Partial<BudgetRequest>): Promise<BudgetRequest> {
-    // Agregamos el slash final / por convención de Django para evitar problemas con el body en redirecciones
     return this.post<BudgetRequest>(`/solicitudes/editar/${id}/`, data);
   }
 
@@ -44,12 +48,13 @@ class BudgetService extends HttpClient {
    * Endpoint: /solicitudes/delete/{id}/
    */
   async delete(id: string | number): Promise<BudgetRequest> {
-    return this.del<BudgetRequest>(`/solicitudes/delete/${id}/`);    
+    return this.del<BudgetRequest>(`/solicitudes/delete/${id}/`);
   }
-    async deleteAttachment(id: string | number): Promise<BudgetRequest> {
-    return this.del<BudgetRequest>(`/solicitudes/delete_attachment/${id}/`);    
+
+  async deleteAttachment(id: string | number): Promise<BudgetRequest> {
+    return this.del<BudgetRequest>(`/solicitudes/delete_attachment/${id}/`);
   }
-  
+
   /**
    * Obtiene una solicitud específica por su ID.
    */

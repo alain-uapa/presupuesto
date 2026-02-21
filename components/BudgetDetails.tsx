@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
-import CertificateForm from './CertificateForm';
+import CertificateTemplate from './CertificateTemplate';
 import { budgetService } from '../services/budget.service';
 
 interface BudgetDetailsProps {
@@ -99,10 +99,8 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
 
   if (showCertificateForm) {
     return (
-      <CertificateForm 
-        request={request}
+      <CertificateTemplate 
         onCancel={() => setShowCertificateForm(false)}
-        onCertificateCreated={handleCertificateCreated}
         addToast={addToast}
       />
     );

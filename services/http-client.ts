@@ -93,6 +93,18 @@ export class HttpClient {
     return this.handleResponse<T>(response);
   }
 
+  protected async getText(endpoint: string): Promise<string> {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+    return response.text();
+  }
+
   protected async post<T>(endpoint: string, body: any): Promise<T> {
     const isFormData = body instanceof FormData;
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
