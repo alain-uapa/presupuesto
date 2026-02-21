@@ -51,6 +51,7 @@ export interface BudgetRequest {
   estado: BudgetStatus;
   observaciones_supervisor: string;
   attachments?: Attachment[];
+  certificado_url?: string;
 }
 
 export interface User {

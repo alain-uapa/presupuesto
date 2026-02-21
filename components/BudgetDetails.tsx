@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
+import CertificateForm, { CertificateData } from './CertificateForm';
 
 interface BudgetDetailsProps {
   user: User;
@@ -14,6 +15,15 @@ interface BudgetDetailsProps {
 const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus, onDeleteAttachment }) => {
   const { ESTADO_CHOICES, TIPO_CHOICES, RUBRO_CHOICES, getLabel } = useCatalogs();
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
+  const [showCertificateForm, setShowCertificateForm] = useState(false);
+  const [certificadoUrl, setCertificadoUrl] = useState<string | undefined>(request.certificado_url);
+  
+  const handleGenerateCertificate = async (data: CertificateData) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const mockUrl = 'https://www.w3.org/WAI/WCAG21/Techniques/pdf/img/table-word.jpg';
+    setCertificadoUrl(mockUrl);
+    setShowCertificateForm(false);
+  };
   
   const getStatusBadge = (status: BudgetStatus) => {
     const label = getLabel(ESTADO_CHOICES, status);
@@ -59,6 +69,16 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
     </div>
   );
 
+  if (showCertificateForm) {
+    return (
+      <CertificateForm 
+        request={request}
+        onCancel={() => setShowCertificateForm(false)}
+        onGenerate={handleGenerateCertificate}
+      />
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
       {/* Header */}
@@ -103,13 +123,11 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
           </section>
 
           <section>
-            {/* ---   ATTACHMENTS --- */}
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2">Documentación Adjunta</h3>
             <AttachmentList 
               files={request.files} 
               onDeleteAttachment={onDeleteAttachment ?? undefined}
             />
-            {/* ---   END ATTACHMENTS --- */}
           </section>
 
           {request.estado === BudgetStatus.REJECTED && (
@@ -165,6 +183,50 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                     Rechazar Solicitud
                    </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {user.role === Role.SUPERVISOR && request.estado === BudgetStatus.APPROVED && !certificadoUrl && (
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Certificado</h3>
+              <button 
+                onClick={() => setShowCertificateForm(true)}
+                className="w-full bg-[#003B71] hover:bg-[#002d56] text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                </svg>
+                Crear Certificado
+              </button>
+            </div>
+          )}
+
+          {user.role === Role.SUPERVISOR && request.estado === BudgetStatus.APPROVED && certificadoUrl && (
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Certificado</h3>
+              <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                <div className="flex items-center space-x-3 overflow-hidden">
+                  <div className="flex-shrink-0 p-2 bg-emerald-100 rounded-lg text-emerald-600">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-sm font-semibold text-emerald-700 truncate">Certificado de Aprobación</p>
+                    <p className="text-xs text-emerald-500">PDF generado</p>
+                  </div>
+                </div>
+                <a 
+                  href={certificadoUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="ml-4 p-2 text-emerald-400 hover:text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
               </div>
             </div>
           )}
