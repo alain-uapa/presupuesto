@@ -103,6 +103,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
         request={request}
         onCancel={() => setShowCertificateForm(false)}
         onCertificateCreated={handleCertificateCreated}
+        addToast={addToast}
       />
     );
   }
