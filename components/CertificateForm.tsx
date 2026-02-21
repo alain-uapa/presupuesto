@@ -34,6 +34,7 @@ const slugify = (text: string): string => {
     .substring(0, 20);
 };
 
+
 const CertificateForm: React.FC<CertificateFormProps> = ({ request, onCancel, onCertificateCreated, addToast }) => {
   const fullName = request.colaborador 
     ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
@@ -80,7 +81,7 @@ const CertificateForm: React.FC<CertificateFormProps> = ({ request, onCancel, on
       if (addToast) {
         addToast('Complete los campos editables del certificado', 'error');
       }
-      return;
+      //return;
     }
     setIsGenerating(true);
 
@@ -91,7 +92,6 @@ const CertificateForm: React.FC<CertificateFormProps> = ({ request, onCancel, on
       }
 
       const pdfFileName = `${slugify(formData.titulo || 'certificado')}-cert.pdf`;
-
       const pdfBlob = await html2pdf()
         .set({
           margin: 0,
