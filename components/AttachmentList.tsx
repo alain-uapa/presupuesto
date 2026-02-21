@@ -17,7 +17,7 @@ interface AttachmentListProps {
 const AttachmentList: React.FC<AttachmentListProps> = ({
   files,
   onDeleteAttachment,
-  emptyMessage = 'No se adjuntaron archivos adicionales en esta versión.'
+  emptyMessage = 'No se adjuntaron archivos al presupuesto.'
 }) => {
   const regularFiles = files?.filter(f => !f.es_certificado) || [];
 
