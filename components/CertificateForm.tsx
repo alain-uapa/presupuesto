@@ -23,6 +23,16 @@ interface CertificateFormData {
   folio: string;
 }
 
+const slugify = (text: string): string => {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+    .substring(0, 20);
+};
+
 const CertificateForm: React.FC<CertificateFormProps> = ({ request, onCancel, onCertificateCreated }) => {
   const fullName = request.colaborador 
     ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
@@ -75,10 +85,12 @@ const CertificateForm: React.FC<CertificateFormProps> = ({ request, onCancel, on
         throw new Error('No se encontró el template del certificado');
       }
 
+      const pdfFileName = `${slugify(formData.titulo)}-cert.pdf`;
+
       const pdfBlob = await html2pdf()
         .set({
           margin: 0,
-          filename: `certificado_${request.id}.pdf`,
+          filename: pdfFileName,
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -90,15 +102,15 @@ const CertificateForm: React.FC<CertificateFormProps> = ({ request, onCancel, on
       window.open(url, '_blank');
 
       const formDataToSend = new FormData();
-      formDataToSend.append('files', pdfBlob, `certificado_${request.id}.pdf`);
+      formDataToSend.append('files', pdfBlob, pdfFileName);
       formDataToSend.append('solicitud_id', String(request.id));
-      formDataToSend.append('titulo', formData.titulo);
-      formDataToSend.append('solicitante', formData.solicitante);
-      formDataToSend.append('rubro_presupuestal', formData.rubroPresupuestal);
-      formDataToSend.append('centro_costo', formData.centroCosto);
-      formDataToSend.append('monto_aprobado', formData.montoAprobado);
-      formDataToSend.append('cuenta_utilizar', formData.cuentaUtilizar);
-      formDataToSend.append('folio', formData.folio);
+      // formDataToSend.append('titulo', formData.titulo);
+      // formDataToSend.append('solicitante', formData.solicitante);
+      // formDataToSend.append('rubro_presupuestal', formData.rubroPresupuestal);
+      // formDataToSend.append('centro_costo', formData.centroCosto);
+      // formDataToSend.append('monto_aprobado', formData.montoAprobado);
+      // formDataToSend.append('cuenta_utilizar', formData.cuentaUtilizar);
+      // formDataToSend.append('folio', formData.folio);
 
       await budgetService.createCertificate(request.id, formDataToSend);
 

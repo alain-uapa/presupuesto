@@ -62,7 +62,7 @@ class BudgetService extends HttpClient {
    * Envía el PDF generado al backend para subirlo a Google Drive.
    */
   async createCertificate(id: string | number, formData: FormData): Promise<BudgetRequest> {
-    return this.post<BudgetRequest>(`/certificados/crear/${id}/`, formData);
+    return this.post<BudgetRequest>(`/solicitudes/certificado/upload/${id}/`, formData);
   }
 }
 
