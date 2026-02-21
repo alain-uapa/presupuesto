@@ -204,7 +204,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </div>
           )}
 
-          {user.role === Role.SUPERVISOR && request.estado === BudgetStatus.APPROVED && certificadoUrl && (
+          {(user.role === Role.SUPERVISOR || user.role === Role.COLABORADOR) && request.estado === BudgetStatus.APPROVED && certificadoUrl && (
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Certificado</h3>
               <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
