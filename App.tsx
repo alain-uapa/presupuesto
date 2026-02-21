@@ -9,6 +9,7 @@ import BudgetDetails from './components/BudgetDetails';
 import BudgetForm from './components/BudgetForm';
 import ToastContainer from './components/Toast';
 import Navbar from './components/Navbar';
+import CertificatePreview from './components/CertificatePreview';
 import { budgetService } from './services/budget.service';
 import { authService } from './services/auth.service';
 import { CatalogProvider, useCatalogs } from './context/CatalogContext';
@@ -362,6 +363,9 @@ const AppContent: React.FC<{
               onSubmit={handleEditRequest}
               onCancel={() => navigate('/')}
             />
+          } />
+          <Route path="/certificado-preview" element={
+            <CertificatePreview />
           } />
         </Routes>
       </main>
