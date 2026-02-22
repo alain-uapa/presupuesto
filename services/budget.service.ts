@@ -24,8 +24,8 @@ class BudgetService extends HttpClient {
   /**
    * Obtiene el contenido HTML del certificado.
    */
-  async getCertificateTemplate(): Promise<string> {
-    return this.getText('/certificado/edit/');
+  async getCertificateTemplate(solicitudId: number | string): Promise<string> {
+    return this.getText(`/certificado/edit/${solicitudId}/`);
   }
 
   /**
@@ -60,6 +60,15 @@ class BudgetService extends HttpClient {
    */
   async getById(id: string | number): Promise<BudgetRequest> {
     return this.get<BudgetRequest>(`/solicitudes/${id}`);
+  }
+
+  /**
+   * Crea un certificado de disponibilidad presupuestal desde el template.
+   * Envía el formulario al backend, que genera el PDF y lo sube a Google Drive.
+   * Retorna el URL de visualización de Drive.
+   */
+  async createCertificateFromTemplate(id: number | string, formData: FormData): Promise<{ drive_id: string; url_view: string }> {
+    return this.post('/certificado/create/' + id + '/', formData);
   }
 
   /**

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Role, User, BudgetRequest, BudgetStatus, ToastType } from './types';
 import './styles/loader.css';
@@ -150,9 +150,17 @@ const AppContent: React.FC<{
   const navigate = useNavigate();
   const location = useLocation();
   const { fetchCatalogs, loadingCatalogs } = useCatalogs();
+  const fetchCalledRef = useRef(false);
 
   useEffect(() => {
-    if (user) {
+    if (!user) {
+      fetchCalledRef.current = false;
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && !fetchCalledRef.current) {
+      fetchCalledRef.current = true;
       fetchAllRequests();
       fetchCatalogs();
     }
@@ -293,7 +301,6 @@ const AppContent: React.FC<{
 
   const handleCertificateCreated = async () => {
     await fetchAllRequests();
-    navigate('/');
     addToast('Certificado generado correctamente', 'success');
   };
 

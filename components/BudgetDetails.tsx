@@ -100,7 +100,9 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   if (showCertificateForm) {
     return (
       <CertificateTemplate 
+        solicitudId={request.id}
         onCancel={() => setShowCertificateForm(false)}
+        onSuccess={() => setShowCertificateForm(false)}
         addToast={addToast}
       />
     );

@@ -2,20 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { budgetService } from '../services/budget.service';
 
 interface CertificateTemplateProps {
+  solicitudId: number | string;
   onCancel?: () => void;
+  onSuccess?: () => void;
   addToast?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ onCancel, addToast }) => {
+const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, onCancel, onSuccess, addToast }) => {
   const [htmlContent, setHtmlContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchCertificate = async () => {
       try {
         setIsLoading(true);
-        const html = await budgetService.getCertificateTemplate();
+        const html = await budgetService.getCertificateTemplate(solicitudId);
         setHtmlContent(html);
       } catch (err: any) {
         console.error('Error al obtener el certificado:', err);
@@ -30,6 +34,33 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ onCancel, add
 
     fetchCertificate();
   }, [addToast]);
+
+  const handleSave = async () => {
+    const form = containerRef.current?.querySelector('form');
+    if (form) {
+      setIsSaving(true);
+      try {
+        const formData = new FormData(form);
+        const response = await budgetService.createCertificateFromTemplate(solicitudId, formData);
+        window.open(response.url_view, '_blank');
+        if (onSuccess) {
+          onSuccess();
+        }
+      } catch (err: any) {
+        const errorMessage = err.error || 'Error al generar el certificado';
+        setError(errorMessage);
+        if (addToast) {
+          addToast(errorMessage, 'error');
+        }
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      if (addToast) {
+        addToast('No se encontró el formulario del certificado', 'error');
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -82,8 +113,43 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ onCancel, add
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
           <div 
             id="certificate-template-preview"
+            ref={containerRef}
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
+          
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 sm:p-6 bg-slate-50 border-t border-slate-100">
+            <button 
+              type="button" 
+              onClick={onCancel}
+              disabled={isSaving}
+              className="w-full sm:flex-grow bg-[#F8F9FA] hover:bg-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl transition-all border border-slate-200 text-sm disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button 
+              type="button"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="w-full sm:flex-grow-[2] bg-[#003B71] hover:bg-[#002d56] text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+            >
+              {isSaving ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Guardando...
+                </>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                  </svg>
+                  Guardar Certificado
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
