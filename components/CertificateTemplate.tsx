@@ -113,6 +113,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, 
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
           <div 
             id="certificate-template-preview"
+            className="p-6 md:p-8 gap-8"
             ref={containerRef}
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />

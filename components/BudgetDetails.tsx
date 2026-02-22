@@ -26,9 +26,10 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   const certificadoFile = request.files?.find(f => f.es_certificado);
   const certificadoUrl = certificadoFile?.url_view;
 
-  const handleCertificateCreated = () => {
+  const handleSuccess = async () => {
+    setShowCertificateForm(false);
     if (onCertificateCreated) {
-      onCertificateCreated();
+      await onCertificateCreated();
     }
   };
   
@@ -102,7 +103,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
       <CertificateTemplate 
         solicitudId={request.id}
         onCancel={() => setShowCertificateForm(false)}
-        onSuccess={() => setShowCertificateForm(false)}
+        onSuccess={handleSuccess}
         addToast={addToast}
       />
     );
