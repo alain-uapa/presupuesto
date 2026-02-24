@@ -41,12 +41,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   };
 
   const handleCreateCertificate = () => {
-    if (selectedAttachmentIds.length === 0) {
-      if (addToast) {
-        addToast('Debe seleccionar al menos un archivo para crear el certificado', 'error');
-      }
-      return;
-    }
     setShowCertificateForm(true);
   };
 
@@ -226,7 +220,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </div>
           )}
 
-          {isSupervisor && request.estado === BudgetStatus.APPROVED && regularFiles.length > 0 && (
+          {isSupervisor && request.estado === BudgetStatus.APPROVED && (
             <div className="space-y-4">
               {certificadoUrl && (
                 <div className="space-y-3">
@@ -262,7 +256,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
               </h3>
               
               <div className="space-y-2">
-                {!certificadoUrl && (
+                {!certificadoUrl && regularFiles.length > 0 && (
                   <p className="text-xs text-slate-500 mb-2">seleccione las cotizaciones</p>
                 )}
                 {regularFiles.map((file) => {
@@ -294,7 +288,9 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                             ? isApproved ? 'text-emerald-700' : 'text-gray-500'
                             : 'text-gray-700'
                         }`}>
-                          {file.nombre || file.name}
+                          {(file.nombre || file.name || '').length > 35 
+                            ? `${(file.nombre || file.name || '').slice(0, 35)}...` 
+                            : file.nombre || file.name}
                         </span>
                       </div>
                       {file.url_view && (
