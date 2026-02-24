@@ -50,16 +50,65 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
       await onCertificateCreated();
     }
   };
-  
+  const getBorderFormColor = () => {
+    return request.estado === BudgetStatus.REJECTED ? 'border-red-100' : request.estado === BudgetStatus.PENDING ? 'border-amber-100' : 'border-emerald-100';
+  }
+  const getBgHeaderColor = () => {
+    return request.estado === BudgetStatus.REJECTED ? 'bg-red-50' : request.estado === BudgetStatus.PENDING ? 'bg-amber-50' : 'bg-emerald-50';
+  }
   const getStatusBadge = (status: BudgetStatus) => {
     const label = getLabel(ESTADO_CHOICES, status);
     switch (status) {
       case BudgetStatus.APPROVED:
-        return <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-bold rounded-full">{label}</span>;
+        return (
+          <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-100 px-5 py-2.5 shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5 text-emerald-50" aria-hidden="true">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium uppercase tracking-wider text-emerald-600">Estado</span>
+              <span className="text-sm font-bold text-emerald-700">{label}</span>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1 h-4 w-4 text-emerald-400" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+          </div>
+        );
       case BudgetStatus.REJECTED:
-        return <span className="px-3 py-1 bg-rose-100 text-rose-700 text-sm font-bold rounded-full">{label}</span>;
+        return (
+          <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-100 px-5 py-2.5 shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5 text-white" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m15 9-6 6"></path>
+                <path d="m9 9 6 6"></path>
+              </svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium uppercase tracking-wider text-red-400">Estado</span>
+              <span className="text-sm font-bold text-red-700">{label}</span>
+            </div>
+          </div>
+        );
       default:
-        return <span className="px-3 py-1 bg-amber-100 text-amber-700 text-sm font-bold rounded-full">{label}</span>;
+        return (
+          <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-100 px-5 py-2.5 shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5 text-white" aria-hidden="true">
+                <path d="M12 6v6l4 2"></path>
+                <circle cx="12" cy="12" r="10"></circle>
+              </svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium uppercase tracking-wider text-amber-500">Estado</span>
+              <span className="text-sm font-bold text-amber-700">{label}</span>
+            </div>
+          </div>
+        );
     }
   };
 
@@ -112,9 +161,9 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   }
 
   return (
-    <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100">
+    <div className={`max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border ${getBorderFormColor()}`}>
       {/* Header */}
-      <div className="p-6 md:p-8 bg-[#F8F9FA] border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className={`p-6 md:p-8 ${getBgHeaderColor()} border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4`}>
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
