@@ -12,6 +12,10 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, onEdit, onCreate, onDelete }) => {
+  const isCollaborator = user.role === Role.COLABORADOR;
+  const isSupervisor = user.role === Role.SUPERVISOR;
+  const isLector = user.role === Role.LECTOR;
+
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [statusFilter, setStatusFilter] = useState<BudgetStatus | 'TODOS'>('TODOS');
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
@@ -39,8 +43,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
   const filteredRequests = useMemo(() => {
     let list = requests || [];
 
-    // Colaborador solo ve lo suyo
-    if (user.role === Role.COLABORADOR) {
+    if (isCollaborator) {
       list = list.filter(r => 
         r.colaborador && 
         String(r.colaborador.id) === String(user.id)
@@ -75,7 +78,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-[#333333]">
-            {user.role === Role.SUPERVISOR ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
+            {(isSupervisor || isLector) ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
           </h2>
           <p className="text-slate-500">Mostrando registros para el periodo {selectedYear}</p>
         </div>
@@ -105,7 +108,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
             ))}
           </select>
 
-          {user.role === Role.SUPERVISOR && (
+          {(isSupervisor || isLector) && (
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
@@ -118,7 +121,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
             </select>
           )}
 
-          {user.role === Role.COLABORADOR && (
+          {isCollaborator && (
             <button 
               onClick={onCreate}
               className="bg-[#ff8300] hover:bg-[#e67600] text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-md shadow-orange-100 flex items-center gap-2"
@@ -150,7 +153,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
               onView={() => onViewDetails(String(req.id))}
               onEdit={() => onEdit(String(req.id))}
               onDelete={() => onDelete(String(req.id))}              
-              isCollaborator={user.role === Role.COLABORADOR}
+              userRole={user.role}
               avatar={<UnisexAvatar />} // Added unisex avatar
             />
           ))}

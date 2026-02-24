@@ -3,7 +3,6 @@ import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
-import { budgetService } from '../services/budget.service';
 
 interface BudgetDetailsProps {
   user: User;
@@ -16,12 +15,13 @@ interface BudgetDetailsProps {
 }
 
 const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus, onDeleteAttachment, onCertificateCreated, addToast }) => {
+  const isCollaborator = user.role === Role.COLABORADOR;
+  const isSupervisor = user.role === Role.SUPERVISOR;
+  const isLector = user.role === Role.LECTOR;
+
   const { ESTADO_CHOICES, TIPO_CHOICES, RUBRO_CHOICES, getLabel } = useCatalogs();
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
   const [showCertificateForm, setShowCertificateForm] = useState(false);
-  const [isEditingMonto, setIsEditingMonto] = useState(false);
-  const [editedMonto, setEditedMonto] = useState(String(request.monto_a_ejecutar || 0));
-  const [isSavingMonto, setIsSavingMonto] = useState(false);
 
   const certificadoFile = request.files?.find(f => f.es_certificado);
   const certificadoUrl = certificadoFile?.url_view;
@@ -55,27 +55,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(amount || 0);
-  };
-
-  const handleSaveMonto = async () => {
-    setIsSavingMonto(true);
-    try {
-      const newMonto = parseFloat(editedMonto) || 0;
-      await budgetService.update(request.id, { monto_a_ejecutar: newMonto });
-      request.monto_a_ejecutar = newMonto;
-      setIsEditingMonto(false);
-      if (addToast) {
-        addToast('Monto actualizado exitosamente', 'success');
-      }
-    } catch (error) {
-      setIsEditingMonto(false);
-      console.error('Error al actualizar monto:', error);
-      if (addToast) {
-        addToast('Error al actualizar el monto', 'error');
-      }
-    } finally {
-      setIsSavingMonto(false);
-    }
   };
 
   const DetailItem = ({ label, value }: { label: string, value: string | number }) => (
@@ -142,43 +121,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
              <DetailItem label="Rubro Presupuestal" value={getLabel(RUBRO_CHOICES, request.rubro_presupuestal)} />
              <DetailItem label="Cuenta Analítica" value={request.cuenta_analitica?.nombre} />
               <DetailItem label="Presupuesto Pre-aprobado" value={formatCurrency(request.presupuesto_pre_aprobado)} />
-              <div className="bg-[#F8F9FA] p-4 rounded-xl border border-slate-100">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Monto a Ejecutar</p>
-                {isEditingMonto ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      value={editedMonto}
-                      onChange={(e) => setEditedMonto(e.target.value)}
-                      className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-[#333333] outline-none focus:ring-2 focus:ring-[#003B71]"
-                      autoFocus
-                    />
-                    <button
-                      onClick={handleSaveMonto}
-                      disabled={isSavingMonto}
-                      className="p-2 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-[#333333]">{formatCurrency(request.monto_a_ejecutar)}</p>
-                    {request.estado === BudgetStatus.PENDING && (
-                      <button
-                        onClick={() => setIsEditingMonto(true)}
-                        className="p-1 text-slate-400 hover:text-[#003B71] hover:bg-slate-200 rounded-lg transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+              <DetailItem label="Monto a Ejecutar" value={formatCurrency(request.monto_a_ejecutar)} />
           </section>
 
           <section>
@@ -267,7 +210,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </div>
           )}
 
-          {(user.role === Role.SUPERVISOR || user.role === Role.COLABORADOR) && request.estado === BudgetStatus.APPROVED && certificadoUrl && (
+          {(isSupervisor || isCollaborator || isLector) && request.estado === BudgetStatus.APPROVED && certificadoUrl && (
             <div className="space-y-4">
               <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Certificado</h3>
               <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl">

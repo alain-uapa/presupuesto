@@ -1,7 +1,8 @@
 
 export enum Role {
   COLABORADOR = 'COLABORADOR',
-  SUPERVISOR = 'SUPERVISOR'
+  SUPERVISOR = 'SUPERVISOR',
+  LECTOR = 'LECTOR'
 }
 
 export enum BudgetStatus {

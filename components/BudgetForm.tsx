@@ -22,8 +22,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
     requestType: initialData?.tipo_solicitud || TIPO_CHOICES[0].value,
     budgetRubro: initialData?.rubro_presupuestal || RUBRO_CHOICES[0].value,
     analyticalAccountId: initialData?.cuenta_analitica?.id || 0,
-    preApprovedBudget: initialData?.presupuesto_pre_aprobado || 0,
-    executionAmount: initialData?.monto_a_ejecutar || 0,
+    preApprovedBudget: initialData?.presupuesto_pre_aprobado || '',
+    executionAmount: initialData?.monto_a_ejecutar || '',
     files: initialData?.files || [],
   });
   
@@ -50,8 +50,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
       requestType: initialData?.tipo_solicitud || TIPO_CHOICES[0].value,
       budgetRubro: initialData?.rubro_presupuestal || RUBRO_CHOICES[0].value,
       analyticalAccountId: initialData?.cuenta_analitica?.id || 0,
-      preApprovedBudget: initialData?.presupuesto_pre_aprobado || 0,
-      executionAmount: initialData?.monto_a_ejecutar || 0,
+      preApprovedBudget: initialData?.presupuesto_pre_aprobado || '',
+      executionAmount: initialData?.monto_a_ejecutar || '',
       files: initialData?.files || [],
     });
   }, [initialData, initialData?.files]);
@@ -91,6 +91,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
     onSubmit({
       ...formData,
+      preApprovedBudget: formData.preApprovedBudget === '' ? 0 : formData.preApprovedBudget,
+      executionAmount: formData.executionAmount === '' ? 0 : formData.executionAmount,
       locationName: loc?.nombre || 'Sede Santiago',
       analyticalAccountName: acc?.nombre || 'Cuenta Analítica',
       attachments
@@ -215,8 +217,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               required
               min="0"
               value={formData.preApprovedBudget}
-              onChange={e => setFormData(prev => ({ ...prev, preApprovedBudget: Number(e.target.value) }))}
+              onChange={e => setFormData(prev => ({ ...prev, preApprovedBudget: e.target.value === '' ? '' : Number(e.target.value) }))}
               className={inputClass}
+              placeholder="0"
             />
           </div>
 
@@ -227,8 +230,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               required
               min="0"
               value={formData.executionAmount}
-              onChange={e => setFormData(prev => ({ ...prev, executionAmount: Number(e.target.value) }))}
+              onChange={e => setFormData(prev => ({ ...prev, executionAmount: e.target.value === '' ? '' : Number(e.target.value) }))}
               className={inputClass}
+              placeholder="0"
             />
           </div>
         </div>
