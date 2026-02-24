@@ -102,10 +102,11 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   );
 
   if (showCertificateForm) {
+    const selectedFiles = regularFiles.filter(f => selectedAttachmentIds.includes(f.id as number));
     return (
       <CertificateTemplate 
         solicitudId={request.id}
-        selectedAttachmentIds={selectedAttachmentIds}
+        selectedAttachments={selectedFiles}
         onCancel={() => {
           setShowCertificateForm(false);
           setSelectedAttachmentIds([]);

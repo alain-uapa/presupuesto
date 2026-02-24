@@ -1,15 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { budgetService } from '../services/budget.service';
+
+interface AttachmentFile {
+  id?: number | string;
+  nombre?: string;
+  name?: string;
+}
 
 interface CertificateTemplateProps {
   solicitudId: number | string;
   selectedAttachmentIds?: number[];
+  selectedAttachments?: AttachmentFile[];
   onCancel?: () => void;
   onSuccess?: () => void;
   addToast?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, selectedAttachmentIds, onCancel, onSuccess, addToast }) => {
+const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, selectedAttachments, onCancel, onSuccess, addToast }) => {
   const [htmlContent, setHtmlContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -43,8 +50,9 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, 
       try {
         const formData = new FormData(form);
         
-        if (selectedAttachmentIds && selectedAttachmentIds.length > 0) {
-          formData.append('attachment_ids', JSON.stringify(selectedAttachmentIds));
+        const selectedIds = selectedAttachments?.map(a => a.id) || [];
+        if (selectedIds.length > 0) {
+          formData.append('attachment_ids', JSON.stringify(selectedIds));
         }
         
         const response = await budgetService.createCertificateFromTemplate(solicitudId, formData);
@@ -123,6 +131,22 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, 
             ref={containerRef}
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
+          
+          {selectedAttachments && selectedAttachments.length > 0 && (
+            <div className="p-4 bg-gray-50 border-t border-gray-200">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Cotizaciones incluidas:</p>
+              <ul className="text-sm text-gray-700 space-y-1">
+                {selectedAttachments.map((attachment, index) => (
+                  <li key={attachment.id || index} className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-[#003B71]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {attachment.nombre || attachment.name || 'Archivo'}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 p-4 sm:p-6 bg-slate-50 border-t border-slate-100">
             <button 

@@ -36,7 +36,7 @@ const AttachmentList: React.FC<AttachmentListProps> = ({
         return (
           <div 
             key={fileId} 
-            className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl hover:bg-white hover:shadow-md hover:border-blue-400 transition-all duration-200"
+            className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl hover:bg-white hover:shadow-md hover:border-blue-400 transition-all duration-200"
           >
             <div className="flex items-center space-x-3 overflow-hidden">
               <div className="flex-shrink-0 p-2 bg-blue-50 rounded-lg text-blue-600">
@@ -48,8 +48,7 @@ const AttachmentList: React.FC<AttachmentListProps> = ({
               <div className="overflow-hidden">
                 <p className="text-sm font-semibold text-gray-700 truncate" title={fileName}>
                   {fileName}
-                </p>
-                <p className="text-xs text-gray-400 uppercase tracking-tighter">Google Drive</p>
+                </p>               
               </div>
             </div>
 
