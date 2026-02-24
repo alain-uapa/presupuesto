@@ -58,8 +58,24 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
   }, [initialData, initialData?.files]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const newFiles: Attachment[] = Array.from(e.target.files).map((f: File) => ({
+    const MAX_FILES = 2; 
+    const MAX_TOTAL_SIZE_MB = 3;
+    const MAX_TOTAL_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024; // Convertir MB a Bytes
+    const selectedFiles: File[] = Array.from(e.target.files || []);
+
+    if (selectedFiles.length === 0) return;
+    if (selectedFiles.length > MAX_FILES) {      
+        addToast && addToast(`Solo puedes subir un máximo de ${MAX_FILES} archivos.`, 'error');
+        e.target.value = ""; 
+        return;
+    }
+    const totalSize = selectedFiles.reduce((acc, file) => acc + file.size, 0);
+    if (totalSize > MAX_TOTAL_BYTES) {
+      addToast && addToast(`El tamaño total de los archivos excede el límite de ${MAX_TOTAL_SIZE_MB} MB.`, 'error');
+      e.target.value = "";
+      return;
+    }
+    const newFiles: Attachment[] = selectedFiles.map((f: File) => ({
       name: f.name,
       size: `${(f.size / 1024).toFixed(1)} KB`,
       type: f.type,
