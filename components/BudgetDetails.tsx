@@ -269,7 +269,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </div>
           )}
 
-          {isSupervisor && request.estado === BudgetStatus.APPROVED && (
+          {request.estado === BudgetStatus.APPROVED && (
             <div className="space-y-4">
               {certificadoUrl && (
                 <div className="space-y-3">
