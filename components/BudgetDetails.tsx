@@ -22,9 +22,29 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   const { ESTADO_CHOICES, TIPO_CHOICES, RUBRO_CHOICES, getLabel } = useCatalogs();
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
   const [showCertificateForm, setShowCertificateForm] = useState(false);
+  const [selectedAttachmentIds, setSelectedAttachmentIds] = useState<number[]>([]);
 
   const certificadoFile = request.files?.find(f => f.es_certificado);
   const certificadoUrl = certificadoFile?.url_view;
+  const regularFiles = request.files?.filter(f => !f.es_certificado) || [];
+
+  const toggleAttachment = (fileId: number) => {
+    setSelectedAttachmentIds(prev => 
+      prev.includes(fileId)
+        ? prev.filter(id => id !== fileId)
+        : [...prev, fileId]
+    );
+  };
+
+  const handleCreateCertificate = () => {
+    if (selectedAttachmentIds.length === 0) {
+      if (addToast) {
+        addToast('Debe seleccionar al menos un archivo para crear el certificado', 'error');
+      }
+      return;
+    }
+    setShowCertificateForm(true);
+  };
 
   const handleSuccess = async () => {
     setShowCertificateForm(false);
@@ -81,7 +101,11 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
     return (
       <CertificateTemplate 
         solicitudId={request.id}
-        onCancel={() => setShowCertificateForm(false)}
+        selectedAttachmentIds={selectedAttachmentIds}
+        onCancel={() => {
+          setShowCertificateForm(false);
+          setSelectedAttachmentIds([]);
+        }}
         onSuccess={handleSuccess}
         addToast={addToast}
       />
@@ -195,47 +219,106 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </div>
           )}
 
-          {user.role === Role.SUPERVISOR && request.estado === BudgetStatus.APPROVED && !certificadoUrl && (
+          {isSupervisor && request.estado === BudgetStatus.APPROVED && regularFiles.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Certificado</h3>
-              <button 
-                onClick={() => setShowCertificateForm(true)}
-                className="w-full bg-[#003B71] hover:bg-[#002d56] text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-                </svg>
-                Crear Certificado
-              </button>
-            </div>
-          )}
-
-          {(isSupervisor || isCollaborator || isLector) && request.estado === BudgetStatus.APPROVED && certificadoUrl && (
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Certificado</h3>
-              <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-                <div className="flex items-center space-x-3 overflow-hidden">
-                  <div className="flex-shrink-0 p-2 bg-emerald-100 rounded-lg text-emerald-600">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                  </div>
-                  <div className="overflow-hidden">
-                    <p className="text-sm font-semibold text-emerald-700 truncate">Certificado de Aprobación</p>
-                    <p className="text-xs text-emerald-500">PDF generado</p>
+              {certificadoUrl && (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold text-[#003B71] uppercase tracking-wider">Certificado Generado</h3>
+                  <div className="flex items-center justify-between p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <div className="flex items-center space-x-3 overflow-hidden">
+                      <div className="flex-shrink-0 p-2 bg-emerald-100 rounded-lg text-emerald-600">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-sm font-semibold text-emerald-700 truncate">Certificado de Aprobación</p>
+                        <p className="text-xs text-emerald-500">PDF generado</p>
+                      </div>
+                    </div>
+                    <a 
+                      href={certificadoUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="ml-4 p-2 text-emerald-400 hover:text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
                   </div>
                 </div>
-                <a 
-                  href={certificadoUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="ml-4 p-2 text-emerald-400 hover:text-emerald-600 hover:bg-emerald-100 rounded-lg transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
+              )}
+
+              <h3 className={`text-sm font-bold uppercase tracking-wider ${certificadoUrl ? 'text-slate-500' : 'text-[#333333]'}`}>
+                {certificadoUrl ? 'Archivos Aprobados' : 'Certificado'}
+              </h3>
+              
+              <div className="space-y-2">
+                {!certificadoUrl && (
+                  <p className="text-xs text-slate-500 mb-2">Seleccione los archivos a incluir:</p>
+                )}
+                {regularFiles.map((file) => {
+                  const fileId = file.id as number;
+                  const isApproved = file.aprobado === true;
+                  const isSelected = certificadoUrl ? isApproved : selectedAttachmentIds.includes(fileId);
+                  
+                  return (
+                    <div 
+                      key={fileId} 
+                      className={`flex items-center justify-between p-2 border rounded-lg transition-colors ${
+                        certificadoUrl 
+                          ? isApproved 
+                            ? 'bg-emerald-50 border-emerald-200' 
+                            : 'bg-gray-50 border-gray-200 opacity-60'
+                          : 'bg-gray-50 border-gray-200 hover:bg-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 flex-grow">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={certificadoUrl ? undefined : () => toggleAttachment(fileId)}
+                          disabled={certificadoUrl}
+                          className="w-4 h-4 text-[#003B71] border-gray-300 rounded focus:ring-[#003B71] disabled:cursor-not-allowed"
+                        />
+                        <span className={`text-xs font-medium truncate ${
+                          certificadoUrl 
+                            ? isApproved ? 'text-emerald-700' : 'text-gray-500'
+                            : 'text-gray-700'
+                        }`}>
+                          {file.nombre || file.name}
+                        </span>
+                      </div>
+                      {file.url_view && (
+                        <a 
+                          href={file.url_view} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="p-1 text-gray-400 hover:text-[#003B71] hover:bg-blue-50 rounded transition-colors"
+                          title="Ver archivo"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
+
+              {!certificadoUrl && (
+                <button 
+                  onClick={handleCreateCertificate}
+                  className="w-full bg-[#003B71] hover:bg-[#002d56] text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                  </svg>
+                  Crear Certificado
+                </button>
+              )}
             </div>
           )}
         </div>

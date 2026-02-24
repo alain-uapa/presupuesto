@@ -3,12 +3,13 @@ import { budgetService } from '../services/budget.service';
 
 interface CertificateTemplateProps {
   solicitudId: number | string;
+  selectedAttachmentIds?: number[];
   onCancel?: () => void;
   onSuccess?: () => void;
   addToast?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, onCancel, onSuccess, addToast }) => {
+const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, selectedAttachmentIds, onCancel, onSuccess, addToast }) => {
   const [htmlContent, setHtmlContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,6 +42,11 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, 
       setIsSaving(true);
       try {
         const formData = new FormData(form);
+        
+        if (selectedAttachmentIds && selectedAttachmentIds.length > 0) {
+          formData.append('attachment_ids', JSON.stringify(selectedAttachmentIds));
+        }
+        
         const response = await budgetService.createCertificateFromTemplate(solicitudId, formData);
         window.open(response.url_view, '_blank');
         if (onSuccess) {
