@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { budgetService } from '../services/budget.service';
+import EmailSelector from './EmailSelector';
 
 interface AttachmentFile {
   id?: number | string;
@@ -117,7 +118,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, 
                   </svg>
                 </button>
               )}
-              <div>
+              <div>                
                 <h2 className="text-2xl font-bold text-[#333333]">Certificado de Disponibilidad Presupuestal</h2>
                 <p className="text-slate-500">Vista previa del certificado</p>
               </div>
@@ -126,6 +127,9 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, 
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+          <div className="p-6 md:p-8 gap-8">
+            <EmailSelector />
+          </div>
           <div 
             id="certificate-template-preview"
             className="p-6 md:p-8 gap-8"
