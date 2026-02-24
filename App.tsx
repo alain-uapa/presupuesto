@@ -101,9 +101,10 @@ interface BudgetFormViewProps {
   onSubmit: (formValues: any, id?: string) => Promise<void>;
   onCancel: () => void;
   onDeleteAttachment?: (id: number | string, requestId?: string) => void;
+  addToast?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-const BudgetFormView: React.FC<BudgetFormViewProps> = ({ requests, onSubmit, onCancel, onDeleteAttachment }) => {
+const BudgetFormView: React.FC<BudgetFormViewProps> = ({ requests, onSubmit, onCancel, onDeleteAttachment, addToast }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
@@ -126,6 +127,7 @@ const BudgetFormView: React.FC<BudgetFormViewProps> = ({ requests, onSubmit, onC
       onSubmit={handleSubmit}
       onCancel={handleCancel}
       onDeleteAttachment={onDeleteAttachment}
+      addToast={addToast}
     />
   );
 };
@@ -367,6 +369,7 @@ const AppContent: React.FC<{
               onSubmit={handleCreateRequest}
               onCancel={() => navigate('/')}
               onDeleteAttachment={handleEliminarAdjunto}
+              addToast={addToast}
             />
           } />
           <Route path="/request/:id" element={
@@ -386,6 +389,7 @@ const AppContent: React.FC<{
               onSubmit={handleEditRequest}
               onCancel={() => navigate('/')}
               onDeleteAttachment={handleEliminarAdjunto}
+              addToast={addToast}
             />
           } />
           <Route path="/certificado-preview" element={
