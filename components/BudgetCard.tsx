@@ -18,6 +18,12 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
   const canDelete = isCollaborator && request.estado === BudgetStatus.PENDING;
   const { ESTADO_CHOICES, getLabel } = useCatalogs();
 
+    const getBorderCardColor = (status: BudgetStatus) => {
+      return status === BudgetStatus.REJECTED ? 'border-red-100' : status === BudgetStatus.PENDING ? 'border-amber-100' : 'border-emerald-100';
+    }
+    const getBgCardColor = (status: BudgetStatus) => {
+      return status === BudgetStatus.REJECTED ? 'bg-red-50' : status === BudgetStatus.PENDING ? 'bg-amber-50' : 'bg-green-50';
+    }
   const getStatusStyle = (status: BudgetStatus) => {
     switch (status) {
       case BudgetStatus.APPROVED:
@@ -68,7 +74,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
 
   return (
     <div 
-      className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between"
+      className={`border ${getBorderCardColor(request.estado)} ${getBgCardColor(request.estado)} rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between`}
     >
       <div>
         <div className="flex justify-between items-start mb-4">
