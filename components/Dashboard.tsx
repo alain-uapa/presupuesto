@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { User, Role, BudgetRequest, BudgetStatus } from '../types';
 import BudgetCard from './BudgetCard';
 
@@ -16,6 +16,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
   const isLector = user.role === Role.LECTOR;
+
+  useEffect(() => {
+    if (onRefresh) {
+      const interval = setInterval(() => {
+        onRefresh();
+      }, 120000);
+      return () => clearInterval(interval);
+    }
+  }, [onRefresh]);
 
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [statusFilter, setStatusFilter] = useState<BudgetStatus | 'TODOS'>('TODOS');
