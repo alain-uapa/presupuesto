@@ -11,12 +11,13 @@ interface CertificateTemplateProps {
   solicitudId: number | string;
   selectedAttachmentIds?: number[];
   selectedAttachments?: AttachmentFile[];
+  cuentaContable?: string;
   onCancel?: () => void;
   onSuccess?: () => void;
   addToast?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, selectedAttachments, onCancel, onSuccess, addToast }) => {
+const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, selectedAttachments, cuentaContable, onCancel, onSuccess, addToast }) => {
   const [htmlContent, setHtmlContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -27,7 +28,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, 
     const fetchCertificate = async () => {
       try {
         setIsLoading(true);
-        const html = await budgetService.getCertificateTemplate(solicitudId);
+        const html = await budgetService.getCertificateTemplate(solicitudId, cuentaContable);
         setHtmlContent(html);
       } catch (err: any) {
         console.error('Error al obtener el certificado:', err);

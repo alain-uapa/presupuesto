@@ -23,6 +23,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
   const [showCertificateForm, setShowCertificateForm] = useState(false);
   const [selectedAttachmentIds, setSelectedAttachmentIds] = useState<number[]>([]);
+  const [cuentaContable, setCuentaContable] = useState('');
 
   const certificadoFile = request.files?.find(f => f.es_certificado);
   const certificadoUrl = certificadoFile?.url_view;
@@ -41,6 +42,12 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   };
 
   const handleCreateCertificate = () => {
+    if (!cuentaContable.trim()) {
+      if (addToast) {
+        addToast('Debe introducir la cuenta contable', 'error');
+      }
+      return;
+    }
     setShowCertificateForm(true);
   };
 
@@ -150,9 +157,11 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
       <CertificateTemplate 
         solicitudId={request.id}
         selectedAttachments={selectedFiles}
+        cuentaContable={cuentaContable}
         onCancel={() => {
           setShowCertificateForm(false);
           setSelectedAttachmentIds([]);
+          setCuentaContable('');
         }}
         onSuccess={handleSuccess}
         addToast={addToast}
@@ -305,6 +314,15 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
               </h3>
               
               <div className="space-y-2">
+                {!certificadoUrl && (
+                  <input
+                    type="text"
+                    value={cuentaContable}
+                    onChange={(e) => setCuentaContable(e.target.value)}
+                    placeholder="Cuenta Contable"
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003B71] focus:border-transparent"
+                  />
+                )}
                 {!certificadoUrl && regularFiles.length > 0 && (
                   <p className="text-xs text-slate-500 mb-2">seleccione las cotizaciones</p>
                 )}

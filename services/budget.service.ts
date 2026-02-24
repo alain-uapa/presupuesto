@@ -24,8 +24,9 @@ class BudgetService extends HttpClient {
   /**
    * Obtiene el contenido HTML del certificado.
    */
-  async getCertificateTemplate(solicitudId: number | string): Promise<string> {
-    return this.getText(`/certificado/edit/${solicitudId}/`);
+  async getCertificateTemplate(solicitudId: number | string, cuentaContable?: string): Promise<string> {
+    const params = cuentaContable ? `?cuenta_contable=${encodeURIComponent(cuentaContable)}` : '';
+    return this.getText(`/certificado/edit/${solicitudId}/${params}`);
   }
 
   /**
