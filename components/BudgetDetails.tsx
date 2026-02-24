@@ -26,7 +26,11 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
 
   const certificadoFile = request.files?.find(f => f.es_certificado);
   const certificadoUrl = certificadoFile?.url_view;
-  const regularFiles = request.files?.filter(f => !f.es_certificado) || [];
+  const regularFiles = (request.files?.filter(f => !f.es_certificado) || []).sort((a, b) => {
+    const aApproved = certificadoUrl ? a.aprobado === true : selectedAttachmentIds.includes(a.id as number);
+    const bApproved = certificadoUrl ? b.aprobado === true : selectedAttachmentIds.includes(b.id as number);
+    return (aApproved === bApproved) ? 0 : aApproved ? -1 : 1;
+  });
 
   const toggleAttachment = (fileId: number) => {
     setSelectedAttachmentIds(prev => 
@@ -155,12 +159,14 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </p>
           </section>
 
-          <section>
-            <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2">Documentación Adjunta</h3>
-            <AttachmentList 
-              files={request.files} 
-            />
-          </section>
+          {request.estado !== BudgetStatus.APPROVED && (
+            <section>
+              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2">Documentación Adjunta</h3>
+              <AttachmentList 
+                files={request.files} 
+              />
+            </section>
+          )}
 
           {request.estado === BudgetStatus.REJECTED && (
             <section className="bg-rose-50 border border-rose-100 p-6 rounded-2xl">
@@ -251,12 +257,12 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
               )}
 
               <h3 className={`text-sm font-bold uppercase tracking-wider ${certificadoUrl ? 'text-slate-500' : 'text-[#333333]'}`}>
-                {certificadoUrl ? 'Archivos Aprobados' : 'Certificado'}
+                {certificadoUrl ? 'Cotizaciones' : 'Certificado'}
               </h3>
               
               <div className="space-y-2">
                 {!certificadoUrl && (
-                  <p className="text-xs text-slate-500 mb-2">Seleccione los archivos a incluir:</p>
+                  <p className="text-xs text-slate-500 mb-2">seleccione las cotizaciones</p>
                 )}
                 {regularFiles.map((file) => {
                   const fileId = file.id as number;
