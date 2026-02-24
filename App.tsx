@@ -20,9 +20,10 @@ interface DashboardViewProps {
   onViewDetails: (id: number | string) => void;
   onEdit: (id: number | string) => void;
   onDelete: (id: number | string) => void;
+  onRefresh: () => void;
 }
 
-const DashboardView: React.FC<DashboardViewProps> = ({ user, requests, onViewDetails, onEdit, onDelete }) => {
+const DashboardView: React.FC<DashboardViewProps> = ({ user, requests, onViewDetails, onEdit, onDelete, onRefresh }) => {
   const navigate = useNavigate();
   return (
     <Dashboard 
@@ -31,7 +32,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({ user, requests, onViewDet
       onViewDetails={onViewDetails}
       onEdit={onEdit}
       onCreate={() => navigate('/create')}
-      onDelete={onDelete}        
+      onDelete={onDelete}
+      onRefresh={onRefresh}        
     />
   );
 };
@@ -361,6 +363,7 @@ const AppContent: React.FC<{
               onViewDetails={(id) => navigate(`/request/${id}`)}
               onEdit={(id) => navigate(`/request/${id}/edit`)}
               onDelete={handleDeleteBudget}
+              onRefresh={fetchAllRequests}
             />
           } />
           <Route path="/create" element={
