@@ -17,7 +17,7 @@ interface BudgetDetailsProps {
 const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus, onDeleteAttachment, onCertificateCreated, addToast }) => {
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
-  const isLector = user.role === Role.LECTOR;
+  const isAUDITOR = user.role === Role.AUDITOR;
 
   const { ESTADO_CHOICES, TIPO_CHOICES, RUBRO_CHOICES, getLabel } = useCatalogs();
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
@@ -308,13 +308,13 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                   </div>
                 </div>
               )}
-
-              <h3 className={`text-sm font-bold uppercase tracking-wider ${certificadoUrl ? 'text-slate-500' : 'text-[#333333]'}`}>
-                {certificadoUrl ? 'Cotizaciones' : 'Certificado'}
-              </h3>
-              
+              {isSupervisor && (
+                <h3 className={`text-sm font-bold uppercase tracking-wider ${certificadoUrl ? 'text-slate-500' : 'text-[#333333]'}`}>
+                  {certificadoUrl ? 'Cotizaciones' : 'Certificado'}
+                </h3>
+              )}
               <div className="space-y-2">
-                {!certificadoUrl && (
+                {!certificadoUrl && isSupervisor && (
                   <input
                     type="text"
                     value={cuentaContable}
@@ -323,7 +323,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                     className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003B71] focus:border-transparent"
                   />
                 )}
-                {!certificadoUrl && regularFiles.length > 0 && (
+                {!certificadoUrl && isSupervisor && regularFiles.length > 0 && (
                   <p className="text-xs text-slate-500 mb-2">seleccione las cotizaciones</p>
                 )}
                 {regularFiles.map((file) => {
@@ -378,7 +378,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                 })}
               </div>
 
-              {!certificadoUrl && (
+              {!certificadoUrl && isSupervisor  && (
                 <button 
                   onClick={handleCreateCertificate}
                   className="w-full bg-[#003B71] hover:bg-[#002d56] text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"

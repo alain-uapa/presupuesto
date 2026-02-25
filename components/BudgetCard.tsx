@@ -13,7 +13,7 @@ interface BudgetCardProps {
 const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDelete, userRole }) => {
   const isCollaborator = userRole === Role.COLABORADOR;
   const isSupervisor = userRole === Role.SUPERVISOR;
-  const isLector = userRole === Role.LECTOR;
+  const isAUDITOR = userRole === Role.AUDITOR;
   const canEdit = (isCollaborator || isSupervisor) && request.estado === BudgetStatus.PENDING;
   const canDelete = isCollaborator && request.estado === BudgetStatus.PENDING;
   const { ESTADO_CHOICES, getLabel } = useCatalogs();
@@ -91,19 +91,17 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
           {request.descripcion}
         </p>
 
-        {isCollaborator ? (
-          /* Vista para Colaborador: Muestra montos */
-          <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
-            <div>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Presupuesto</p>
-              <p className="text-xs font-bold text-[#333333]">{formatCurrency(request.presupuesto_pre_aprobado)}</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">A Ejecutar</p>
-              <p className="text-xs font-bold text-[#ff8300]">{formatCurrency(request.monto_a_ejecutar)}</p>
-            </div>
+        <div className="grid grid-cols-2 gap-3 mb-4 p-3 rounded-lg border border-slate-100">
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Presupuesto</p>
+            <p className="text-xs font-bold text-[#333333]">{formatCurrency(request.presupuesto_pre_aprobado)}</p>
           </div>
-        ) : (
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">A Ejecutar</p>
+            <p className="text-xs font-bold text-[#ff8300]">{formatCurrency(request.monto_a_ejecutar)}</p>
+          </div>
+        </div>
+        {!isCollaborator && (
           /* Vista para Supervisor: Muestra solicitante y ubicación */
           <div className="flex items-center gap-2 mb-4">
             <UnisexAvatar />

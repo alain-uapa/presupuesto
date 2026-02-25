@@ -15,7 +15,7 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, onEdit, onCreate, onDelete, onRefresh }) => {
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
-  const isLector = user.role === Role.LECTOR;
+  const isAUDITOR = user.role === Role.AUDITOR;
 
   useEffect(() => {
     if (onRefresh) {
@@ -53,12 +53,12 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
   const filteredRequests = useMemo(() => {
     let list = requests || [];
 
-    if (isCollaborator) {
-      list = list.filter(r => 
-        r.colaborador && 
-        String(r.colaborador.id) === String(user.id)
-      );
-    }
+    // if (isCollaborator) {
+    //   list = list.filter(r => 
+    //     r.colaborador && 
+    //     String(r.colaborador.id) === String(user.id)
+    //   );
+    // }
 
     // Filtro por año y mes basado en "DD/MM/YYYY"
     list = list.filter(r => {
@@ -88,7 +88,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-[#333333]">
-            {(isSupervisor || isLector) ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
+            {(isSupervisor || isAUDITOR) ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
           </h2>
           <p className="text-slate-500">Mostrando registros para el periodo {selectedYear}</p>
         </div>
@@ -118,7 +118,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
             ))}
           </select>
 
-          {(isSupervisor || isLector) && (
+          {(isSupervisor || isAUDITOR) && (
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}

@@ -128,7 +128,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({ solicitudId, 
 
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
           <div className="p-6 md:p-8 gap-8">
-            <EmailSelector />
+          {/*  <EmailSelector /> */}
           </div>
           <div 
             id="certificate-template-preview"
