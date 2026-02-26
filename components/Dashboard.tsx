@@ -29,6 +29,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [statusFilter, setStatusFilter] = useState<BudgetStatus | 'TODOS'>('TODOS');
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -80,8 +81,22 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
       list = list.filter(r => r.estado === statusFilter);
     }
 
+    // Filtro por búsqueda de texto (mínimo 3 caracteres)
+    if (searchQuery.trim().length >= 3) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter(r => {
+        const titulo = (r.titulo || '').toLowerCase();
+        const descripcion = (r.descripcion || '').toLowerCase();
+        const solicitante = r.colaborador
+          ? `${r.colaborador.first_name} ${r.colaborador.last_name} ${r.colaborador.username}`.toLowerCase()
+          : '';
+        const ubicacion = (r.ubicacion?.nombre || '').toLowerCase();
+        return titulo.includes(q) || descripcion.includes(q) || solicitante.includes(q) || ubicacion.includes(q);
+      });
+    }
+
     return list;
-  }, [requests, user, selectedYear, selectedMonth, statusFilter]);
+  }, [requests, user, selectedYear, selectedMonth, statusFilter, searchQuery]);
 
   return (
     <div className="space-y-6">
@@ -153,6 +168,35 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
               </svg>
               Nueva Solicitud
             </button>
+          )}
+        </div>
+      </div>
+
+      {/* Search row */}
+      <div className="flex justify-end">
+        <div className="relative">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z" />
+          </svg>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar por título, solicitante, descripción o ubicación..."
+            className="bg-white border border-slate-200 rounded-lg pl-9 pr-8 py-2 text-sm text-[#333333] outline-none focus:ring-2 focus:ring-[#003B71] shadow-sm w-80"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+          {searchQuery.length > 0 && searchQuery.length < 3 && (
+            <p className="absolute left-0 top-full mt-1 text-xs text-slate-400">Escribe al menos 3 caracteres para buscar</p>
           )}
         </div>
       </div>

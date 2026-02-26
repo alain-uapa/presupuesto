@@ -221,14 +221,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </section>
           )}
 
-          {request.estado === BudgetStatus.REJECTED && (
-            <section className="bg-rose-50 border border-rose-100 p-6 rounded-2xl">
-              <h3 className="text-sm font-bold text-rose-900 uppercase tracking-widest mb-2">Observaciones del Supervisor</h3>
-              <p className="text-rose-800 text-sm">
-                {request.observaciones_supervisor || 'No se proporcionaron comentarios adicionales.'}
-              </p>
-            </section>
-          )}
         </div>
 
         {/* Action Sidebar */}
@@ -243,6 +235,15 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                 </div>
              </div>
           </div>
+
+          {request.estado === BudgetStatus.REJECTED && (
+            <section className="bg-rose-50 border border-rose-100 p-4 rounded-2xl">
+              <h3 className="text-sm font-bold text-rose-900 uppercase tracking-widest mb-2">Observaciones</h3>
+              <p className="text-rose-800 text-sm">
+                {request.observaciones_supervisor || 'No se proporcionaron comentarios adicionales.'}
+              </p>
+            </section>
+          )}
 
           {user.role === Role.SUPERVISOR && request.estado === BudgetStatus.PENDING && (
             <div className="space-y-4">
