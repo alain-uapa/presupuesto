@@ -280,6 +280,15 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
 
           {request.estado === BudgetStatus.APPROVED && (
             <div className="space-y-4">
+              {/* Confirmation message */}
+              {request.confirmado && (
+                <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm font-semibold text-emerald-500">Confirmada por Compra.</p>
+                </div>
+              )}
               {certificadoUrl && (
                 <div className="space-y-3">
                   <h3 className="text-sm font-bold text-[#003B71] uppercase tracking-wider">Certificado Generado</h3>

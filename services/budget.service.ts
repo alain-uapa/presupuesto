@@ -79,6 +79,15 @@ class BudgetService extends HttpClient {
   async createCertificate(id: string | number, formData: FormData): Promise<BudgetRequest> {
     return this.post<BudgetRequest>(`/solicitudes/certificado/upload/${id}/`, formData);
   }
+
+  /**
+   * Confirma una solicitud de presupuesto.
+   * Endpoint: /solicitudes/{id}/confirm/
+   * Retorna { status: 200 } en éxito o { error: string } en caso de error.
+   */
+  async confirmation(id: string | number): Promise<{ status?: number; error?: string }> {
+    return this.patch<{ status?: number; error?: string }>(`/solicitudes/confirm/${id}/`, {});
+  }
 }
 
 export const budgetService = new BudgetService();

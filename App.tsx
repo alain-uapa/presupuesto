@@ -98,6 +98,100 @@ const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, l
   );
 };
 
+interface BudgetConfirmViewProps {
+  user: User;
+  requests: BudgetRequest[];
+  loading: boolean;
+  fetchAllRequests: () => void;
+}
+
+const BudgetConfirmView: React.FC<BudgetConfirmViewProps> = ({ user, requests, loading, fetchAllRequests }) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [confirmError, setConfirmError] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+
+  const request = useMemo(() =>
+    requests.find(r => String(r.id) === id),
+    [requests, id]
+  );
+
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+
+    const runConfirmation = async () => {
+      setConfirmLoading(true);
+      setConfirmError(false);
+      try {
+        const result = await budgetService.confirmation(id);
+        if (cancelled) return;
+        if (!result.error) {
+          await fetchAllRequests();
+          if (!cancelled) setConfirmed(true);
+        } else {
+          setConfirmError(true);
+        }
+      } catch {
+        if (!cancelled) setConfirmError(true);
+      } finally {
+        if (!cancelled) setConfirmLoading(false);
+      }
+    };
+
+    runConfirmation();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  if (loading || confirmLoading) {
+    return null;
+  }
+
+  if (confirmError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <svg className="w-16 h-16 text-red-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p className="text-slate-500 text-lg">No se pudo confirmar la solicitud</p>
+        <button
+          onClick={() => {
+            setConfirmError(false);
+            setConfirmLoading(true);
+            budgetService.confirmation(id!).then(async (result) => {
+              if (!result.error) {
+                await fetchAllRequests();
+                setConfirmed(true);
+              } else {
+                setConfirmError(true);
+              }
+            }).catch(() => setConfirmError(true))
+              .finally(() => setConfirmLoading(false));
+          }}
+          className="mt-4 px-4 py-2 bg-[#003B71] text-white rounded-lg hover:bg-[#002a52] transition-colors"
+        >
+          Reintentar
+        </button>
+      </div>
+    );
+  }
+
+  if (!confirmed || !request) {
+    return null;
+  }
+
+  return (
+    <BudgetDetails
+      user={user}
+      request={request}
+      onBack={() => navigate('/')}
+      onUpdateStatus={() => {}}
+    />
+  );
+};
+
 interface BudgetFormViewProps {
   requests: BudgetRequest[];
   onSubmit: (formValues: any, id?: string) => Promise<void>;
@@ -387,12 +481,20 @@ const AppContent: React.FC<{
             />
           } />
           <Route path="/request/:id/edit" element={
-            <BudgetFormView 
+            <BudgetFormView
               requests={requests}
               onSubmit={handleEditRequest}
               onCancel={() => navigate('/')}
               onDeleteAttachment={handleEliminarAdjunto}
               addToast={addToast}
+            />
+          } />
+          <Route path="/request/:id/confirm" element={
+            <BudgetConfirmView
+              user={user}
+              requests={requests}
+              loading={loading}
+              fetchAllRequests={fetchAllRequests}
             />
           } />
           <Route path="/certificado-preview" element={
