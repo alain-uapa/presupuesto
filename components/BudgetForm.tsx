@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Select from "react-select";
 import { BudgetRequest, Attachment } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import { budgetService } from '../services/budget.service';
@@ -7,8 +8,23 @@ interface BudgetFormProps {
   initialData?: BudgetRequest;
   onCancel: () => void;
   onSubmit: (data: any) => void;
+  onDeleteAttachment?: (id: number | string, budgetId?: string) => Promise<void> | void;
   addToast?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
+
+const customStyles = {
+  control: (base) => ({
+    ...base,
+    borderColor: "blue",
+    boxShadow: "none",
+    "&:hover": { borderColor: "darkblue" },
+  }),
+  option: (base, state) => ({
+    ...base,
+    backgroundColor: state.isFocused ? "lightblue" : "white",
+    color: state.isFocused ? "black" : "blue",
+  }),
+};
 
 const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit, onDeleteAttachment, addToast }) => {
   const { ubicaciones, cuentasAnaliticas, loadingCatalogs, TIPO_CHOICES, RUBRO_CHOICES } = useCatalogs();
@@ -209,21 +225,13 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
           <div className="space-y-2 col-span-1 md:col-span-2">
             <label className="text-sm font-bold text-[#333333]">Cuenta Analítica *</label>
-            <select 
-              value={formData.analyticalAccountId}
-              onChange={e => setFormData(prev => ({ ...prev, analyticalAccountId: e.target.value }))}
-              className={inputClass}
-              disabled={loadingCatalogs}
-            >
-              <option value="">Seleccione una opción</option>
-              {cuentasAnaliticas.length > 0 ? (
-                cuentasAnaliticas.map(c => (
-                  <option key={c.id} value={c.id}>{c.nombre}</option>
-                ))
-              ) : (
-                <option value="">Cargando cuentas...</option>
-              )}
-            </select>
+            <Select 
+              className='w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all disabled:opacity-50'
+              defaultValue={formData.analyticalAccountId ? {value: formData.analyticalAccountId, label: cuentasAnaliticas.find(c => c.id === Number(formData.analyticalAccountId)) ? `${cuentasAnaliticas.find(c => c.id === Number(formData.analyticalAccountId))?.codigo} - ${cuentasAnaliticas.find(c => c.id === Number(formData.analyticalAccountId))?.nombre}` : 'Cargando...'} : null} 
+              onChange={(newValue) => {
+                setFormData(prev => ({ ...prev, analyticalAccountId: newValue.value }));
+              }}
+              options={cuentasAnaliticas.map(c=>({value: c.id, label: `${c.codigo} - ${c.nombre}`}))} placeholder="Seleccione la cuenta..." />
           </div>
 
           <div className="space-y-2">
