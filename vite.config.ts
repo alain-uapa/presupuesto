@@ -8,6 +8,26 @@ export default defineConfig(({ mode }) => {
       server: {
         port: 3000,
         host: '0.0.0.0',
+        proxy: {
+          // Cada vez que una petición empiece por /api, la mandamos a Django
+          '/api': {
+            target: 'http://127.0.0.1:8000',
+            changeOrigin: true,
+            // Opcional: si en Django NO pusiste el prefijo /api/ en urls.py,
+            // podrías quitarlo aquí, pero como acordamos ponerlo, déjalo así.
+            // rewrite: (path) => path.replace(/^\/api/, '') 
+          },
+          // También añade el admin para poder entrar desde el puerto 3000
+          '/admin': {
+            target: 'http://127.0.0.1:8000',
+            changeOrigin: true,
+          },
+          // Y los estáticos de Django para que el admin se vea bien
+          '/django_static': {
+            target: 'http://127.0.0.1:8000',
+            changeOrigin: true,
+          }
+        }
       },
       plugins: [react()],
       define: {

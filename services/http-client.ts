@@ -1,7 +1,7 @@
 
 export class HttpClient {
   // URL base institucional por defecto
-  protected baseUrl: string = 'https://abiotic-kenzie-braggadocian.ngrok-free.dev';
+  protected baseUrl: string = '/api';
 
   constructor(customBaseUrl?: string) {
     if (customBaseUrl) {
