@@ -91,7 +91,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
           {request.descripcion}
         </p>
 
-        <div className="grid grid-cols-2 gap-3 mb-4 p-3 rounded-lg border border-slate-100">
+        <div className="grid grid-cols-2 bg-slate-50 gap-3 mb-4 p-3 rounded-lg border border-slate-100">
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Presupuesto</p>
             <p className="text-xs font-bold text-[#333333]">{formatCurrency(request.presupuesto_pre_aprobado)}</p>
