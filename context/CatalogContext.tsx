@@ -6,6 +6,7 @@ import { catalogService } from '../services/catalog.service';
 interface CatalogContextType {
   ubicaciones: Ubicacion[];
   cuentasAnaliticas: CuentaAnalitica[];
+  cuentasContables: CuentaAnalitica[];
   loadingCatalogs: boolean;
   fetchCatalogs: () => Promise<void>;
   // Catálogos estáticos (hardcoded según requerimiento)
@@ -20,6 +21,7 @@ const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
 export const CatalogProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [ubicaciones, setUbicaciones] = useState<Ubicacion[]>([]);
   const [cuentasAnaliticas, setCuentasAnaliticas] = useState<CuentaAnalitica[]>([]);
+  const [cuentasContables, setCuentasContables] = useState<CuentaAnalitica[]>([]);
   const [loadingCatalogs, setLoadingCatalogs] = useState(false);
 
   const ESTADO_CHOICES: Choice[] = [
@@ -46,12 +48,14 @@ export const CatalogProvider: React.FC<{ children: ReactNode }> = ({ children })
   const fetchCatalogs = useCallback(async () => {
     setLoadingCatalogs(true);
     try {
-      const [uData, cData] = await Promise.all([
+      const [uData, cData, cData2] = await Promise.all([
         catalogService.getUbicaciones(),
-        catalogService.getCuentasAnaliticas()
+        catalogService.getCuentasAnaliticas(),
+        catalogService.getCuentasContables()
       ]);
       setUbicaciones(uData);
       setCuentasAnaliticas(cData);
+      setCuentasContables(cData2);
     } catch (error) {
       console.error("Error al cargar catálogos dinámicos:", error);
     } finally {
@@ -63,6 +67,7 @@ export const CatalogProvider: React.FC<{ children: ReactNode }> = ({ children })
     <CatalogContext.Provider value={{ 
       ubicaciones, 
       cuentasAnaliticas, 
+      cuentasContables,
       loadingCatalogs, 
       fetchCatalogs,
       ESTADO_CHOICES,

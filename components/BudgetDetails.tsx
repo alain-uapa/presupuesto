@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Select from "react-select";
 import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
@@ -15,6 +16,7 @@ interface BudgetDetailsProps {
 }
 
 const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus, onDeleteAttachment, onCertificateCreated, addToast }) => {
+  const { cuentasContables } = useCatalogs();
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
   const isAUDITOR = user.role === Role.AUDITOR;
@@ -168,7 +170,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
       />
     );
   }
-
   return (
     <div className={`max-w-5xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border ${getBorderFormColor()}`}>
       {/* Header */}
@@ -323,18 +324,19 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                   {certificadoUrl ? 'Cotizaciones' : 'Certificado'}
                 </h3>
               )}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {!certificadoUrl && isSupervisor && (
-                  <input
-                    type="text"
-                    value={cuentaContable}
-                    onChange={(e) => setCuentaContable(e.target.value)}
-                    placeholder="Cuenta Contable"
-                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#003B71] focus:border-transparent"
-                  />
+                  <>
+                  <p className="text-ms text-slate-500 mb-2">Cuenta Contable</p>
+                  <Select 
+                    onChange={(newValue) => {
+                      setCuentaContable(String(newValue.value));
+                    }}
+                    options={cuentasContables.map(c=>({value: c.id, label: `${c.codigo} - ${c.nombre}`}))} placeholder="Seleccione la cuenta..." />
+                  </>
                 )}
                 {!certificadoUrl && isSupervisor && regularFiles.length > 0 && (
-                  <p className="text-xs text-slate-500 mb-2">seleccione las cotizaciones</p>
+                  <p className="text-ms text-slate-500 mb-2">Seleccione las cotizaciones</p>
                 )}
                 {regularFiles.map((file) => {
                   const fileId = file.id as number;

@@ -19,6 +19,9 @@ class CatalogService extends HttpClient {
   async getCuentasAnaliticas(): Promise<CuentaAnalitica[]> {
     return this.get<CuentaAnalitica[]>('/cuentas-analiticas/list/');
   }
+    async getCuentasContables(): Promise<CuentaAnalitica[]> {
+    return this.get<CuentaAnalitica[]>('/cuentas-contables/list/');
+  }
 }
 
 export const catalogService = new CatalogService();
