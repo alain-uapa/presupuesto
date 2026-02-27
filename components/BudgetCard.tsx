@@ -74,7 +74,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
 
   return (
     <div 
-      className={`border ${getBorderCardColor(request.estado)} ${getBgCardColor(request.estado)} rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between`}
+      className={`relative border ${getBorderCardColor(request.estado)} bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between`}
     >
       <div>
         <div className="flex justify-between items-start mb-4">
@@ -91,7 +91,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
           {request.descripcion}
         </p>
 
-        <div className="grid grid-cols-2 bg-slate-50 gap-3 mb-4 p-3 rounded-lg border border-slate-100">
+        <div className="grid grid-cols-2 bg-slate-50 gap-3 mb-4 p-3 rounded-lg border border-slate-200">
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Presupuesto</p>
             <p className="text-xs font-bold text-[#333333]">{formatCurrency(request.presupuesto_pre_aprobado)}</p>
@@ -147,6 +147,16 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
           </button>
         )}
       </div>
+      {request.confirmado && (
+        <div className="group absolute -top-2.5 -right-2.5 w-[34px] h-[34px] bg-emerald-500 rounded-full flex items-center justify-center border-2 border-white shadow-[0_0_12px_rgba(16,185,129,0.5)]">
+        <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span className="absolute bottom-full mb-2 hidden group-hover:flex items-center justify-center bg-gray-800 text-white text-xs font-medium px-2 py-1 rounded shadow-lg whitespace-nowrap after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-8 after:border-transparent after:border-t-gray-800">
+          Confirmado por Compra
+        </span>
+      </div>
+      )}
     </div>
   );
 };
