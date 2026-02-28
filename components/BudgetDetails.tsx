@@ -14,6 +14,13 @@ interface BudgetDetailsProps {
   onCertificateCreated?: () => void;
   addToast?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
+const UnisexAvatar = () => (
+  <div className="w-12 h-12 bg-[#003B71] rounded-full flex items-center justify-center shadow-md">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    </svg>
+  </div>
+);
 
 const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus, onDeleteAttachment, onCertificateCreated, addToast }) => {
   const { cuentasContables } = useCatalogs();
@@ -144,14 +151,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   const fullName = request.colaborador 
     ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
     : 'Colaborador';
-
-  const UnisexAvatar = () => (
-    <div className="w-12 h-12 bg-[#003B71] rounded-full flex items-center justify-center shadow-md">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    </div>
-  );
 
   if (showCertificateForm) {
     const selectedFiles = regularFiles.filter(f => selectedAttachmentIds.includes(f.id as number));
@@ -408,5 +407,5 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
     </div>
   );
 };
-
+export {UnisexAvatar};
 export default BudgetDetails;

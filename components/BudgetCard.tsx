@@ -1,6 +1,8 @@
 import React from 'react';
 import { BudgetRequest, BudgetStatus, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
+import Avatar from './Avatar';
+import { UnisexAvatar } from './BudgetDetails';
 
 interface BudgetCardProps {
   request: BudgetRequest;
@@ -8,9 +10,10 @@ interface BudgetCardProps {
   onEdit: () => void;
   onDelete: () => void;
   userRole: Role;
+  picture: string;
 }
 
-const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDelete, userRole }) => {
+const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDelete, userRole, picture }) => {
   const isCollaborator = userRole === Role.COLABORADOR;
   const isSupervisor = userRole === Role.SUPERVISOR;
   const isAUDITOR = userRole === Role.AUDITOR;
@@ -59,18 +62,9 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
   };
 
   const requesterId = request.colaborador?.id || 'unknown';
-  const requesterAvatar = `https://api.dicebear.com/7.x/personas/svg?seed=${requesterId}&backgroundColor=003B71`;
   const fullName = request.colaborador 
     ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
     : 'Colaborador';
-
-  const UnisexAvatar = () => (
-    <div className="w-6 h-6 bg-[#003B71] rounded-full flex items-center justify-center shadow-sm">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    </div>
-  );
 
   return (
     <div 

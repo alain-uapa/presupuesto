@@ -61,7 +61,7 @@ export interface User {
   name: string;
   email: string;
   role: Role;
-  photoUrl: string;
+  picture: string;
 }
 
 export interface ToastType {

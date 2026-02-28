@@ -10,7 +10,7 @@ interface GoogleLoginResponse {
     first_name: string;
     last_name: string;
     role: string; // Recibimos string para normalizar
-    photo_url?: string;
+    picture?: string;
   };
 }
 

@@ -220,7 +220,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
               onEdit={() => onEdit(String(req.id))}
               onDelete={() => onDelete(String(req.id))}              
               userRole={user.role}
-              avatar={<UnisexAvatar />} // Added unisex avatar
+              picture={user.picture}
             />
           ))}
         </div>
@@ -228,13 +228,5 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
     </div>
   );
 };
-
-const UnisexAvatar = () => (
-  <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14c3.866 0 7-3.134 7-7S15.866 0 12 0 5 3.134 5 7s3.134 7 7 7zm0 2c-4.418 0-8 3.582-8 8h16c0-4.418-3.582-8-8-8z" />
-    </svg>
-  </div>
-);
 
 export default Dashboard;
