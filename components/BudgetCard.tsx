@@ -3,6 +3,7 @@ import { BudgetRequest, BudgetStatus, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import Avatar from './Avatar';
 import { UnisexAvatar } from './BudgetDetails';
+import { formatForDisplay } from '../utils/dateUtils';
 
 interface BudgetCardProps {
   request: BudgetRequest;
@@ -12,6 +13,13 @@ interface BudgetCardProps {
   userRole: Role;
   picture: string;
 }
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('es-DO', { 
+      style: 'currency', 
+      currency: 'DOP',
+      maximumFractionDigits: 0 
+    }).format(amount || 0);
+  };
 
 const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDelete, userRole, picture }) => {
   const isCollaborator = userRole === Role.COLABORADOR;
@@ -38,29 +46,6 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return '';
-    try {
-      const [datePart] = dateStr.split(' ');
-      const [day, month, year] = datePart.split('/');
-      return new Intl.DateTimeFormat('es-DO', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }).format(new Date(Number(year), Number(month) - 1, Number(day)));
-    } catch (e) {
-      return dateStr;
-    }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-DO', { 
-      style: 'currency', 
-      currency: 'DOP',
-      maximumFractionDigits: 0 
-    }).format(amount || 0);
-  };
-
   const requesterId = request.colaborador?.id || 'unknown';
   const fullName = request.colaborador 
     ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
@@ -75,7 +60,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusStyle(request.estado)}`}>
             {getLabel(ESTADO_CHOICES, request.estado)}
           </span>
-          <span className="text-xs text-slate-400 font-medium">{formatDate(request.fecha_solicitud)}</span>
+          <span className="text-xs text-slate-400 font-medium">{formatForDisplay(request.fecha_solicitud)}</span>
         </div>
 
         <h3 className="font-bold text-[#333333] line-clamp-2 mb-2 group-hover:text-[#003B71] transition-colors">
@@ -154,5 +139,5 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
     </div>
   );
 };
-
+export { formatForDisplay, formatCurrency };
 export default BudgetCard;

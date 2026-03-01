@@ -4,6 +4,7 @@ import { BudgetRequest, Attachment } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import { budgetService } from '../services/budget.service';
 import AttachmentList from './AttachmentList';
+import { parseFromBackend, formatForBackend, getCurrentDateForBackend, formatForDisplay } from '../utils/dateUtils';
 interface BudgetFormProps {
   initialData?: BudgetRequest;
   onCancel: () => void;
@@ -25,7 +26,6 @@ const customStyles = {
     color: state.isFocused ? "black" : "blue",
   }),
 };
-
 const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit, onDeleteAttachment, addToast }) => {
   const { ubicaciones, cuentasAnaliticas, loadingCatalogs, TIPO_CHOICES, RUBRO_CHOICES } = useCatalogs();
 
@@ -33,8 +33,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
     name: initialData?.titulo || '',
     description: initialData?.descripcion || '',
     requestDate: initialData?.fecha_solicitud 
-      ? initialData.fecha_solicitud.split(' ')[0].split('/').reverse().join('-') 
-      : new Date().toISOString().split('T')[0],
+      ? formatForDisplay(initialData.fecha_solicitud)
+      : formatForDisplay(new Date()), // Fecha actual si se está creando
     locationId: initialData?.ubicacion?.id || '',
     requestType: initialData?.tipo_solicitud || '',
     budgetRubro: initialData?.rubro_presupuestal || '',
@@ -59,10 +59,10 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
   useEffect(() => {
     setFormData({
       name: initialData?.titulo || '',
-      description: initialData?.descripcion || '',
+      description: initialData?.descripcion || '',      
       requestDate: initialData?.fecha_solicitud 
-        ? initialData.fecha_solicitud.split(' ')[0].split('/').reverse().join('-') 
-        : new Date().toISOString().split('T')[0],
+        ? formatForDisplay(initialData.fecha_solicitud)
+        : formatForDisplay(new Date()), // Fecha actual si se está creando
       locationId: initialData?.ubicacion?.id || '',
       requestType: initialData?.tipo_solicitud || '',
       budgetRubro: initialData?.rubro_presupuestal || '',
@@ -119,6 +119,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
     onSubmit({
       ...formData,
+      requestDate: formatForBackend(new Date(formData.requestDate)),
       preApprovedBudget: formData.preApprovedBudget === '' ? 0 : formData.preApprovedBudget,
       executionAmount: formData.executionAmount === '' ? 0 : formData.executionAmount,
       locationName: loc?.nombre || 'Sede Santiago',
@@ -186,9 +187,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
           <div className="space-y-2">
             <label className="text-sm font-bold text-[#333333]">Fecha de Solicitud *</label>
             <input 
-              type="date"
+              type="text"
               required
-              value={formData.requestDate || new Date().toISOString().split('T')[0]} // Fecha actual si se está creando
+              value={formData.requestDate}
               readOnly // Campo solo lectura
               className={inputClass}
             />

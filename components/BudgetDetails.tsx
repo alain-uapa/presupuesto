@@ -4,6 +4,7 @@ import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
+import { formatForDisplay } from '../utils/dateUtils';
 
 interface BudgetDetailsProps {
   user: User;
@@ -184,7 +185,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
           </button>
           <div>
             <h2 className="text-xl font-bold text-[#333333]">{request.titulo}</h2>
-            <p className="text-sm text-slate-500">Solicitado el {request.fecha_solicitud}</p>
+            <p className="text-sm text-slate-500">Solicitado el {formatForDisplay(request.fecha_solicitud)}</p>
           </div>
         </div>
         <div>
