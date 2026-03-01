@@ -44,6 +44,6 @@ function LoginPage({ onLoginSuccess, onLoginError, returnTo }: LoginProps) {
     }
   });
 
-  return <div>Iniciando sesión...</div>;
+  return <div>Conectando con Google...</div>;
 }
 export default LoginPage;
