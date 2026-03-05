@@ -50,6 +50,7 @@ export function useGoogleAuth({ title, subtitle, onSuccess }) {
     // ── Case 2: no token yet — load the helper and redirect to the auth page ──
     const script = document.createElement('script');
     script.src = 'https://uapa-auth.netlify.app/google-auth.js';
+    script.crossOrigin = 'anonymous';
     script.onload = () => {
       window.signInWithGoogle({ title, subtitle, callback: onSuccess });
     };
