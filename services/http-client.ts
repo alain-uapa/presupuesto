@@ -1,7 +1,7 @@
-
+import { API_BASE_URL } from '../config';
 export class HttpClient {
   // URL base institucional por defecto
-  protected baseUrl: string = '/presupuesto/api';
+  protected baseUrl: string = `${API_BASE_URL}/api`;
 
   constructor(customBaseUrl?: string) {
     if (customBaseUrl) {
