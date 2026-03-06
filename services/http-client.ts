@@ -1,7 +1,7 @@
 
 export class HttpClient {
   // URL base institucional por defecto
-  protected baseUrl: string = '/api';
+  protected baseUrl: string = '/presupuesto/api';
 
   constructor(customBaseUrl?: string) {
     if (customBaseUrl) {
