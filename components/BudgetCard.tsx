@@ -24,7 +24,6 @@ interface BudgetCardProps {
 const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDelete, userRole, picture }) => {
   const isCollaborator = userRole === Role.COLABORADOR;
   const isSupervisor = userRole === Role.SUPERVISOR;
-  const isAUDITOR = userRole === Role.AUDITOR;
   const canEdit = (isCollaborator || isSupervisor) && request.estado === BudgetStatus.PENDING;
   const canDelete = isCollaborator && request.estado === BudgetStatus.PENDING;
   const { ESTADO_CHOICES, getLabel } = useCatalogs();

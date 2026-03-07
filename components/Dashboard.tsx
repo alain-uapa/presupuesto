@@ -15,7 +15,6 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, onEdit, onCreate, onDelete, onRefresh }) => {
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
-  const isAUDITOR = user.role === Role.AUDITOR;
 
   useEffect(() => {
     if (onRefresh) {
@@ -103,7 +102,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-[#333333]">
-            {(isSupervisor || isAUDITOR) ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
+            {isSupervisor ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
           </h2>
           <p className="text-slate-500">Mostrando registros para el periodo {selectedYear}</p>
         </div>
@@ -133,7 +132,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
             ))}
           </select>
 
-          {(isSupervisor || isAUDITOR) && (
+          {isSupervisor && (
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}

@@ -279,16 +279,6 @@ const AppContent: React.FC<{
     }
   }, [user, location.pathname, location.state?.from, navigate]);
 
-  // Guard: AUDITOR no puede acceder a /create ni /edit
-  useEffect(() => {
-    if (user && user.role === Role.AUDITOR) {
-      if (location.pathname === '/create' || location.pathname.endsWith('/edit')) {
-        navigate('/', { replace: true });
-        addToast('No tienes permiso para crear o editar solicitudes', 'error');
-      }
-    }
-  }, [user, location.pathname, navigate, addToast]);
-
   const handleCreateRequest = async (formValues: any) => {
     if (!user) return;
     setLoading(true);

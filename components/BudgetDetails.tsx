@@ -27,7 +27,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   const { cuentasContables } = useCatalogs();
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
-  const isAUDITOR = user.role === Role.AUDITOR;
 
   const { ESTADO_CHOICES, TIPO_CHOICES, RUBRO_CHOICES, getLabel } = useCatalogs();
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
