@@ -2,6 +2,7 @@
 import React from 'react';
 import { User, Role } from '../types';
 import Avatar from './Avatar';
+import { APP_BASENAME } from '../config';
 
 interface NavbarProps {
   user: User;
@@ -22,12 +23,17 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4">          
           <div className="text-right hidden sm:block">
             <p className="text-sm font-bold text-[#333333]">{user.name}</p>
-            <p className="text-[10px] uppercase font-bold text-[#ff8300] tracking-wider">
-              {user.role}
-            </p>
+            {user.role === Role.SUPERVISOR && (
+              <a
+                href={`${APP_BASENAME}admin/`}
+                className="text-xs font-medium text-[#003B71] hover:text-[#004a8f] transition-colors"
+              >
+                Administrar
+              </a>
+            )}            
           </div>
           <div className="relative group cursor-pointer">
             <Avatar picture={user.picture} />
