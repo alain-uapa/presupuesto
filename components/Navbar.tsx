@@ -13,12 +13,9 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
   return (
     <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#003B71] rounded-lg flex items-center justify-center shadow-sm">
-            <span className="text-white font-bold text-xl">U</span>
-          </div>
+        <div className="flex items-center gap-3">          
           <div>
-            <h1 className="font-bold text-[#333333] leading-tight">UAPA</h1>
+            <img width={100} src="logo-uapa.png" alt="Logo UAPA" />
             <p className="text-xs text-slate-500">Gestión de Presupuestos</p>
           </div>
         </div>
