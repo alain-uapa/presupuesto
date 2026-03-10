@@ -6,7 +6,7 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     const isProduction = mode === 'production';
     return {
-      base: isProduction ? '/presupuesto/django_static' : '/',
+      base: isProduction ? '/presupuesto/django_static/' : '/',
       server: {
         port: 3000,
         host: '0.0.0.0',

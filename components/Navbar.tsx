@@ -3,7 +3,7 @@ import React from 'react';
 import { User, Role } from '../types';
 import Avatar from './Avatar';
 import { APP_BASENAME } from '../config';
-
+import logo from '../assets/logo-uapa.png';
 interface NavbarProps {
   user: User;
   onLogout: () => void;
@@ -15,7 +15,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">          
           <div>
-            <img style={{ width: '100px', height: 'auto' }} src="./assets/logo-uapa.png" alt="Logo UAPA" />
+            <img style={{ width: '100px', height: 'auto' }} src={logo} alt="Logo UAPA" />
             <p className="text-xs text-slate-500">Gestión de Presupuestos</p>
           </div>
         </div>
