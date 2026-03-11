@@ -264,20 +264,22 @@ const AppContent: React.FC<{
     }
   }, [user, fetchAllRequests, fetchCatalogs]);
 
-  // Guard: si no hay usuario, redirigir a /login con la URL actual
+  // Guard: si no hay usuario, redirigir a /login guardando la URL actual en localStorage
   useEffect(() => {
     if (!user && location.pathname !== '/login') {
-      navigate('/login', { state: { from: location.pathname } });
+      localStorage.setItem('redirectAfterLogin', location.pathname);
+      navigate('/login');
     }
   }, [user, location.pathname, navigate]);
 
-  // Si está en /login y ya tiene usuario, redirigir a la ruta original o al dashboard
+  // Si está en /login y ya tiene usuario, redirigir a la ruta guardada o al dashboard
   useEffect(() => {
     if (user && location.pathname === '/login') {
-      const redirectTo = location.state?.from || '/';
+      const redirectTo = localStorage.getItem('redirectAfterLogin') || '/';
+      localStorage.removeItem('redirectAfterLogin');
       navigate(redirectTo, { replace: true });
     }
-  }, [user, location.pathname, location.state?.from, navigate]);
+  }, [user, location.pathname, navigate]);
 
   const handleCreateRequest = async (formValues: any) => {
     if (!user) return;
@@ -411,7 +413,7 @@ const AppContent: React.FC<{
             <Login 
               onLoginSuccess={(u) => setUser(u)} 
               onLoginError={(err) => addToast(err, 'error')} 
-              returnTo={location.state?.from}
+              returnTo={localStorage.getItem('redirectAfterLogin') || undefined}
             />
           } />
           <Route path="*" element={null} />
@@ -437,7 +439,7 @@ const AppContent: React.FC<{
             <Login 
               onLoginSuccess={(u) => setUser(u)} 
               onLoginError={(err) => addToast(err, 'error')} 
-              returnTo={location.state?.from}
+              returnTo={localStorage.getItem('redirectAfterLogin') || undefined}
             />
           } />
           <Route path="/" element={
