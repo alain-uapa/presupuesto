@@ -117,8 +117,10 @@ const BudgetConfirmView: React.FC<BudgetConfirmViewProps> = ({ user, requests, l
     [requests, id]
   );
 
+  const isCompra = user.role === Role.COMPRA;
+
   useEffect(() => {
-    if (!id) return;
+    if (!isCompra || !id) return;
     let cancelled = false;
 
     const runConfirmation = async () => {
@@ -144,6 +146,17 @@ const BudgetConfirmView: React.FC<BudgetConfirmViewProps> = ({ user, requests, l
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  if (!isCompra && request) {
+    return (
+      <BudgetDetails
+        user={user}
+        request={request}
+        onBack={() => navigate('/')}
+        onUpdateStatus={() => {}}
+      />
+    );
+  }
 
   if (loading || confirmLoading) {
     return null;
