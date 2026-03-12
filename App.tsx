@@ -520,6 +520,9 @@ const AppContent: React.FC<{
             ¿Necesitas asistencia? Llama a la sede <strong>Ext. 378</strong> o Flota: <strong>829-901-2885</strong>
           </p>
           <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-widest font-bold">UAPA - Sistema de Gestión Presupuestaria</p>
+          <p className="text-[13px] text-slate-500 font-medium mt-1">
+            Diseñado y desarrollado por el <span className="text-slate-700">Laboratorio de IA y Big Data</span>
+          </p>
         </div>
       </footer>
 

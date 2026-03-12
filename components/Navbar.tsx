@@ -16,7 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
         <div className="flex items-center gap-3">          
           <div>
             <img style={{ width: '100px', height: 'auto' }} src={logo} alt="Logo UAPA" />
-            <p className="text-xs text-slate-500">Gestión de Presupuestos</p>
+            <p className="text-xs text-slate-500">Sistema de Gestión Presupuestaria</p>
           </div>
         </div>
 
