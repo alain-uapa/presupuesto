@@ -248,6 +248,10 @@ const AppContent: React.FC<{
   const navigate = useNavigate();
   const location = useLocation();
   const { fetchCatalogs, loadingCatalogs } = useCatalogs();
+  const [redirectTo, setRedirectTo] = useState<string>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('redirect_to') || '/';
+  });
   const fetchCalledRef = useRef(false);
 
   useEffect(() => {
@@ -264,19 +268,18 @@ const AppContent: React.FC<{
     }
   }, [user, fetchAllRequests, fetchCatalogs]);
 
-  // Guard: si no hay usuario, redirigir a /login guardando la URL actual en localStorage
   useEffect(() => {
-    if (!user && location.pathname !== '/login') {
-      localStorage.setItem('redirectAfterLogin', location.pathname);
-      navigate('/login');
+    if (!user && location.pathname !== '/login') {     
+      navigate(`/login?redirect_to=${encodeURIComponent(location.pathname)}`, { replace: true });
     }
   }, [user, location.pathname, navigate]);
 
   // Si está en /login y ya tiene usuario, redirigir a la ruta guardada o al dashboard
   useEffect(() => {
     if (user && location.pathname === '/login') {
-      const redirectTo = localStorage.getItem('redirectAfterLogin') || '/';
-      localStorage.removeItem('redirectAfterLogin');
+      const searchParams = new URLSearchParams(location.search);
+      const redirectTo = searchParams.get('redirect_to') || '/';   
+      setRedirectTo(redirectTo) 
       navigate(redirectTo, { replace: true });
     }
   }, [user, location.pathname, navigate]);
@@ -413,7 +416,7 @@ const AppContent: React.FC<{
             <Login 
               onLoginSuccess={(u) => setUser(u)} 
               onLoginError={(err) => addToast(err, 'error')} 
-              returnTo={localStorage.getItem('redirectAfterLogin') || undefined}
+              returnTo={redirectTo}
             />
           } />
           <Route path="*" element={null} />
@@ -439,7 +442,7 @@ const AppContent: React.FC<{
             <Login 
               onLoginSuccess={(u) => setUser(u)} 
               onLoginError={(err) => addToast(err, 'error')} 
-              returnTo={localStorage.getItem('redirectAfterLogin') || undefined}
+              returnTo={redirectTo}
             />
           } />
           <Route path="/" element={
