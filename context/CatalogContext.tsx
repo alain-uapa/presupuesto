@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Ubicacion, CuentaAnalitica, Choice } from '../types';
+import { Ubicacion, CuentaAnalitica, Choice, BudgetStatus } from '../types';
 import { catalogService } from '../services/catalog.service';
 
 interface CatalogContextType {
@@ -25,9 +25,10 @@ export const CatalogProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [loadingCatalogs, setLoadingCatalogs] = useState(false);
 
   const ESTADO_CHOICES: Choice[] = [
-    { value: 'PENDIENTE', label: 'Pendiente' },
-    { value: 'APROBADA', label: 'Aprobada' },
-    { value: 'RECHAZADA', label: 'Rechazada' },
+    { value: BudgetStatus.PENDING, label: 'Pendiente' },
+    { value: BudgetStatus.APPROVED, label: 'Aprobada' },
+    { value: BudgetStatus.REJECTED, label: 'Rechazada' },
+    { value: BudgetStatus.POR_REVISION, label: 'Por Revisión' },
   ];
 
   const TIPO_CHOICES: Choice[] = [

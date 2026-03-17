@@ -8,7 +8,8 @@ export enum Role {
 export enum BudgetStatus {
   PENDING = 'PENDIENTE',
   APPROVED = 'APROBADA',
-  REJECTED = 'RECHAZADA'
+  REJECTED = 'RECHAZADA',
+  POR_REVISION = 'POR_REVISION'
 }
 
 export interface Attachment {

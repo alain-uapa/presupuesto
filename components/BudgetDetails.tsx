@@ -4,7 +4,7 @@ import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
-import RejectionModal from './RejectionModal';
+import StatusChangeModal from './StatusChangeModal';
 import { formatForDisplay } from '../utils/dateUtils';
 
 interface BudgetDetailsProps {
@@ -34,6 +34,8 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   const [showCertificateForm, setShowCertificateForm] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [showRevisionModal, setShowRevisionModal] = useState(false);
+  const [isRequestingRevision, setIsRequestingRevision] = useState(false);
   const [selectedAttachmentIds, setSelectedAttachmentIds] = useState<number[]>([]);
   const [cuentaContable, setCuentaContable] = useState('');
 
@@ -146,6 +148,16 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
       setShowRejectionModal(false);
     } finally {
       setIsRejecting(false);
+    }
+  };
+
+  const handleRevisionConfirm = async (comments: string) => {
+    setIsRequestingRevision(true);
+    try {
+      onUpdateStatus(String(request.id), BudgetStatus.POR_REVISION, comments);
+      setShowRevisionModal(false);
+    } finally {
+      setIsRequestingRevision(false);
     }
   };
 
@@ -263,20 +275,34 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
               <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Gestión</h3>
               
               <div className="space-y-3">
-                <button 
-                  onClick={() => handleStatusChange(BudgetStatus.APPROVED)}
-                  className="w-full bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100 flex items-center justify-center gap-2"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Aprobar Solicitud
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => handleStatusChange(BudgetStatus.APPROVED)}
+                    className="flex-1 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100 flex items-center justify-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Aprobar
+                  </button>
+                  <button 
+                    onClick={() => setShowRevisionModal(true)}
+                    className="flex-1 bg-[#003B71] hover:bg-[#002d56] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-2"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                    </svg>
+                    Revisión
+                  </button>
+                </div>
 
                 <button 
                   onClick={() => handleStatusChange(BudgetStatus.REJECTED)}
-                  className="w-full bg-white hover:bg-rose-50 border-2 border-rose-200 text-rose-600 font-bold py-3 rounded-xl transition-all"
+                  className="w-full bg-white hover:bg-rose-50 border-2 border-rose-200 text-rose-600 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
                 >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
                   Rechazar Solicitud
                 </button>
               </div>
@@ -409,11 +435,30 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
         </div>
       </div>
 
-      <RejectionModal
+      <StatusChangeModal
         isOpen={showRejectionModal}
         onClose={() => setShowRejectionModal(false)}
         onConfirm={handleRejectConfirm}
         isLoading={isRejecting}
+        title="Rechazar Solicitud"
+        description="Por favor indique el motivo del rechazo"
+        confirmText="Confirmar Rechazo"
+        buttonColor="rose"
+        label="Motivo del Rechazo"
+        placeholder="Explique el motivo por el cual está rechazando esta solicitud..."
+      />
+
+      <StatusChangeModal
+        isOpen={showRevisionModal}
+        onClose={() => setShowRevisionModal(false)}
+        onConfirm={handleRevisionConfirm}
+        isLoading={isRequestingRevision}
+        title="Solicitar Revisión"
+        description="Indique los cambios o información requerida"
+        confirmText="Confirmar"
+        buttonColor="blue"
+        label="Comentarios"
+        placeholder="Indique qué cambios o información adicional se requiere..."
       />
     </div>
   );
