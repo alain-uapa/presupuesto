@@ -4,6 +4,7 @@ import { BudgetRequest, BudgetStatus, User, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
+import RejectionModal from './RejectionModal';
 import { formatForDisplay } from '../utils/dateUtils';
 
 interface BudgetDetailsProps {
@@ -31,6 +32,8 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   const { ESTADO_CHOICES, TIPO_CHOICES, RUBRO_CHOICES, getLabel } = useCatalogs();
   const [rejectionComments, setRejectionComments] = useState(request.observaciones_supervisor || '');
   const [showCertificateForm, setShowCertificateForm] = useState(false);
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
   const [selectedAttachmentIds, setSelectedAttachmentIds] = useState<number[]>([]);
   const [cuentaContable, setCuentaContable] = useState('');
 
@@ -129,11 +132,21 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   };
 
   const handleStatusChange = (newStatus: BudgetStatus) => {
-    if (newStatus === BudgetStatus.REJECTED && !rejectionComments.trim()) {
-      alert('Por favor especifique el motivo del rechazo.');
+    if (newStatus === BudgetStatus.REJECTED) {
+      setShowRejectionModal(true);
       return;
     }
-    onUpdateStatus(String(request.id), newStatus, newStatus === BudgetStatus.REJECTED ? rejectionComments : undefined);
+    onUpdateStatus(String(request.id), newStatus, undefined);
+  };
+
+  const handleRejectConfirm = async (comments: string) => {
+    setIsRejecting(true);
+    try {
+      onUpdateStatus(String(request.id), BudgetStatus.REJECTED, comments);
+      setShowRejectionModal(false);
+    } finally {
+      setIsRejecting(false);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -260,21 +273,12 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                   Aprobar Solicitud
                 </button>
 
-                <div className="space-y-2">
-                   <label className="text-xs font-bold text-slate-500">Motivo de Rechazo</label>
-                   <textarea 
-                    value={rejectionComments}
-                    onChange={(e) => setRejectionComments(e.target.value)}
-                    placeholder="Escriba el motivo si decide rechazar..."
-                    className="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-rose-500 outline-none h-24 shadow-inner"
-                   />
-                   <button 
-                    onClick={() => handleStatusChange(BudgetStatus.REJECTED)}
-                    className="w-full bg-white hover:bg-rose-50 border-2 border-rose-200 text-rose-600 font-bold py-3 rounded-xl transition-all"
-                   >
-                    Rechazar Solicitud
-                   </button>
-                </div>
+                <button 
+                  onClick={() => handleStatusChange(BudgetStatus.REJECTED)}
+                  className="w-full bg-white hover:bg-rose-50 border-2 border-rose-200 text-rose-600 font-bold py-3 rounded-xl transition-all"
+                >
+                  Rechazar Solicitud
+                </button>
               </div>
             </div>
           )}
@@ -404,6 +408,13 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
           )}
         </div>
       </div>
+
+      <RejectionModal
+        isOpen={showRejectionModal}
+        onClose={() => setShowRejectionModal(false)}
+        onConfirm={handleRejectConfirm}
+        isLoading={isRejecting}
+      />
     </div>
   );
 };
