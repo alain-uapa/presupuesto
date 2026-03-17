@@ -19,6 +19,13 @@ export interface Attachment {
   data?: string; // Base64
 }
 
+export interface ReviewNote {
+  id: number;
+  contenido: string;
+  supervisor: string;
+  fecha_creacion: string;
+}
+
 export interface Ubicacion {
   id: number;
   nombre: string;
@@ -55,6 +62,7 @@ export interface BudgetRequest {
   attachments?: Attachment[];
   certificado_url?: string;
   confirmado?: boolean;
+  review_notes?: ReviewNote[];
 }
 
 export interface User {

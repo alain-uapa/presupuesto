@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Select from "react-select";
-import { BudgetRequest, BudgetStatus, User, Role } from '../types';
+import { BudgetRequest, BudgetStatus, User, Role, ReviewNote } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
@@ -165,6 +165,16 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
     return new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(amount || 0);
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-DO', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   const DetailItem = ({ label, value }: { label: string, value: string | number }) => (
     <div className="bg-[#F8F9FA] p-4 rounded-xl border border-slate-100">
       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
@@ -267,6 +277,25 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
               <p className="text-rose-800 text-sm">
                 {request.observaciones_supervisor || 'No se proporcionaron comentarios adicionales.'}
               </p>
+            </section>
+          )}
+
+          {(request.estado === BudgetStatus.POR_REVISION || request.estado === BudgetStatus.PENDING) && request.review_notes && request.review_notes.length > 0 && (
+            <section className="bg-blue-50 border border-blue-100 p-4 rounded-2xl">
+              <h3 className="text-sm font-bold text-blue-900 uppercase tracking-widest mb-3">
+                Notas de Revisión ({request.review_notes.length})
+              </h3>
+              <div className="space-y-3">
+                {request.review_notes.map((note) => (
+                  <div key={note.id} className="bg-white border border-blue-200 p-3 rounded-xl">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="text-xs font-bold text-blue-700">{note.supervisor}</span>
+                      <span className="text-xs text-blue-400">{formatDate(note.fecha_creacion)}</span>
+                    </div>
+                    <p className="text-sm text-blue-800">{note.contenido}</p>
+                  </div>
+                ))}
+              </div>
             </section>
           )}
 
