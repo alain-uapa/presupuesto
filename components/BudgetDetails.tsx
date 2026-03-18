@@ -298,6 +298,25 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
             </section>
           )}
 
+          {request.review_notes && request.review_notes.length > 0 && (
+            <section className="bg-blue-50 border border-blue-100 p-4 rounded-2xl">
+              <h3 className="text-sm font-bold text-blue-900 uppercase tracking-widest mb-3">
+                Notas de Revisión ({request.review_notes.length})
+              </h3>
+              <div className="space-y-3">
+                {request.review_notes.map((note) => (
+                  <div key={note.id} className="bg-white border border-blue-200 p-3 rounded-xl">
+                    <div className="flex justify-between items-start mb-1">
+                      <span className="text-xs font-bold text-blue-700">{note.supervisor}</span>
+                      <span className="text-xs text-blue-400">{formatForDisplay(note.fecha_creacion)}</span>
+                    </div>
+                    <p className="text-sm text-blue-800">{note.contenido}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
         </div>
 
         {/* Action Sidebar */}
@@ -319,25 +338,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
               <p className="text-rose-800 text-sm">
                 {request.observaciones_supervisor || 'No se proporcionaron comentarios adicionales.'}
               </p>
-            </section>
-          )}
-
-          {(request.estado === BudgetStatus.POR_REVISION || request.estado === BudgetStatus.PENDING) && request.review_notes && request.review_notes.length > 0 && (
-            <section className="bg-blue-50 border border-blue-100 p-4 rounded-2xl">
-              <h3 className="text-sm font-bold text-blue-900 uppercase tracking-widest mb-3">
-                Notas de Revisión ({request.review_notes.length})
-              </h3>
-              <div className="space-y-3">
-                {request.review_notes.map((note) => (
-                  <div key={note.id} className="bg-white border border-blue-200 p-3 rounded-xl">
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="text-xs font-bold text-blue-700">{note.supervisor}</span>
-                      <span className="text-xs text-blue-400">{formatForDisplay(note.fecha_creacion)}</span>
-                    </div>
-                    <p className="text-sm text-blue-800">{note.contenido}</p>
-                  </div>
-                ))}
-              </div>
             </section>
           )}
 
