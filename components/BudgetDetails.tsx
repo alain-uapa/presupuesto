@@ -45,7 +45,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
   const handleUpdateStatus = async (id: string, status: BudgetStatus, comments?: string) => {
     setLoading?.(true);
     try {
-      await budgetService.updateStatus(id, status, comments);
+      const response = await budgetService.updateStatus(id, status, comments);
       
       let updatedRequest: BudgetRequest;
       
@@ -53,9 +53,10 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
         updatedRequest = { ...request, estado: status, observaciones_supervisor: comments || "" };
       } else if (status === BudgetStatus.POR_REVISION && comments) {
         const newReviewNote: ReviewNote = {
-          id: Date.now(),
+          id: response.newRevisionId,
           contenido: comments,
           supervisor: user.name || 'Supervisor',
+          estado: 'PENDIENTE',
           fecha_creacion: formatForDisplay(new Date())
         };
         updatedRequest = {
@@ -213,6 +214,37 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
     }
   };
 
+  const handleRevisionUpdate = async (noteId: number, newStatus: string) => {
+    //setLoading?.(true);
+    try {
+      const result = await budgetService.updateRevisionStatus(noteId, newStatus);
+      
+      // Actualizar review_notes en el state con result.revision
+      if (result.revision) {
+        const updatedNotes = request.review_notes?.map(note => 
+          note.id === noteId ? { ...note, estado: result.revision.estado } : note
+        ) || [];
+        
+        const updatedRequest = {
+          ...request,
+          estado: result.solicitud.estado,
+          review_notes: updatedNotes
+        };
+        
+        onRequestUpdated(updatedRequest);                
+        
+        addToast?.(`Estado actualizado a ${newStatus}`, 'success');
+      }
+      else{
+        addToast?.('Error al actualizar el estado de la revisión.', 'error');
+      }
+    } catch (error: any) {
+      addToast?.('Error al actualizar el estado de la revisión.', 'error');
+    } finally {
+      //setLoading?.(false);
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(amount || 0);
   };
@@ -308,7 +340,25 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
                   <div key={note.id} className="bg-white border border-blue-200 p-3 rounded-xl">
                     <div className="flex justify-between items-start mb-1">
                       <span className="text-xs font-bold text-blue-700">{note.supervisor}</span>
-                      <span className="text-xs text-blue-400">{formatForDisplay(note.fecha_creacion)}</span>
+                      <div className="flex items-center gap-2">
+                        {note.estado ? (
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            note.estado === 'RESUELTA' ? 'bg-emerald-100 text-emerald-700' :'bg-amber-100 text-amber-700'
+                          }`}>
+                            {note.estado}
+                          </span>
+                        ) : null}                        
+                        {note.estado === 'PENDIENTE' && (
+                          <button
+                            onClick={() => handleRevisionUpdate(note.id, 'RESUELTA')}
+                            className="ml-1 px-2 py-0.5 text-xs bg-emerald-500 hover:bg-emerald-600 text-white rounded transition-colors"
+                            disabled={loading}
+                          >
+                            Marcar como Resuelta
+                          </button>
+                        )}
+                        <span className="text-xs text-blue-400">{formatForDisplay(note.fecha_creacion)}</span>
+                      </div>
                     </div>
                     <p className="text-sm text-blue-800">{note.contenido}</p>
                   </div>

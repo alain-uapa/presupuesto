@@ -24,6 +24,7 @@ export interface ReviewNote {
   contenido: string;
   supervisor: string;
   fecha_creacion: string;
+  estado?: string;
 }
 
 export interface Ubicacion {

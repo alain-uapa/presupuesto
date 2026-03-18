@@ -88,6 +88,14 @@ class BudgetService extends HttpClient {
   async confirmation(id: string | number): Promise<{ status?: number; error?: string }> {
     return this.patch<{ status?: number; error?: string }>(`/solicitudes/confirm/${id}/`, {});
   }
+
+  /**
+   * Actualiza el estado de una nota de revisión.
+   * Endpoint: /solicitudes/revision/{id}/
+   */
+  async updateRevisionStatus(id: string | number, estado: string): Promise<any> {
+    return this.patch(`/solicitudes/revision/${id}/`, { estado });
+  }
 }
 
 export const budgetService = new BudgetService();
