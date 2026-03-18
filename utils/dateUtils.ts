@@ -27,10 +27,7 @@ export const formatForDisplay = (date: Date | string | null | undefined): string
     const parsed = parseFromBackend(date);
     if (!parsed) return date;
     dateObj = parsed;
-  } else {
-    return '';
-  }
-  
+  } 
   return new Intl.DateTimeFormat('es-DO', {
     day: '2-digit',
     month: 'short',

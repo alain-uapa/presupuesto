@@ -13,6 +13,7 @@ import CertificatePreview from './components/CertificatePreview';
 import { budgetService } from './services/budget.service';
 import { authService } from './services/auth.service';
 import { CatalogProvider, useCatalogs } from './context/CatalogContext';
+import { formatForDisplay } from './utils/dateUtils';
 
 interface DashboardViewProps {
   user: User;
@@ -375,12 +376,12 @@ const AppContent: React.FC<{
               id: Date.now(),
               contenido: comments,
               supervisor: user?.name || 'Supervisor',
-              fecha_creacion: new Date().toISOString()
+              fecha_creacion: formatForDisplay(new Date())
             };
             return {
               ...r,
               estado: status,
-              review_notes: [...(r.review_notes || []), newReviewNote]
+              review_notes: [newReviewNote, ...(r.review_notes || [])]
             };
           }
           return { ...r, estado: status };
