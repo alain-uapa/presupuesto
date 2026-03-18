@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
-import { Role, User, BudgetRequest, BudgetStatus, ToastType, ReviewNote } from './types';
+import { Role, User, BudgetRequest, BudgetStatus, ToastType } from './types';
 import './styles/loader.css';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
@@ -13,7 +13,6 @@ import CertificatePreview from './components/CertificatePreview';
 import { budgetService } from './services/budget.service';
 import { authService } from './services/auth.service';
 import { CatalogProvider, useCatalogs } from './context/CatalogContext';
-import { formatForDisplay } from './utils/dateUtils';
 
 interface DashboardViewProps {
   user: User;
@@ -43,13 +42,14 @@ interface BudgetDetailsViewProps {
   user: User;
   requests: BudgetRequest[];
   loading: boolean;
-  onUpdateStatus: (id: string, status: BudgetStatus, comments?: string) => void;
+  setLoading: (loading: boolean) => void;
+  onRequestUpdated: (updatedRequest: BudgetRequest) => void;
   onDeleteAttachment?: (id: number | string, requestId?: string) => void;
   onCertificateCreated: () => void;
   addToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, loading, onUpdateStatus, onDeleteAttachment, onCertificateCreated, addToast }) => {
+const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, loading, setLoading, onRequestUpdated, onDeleteAttachment, onCertificateCreated, addToast }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
@@ -57,11 +57,6 @@ const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, l
     requests.find(r => String(r.id) === id), 
     [requests, id]
   );
-
-  // Si está cargando, no mostrar nada (el loader global se encarga)
-  if (loading) {
-    return null;
-  }
 
   if (!request) {
     return (
@@ -90,8 +85,10 @@ const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, l
     <BudgetDetails 
       user={user}
       request={request} 
+      loading={loading}
+      setLoading={setLoading}
       onBack={() => navigate('/')}
-      onUpdateStatus={onUpdateStatus}
+      onRequestUpdated={onRequestUpdated}
       onDeleteAttachment={handleDeleteAttachment}
       onCertificateCreated={onCertificateCreated}
       addToast={addToast}
@@ -102,11 +99,10 @@ const BudgetDetailsView: React.FC<BudgetDetailsViewProps> = ({ user, requests, l
 interface BudgetConfirmViewProps {
   user: User;
   requests: BudgetRequest[];
-  loading: boolean;
   fetchAllRequests: () => void;
 }
 
-const BudgetConfirmView: React.FC<BudgetConfirmViewProps> = ({ user, requests, loading, fetchAllRequests }) => {
+const BudgetConfirmView: React.FC<BudgetConfirmViewProps> = ({ user, requests, fetchAllRequests }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [confirmLoading, setConfirmLoading] = useState(false);
@@ -154,12 +150,12 @@ const BudgetConfirmView: React.FC<BudgetConfirmViewProps> = ({ user, requests, l
         user={user}
         request={request}
         onBack={() => navigate('/')}
-        onUpdateStatus={() => {}}
+        onRequestUpdated={() => {}}
       />
     );
   }
 
-  if (loading || confirmLoading) {
+  if (confirmLoading) {
     return null;
   }
 
@@ -201,7 +197,7 @@ const BudgetConfirmView: React.FC<BudgetConfirmViewProps> = ({ user, requests, l
       user={user}
       request={request}
       onBack={() => navigate('/')}
-      onUpdateStatus={() => {}}
+      onRequestUpdated={() => {}}
     />
   );
 };
@@ -361,39 +357,10 @@ const AppContent: React.FC<{
     }
   };
 
-  const handleUpdateStatus = async (id: string, status: BudgetStatus, comments?: string) => {
-    setLoading(true);
-    try {
-      await budgetService.updateStatus(id, status, comments);
-      
-      setRequests(prev => prev.map(r => {
-        if (String(r.id) === String(id)) {
-          if (status === BudgetStatus.REJECTED) {
-            return { ...r, estado: status, observaciones_supervisor: comments || "" };
-          }
-          if (status === BudgetStatus.POR_REVISION && comments) {
-            const newReviewNote: ReviewNote = {
-              id: Date.now(),
-              contenido: comments,
-              supervisor: user?.name || 'Supervisor',
-              fecha_creacion: formatForDisplay(new Date())
-            };
-            return {
-              ...r,
-              estado: status,
-              review_notes: [newReviewNote, ...(r.review_notes || [])]
-            };
-          }
-          return { ...r, estado: status };
-        }
-        return r;
-      }));
-      addToast(`Solicitud ${status.toLowerCase()} con éxito`, 'success');
-    } catch (error: any) {
-      handleApiError(error, 'Error al cambiar el estado de la solicitud.');
-    } finally {
-      setLoading(false);
-    }
+  const handleRequestUpdated = (updatedRequest: BudgetRequest) => {
+    setRequests(prev => prev.map(r => 
+      String(r.id) === String(updatedRequest.id) ? updatedRequest : r
+    ));
   };
 
   const handleDeleteBudget = async (id: string) => {
@@ -502,7 +469,8 @@ const AppContent: React.FC<{
               user={user}
               requests={requests}
               loading={loading}
-              onUpdateStatus={handleUpdateStatus}
+              setLoading={setLoading}
+              onRequestUpdated={handleRequestUpdated}
               onDeleteAttachment={handleEliminarAdjunto}
               onCertificateCreated={handleCertificateCreated}
               addToast={addToast}
@@ -521,7 +489,6 @@ const AppContent: React.FC<{
             <BudgetConfirmView
               user={user}
               requests={requests}
-              loading={loading}
               fetchAllRequests={fetchAllRequests}
             />
           } />

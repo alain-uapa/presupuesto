@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Select from "react-select";
 import { BudgetRequest, BudgetStatus, User, Role, ReviewNote } from '../types';
+import { budgetService } from '../services/budget.service';
 import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
@@ -10,8 +11,10 @@ import { formatForDisplay } from '../utils/dateUtils';
 interface BudgetDetailsProps {
   user: User;
   request: BudgetRequest;
+  loading?: boolean;
+  setLoading?: (loading: boolean) => void;
   onBack: () => void;
-  onUpdateStatus: (id: string, status: BudgetStatus, comments?: string) => void;
+  onRequestUpdated: (updatedRequest: BudgetRequest) => void;
   onDeleteAttachment?: (id: number | string) => void;
   onCertificateCreated?: () => void;
   addToast?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
@@ -24,7 +27,7 @@ const UnisexAvatar = () => (
   </div>
 );
 
-const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, onUpdateStatus, onDeleteAttachment, onCertificateCreated, addToast }) => {
+const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = false, setLoading, onBack, onRequestUpdated, onDeleteAttachment, onCertificateCreated, addToast }) => {
   const { cuentasContables } = useCatalogs();
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
@@ -38,6 +41,40 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   const [isRequestingRevision, setIsRequestingRevision] = useState(false);
   const [selectedAttachmentIds, setSelectedAttachmentIds] = useState<number[]>([]);
   const [cuentaContable, setCuentaContable] = useState('');
+
+  const handleUpdateStatus = async (id: string, status: BudgetStatus, comments?: string) => {
+    setLoading?.(true);
+    try {
+      await budgetService.updateStatus(id, status, comments);
+      
+      let updatedRequest: BudgetRequest;
+      
+      if (status === BudgetStatus.REJECTED) {
+        updatedRequest = { ...request, estado: status, observaciones_supervisor: comments || "" };
+      } else if (status === BudgetStatus.POR_REVISION && comments) {
+        const newReviewNote: ReviewNote = {
+          id: Date.now(),
+          contenido: comments,
+          supervisor: user.name || 'Supervisor',
+          fecha_creacion: formatForDisplay(new Date())
+        };
+        updatedRequest = {
+          ...request,
+          estado: status,
+          review_notes: [newReviewNote, ...(request.review_notes || [])]
+        };
+      } else {
+        updatedRequest = { ...request, estado: status };
+      }
+      
+      onRequestUpdated(updatedRequest);
+      addToast?.(`Solicitud ${status.toLowerCase()} con éxito`, 'success');
+    } catch (error: any) {
+      addToast?.('Error al cambiar el estado de la solicitud.', 'error');
+    } finally {
+      setLoading?.(false);
+    }
+  };
 
   const certificadoFile = request.files?.find(f => f.es_certificado);
   const certificadoUrl = certificadoFile?.url_view;
@@ -153,13 +190,13 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
       setShowRejectionModal(true);
       return;
     }
-    onUpdateStatus(String(request.id), newStatus, undefined);
+    handleUpdateStatus(String(request.id), newStatus, undefined);
   };
 
   const handleRejectConfirm = async (comments: string) => {
     setIsRejecting(true);
     try {
-      onUpdateStatus(String(request.id), BudgetStatus.REJECTED, comments);
+      handleUpdateStatus(String(request.id), BudgetStatus.REJECTED, comments);
       setShowRejectionModal(false);
     } finally {
       setIsRejecting(false);
@@ -169,7 +206,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
   const handleRevisionConfirm = async (comments: string) => {
     setIsRequestingRevision(true);
     try {
-      onUpdateStatus(String(request.id), BudgetStatus.POR_REVISION, comments);
+      handleUpdateStatus(String(request.id), BudgetStatus.POR_REVISION, comments);
       setShowRevisionModal(false);
     } finally {
       setIsRequestingRevision(false);
