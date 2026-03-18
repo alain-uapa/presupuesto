@@ -165,16 +165,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
     return new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(amount || 0);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-DO', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   const DetailItem = ({ label, value }: { label: string, value: string | number }) => (
     <div className="bg-[#F8F9FA] p-4 rounded-xl border border-slate-100">
       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
@@ -290,7 +280,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
                   <div key={note.id} className="bg-white border border-blue-200 p-3 rounded-xl">
                     <div className="flex justify-between items-start mb-1">
                       <span className="text-xs font-bold text-blue-700">{note.supervisor}</span>
-                      <span className="text-xs text-blue-400">{formatDate(note.fecha_creacion)}</span>
+                      <span className="text-xs text-blue-400">{formatForDisplay(note.fecha_creacion)}</span>
                     </div>
                     <p className="text-sm text-blue-800">{note.contenido}</p>
                   </div>
@@ -299,9 +289,9 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             </section>
           )}
 
-          {user.role === Role.SUPERVISOR && request.estado === BudgetStatus.PENDING && (
+          {user.role === Role.SUPERVISOR && (request.estado === BudgetStatus.PENDING || request.estado === BudgetStatus.POR_REVISION) && (
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Gestión</h3>
+              <h3 className="text-sm font-bold text-[#333333] uppercase tracking-wider">Acción</h3>
               
               <div className="space-y-3">
                 <div className="flex gap-2">

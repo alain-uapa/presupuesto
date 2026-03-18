@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
-import { Role, User, BudgetRequest, BudgetStatus, ToastType } from './types';
+import { Role, User, BudgetRequest, BudgetStatus, ToastType, ReviewNote } from './types';
 import './styles/loader.css';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
@@ -365,9 +365,28 @@ const AppContent: React.FC<{
     try {
       await budgetService.updateStatus(id, status, comments);
       
-      setRequests(prev => prev.map(r => 
-        String(r.id) === String(id) ? { ...r, estado: status, observaciones_supervisor: comments || "" } : r
-      ));
+      setRequests(prev => prev.map(r => {
+        if (String(r.id) === String(id)) {
+          if (status === BudgetStatus.REJECTED) {
+            return { ...r, estado: status, observaciones_supervisor: comments || "" };
+          }
+          if (status === BudgetStatus.POR_REVISION && comments) {
+            const newReviewNote: ReviewNote = {
+              id: Date.now(),
+              contenido: comments,
+              supervisor: user?.name || 'Supervisor',
+              fecha_creacion: new Date().toISOString()
+            };
+            return {
+              ...r,
+              estado: status,
+              review_notes: [...(r.review_notes || []), newReviewNote]
+            };
+          }
+          return { ...r, estado: status };
+        }
+        return r;
+      }));
       addToast(`Solicitud ${status.toLowerCase()} con éxito`, 'success');
     } catch (error: any) {
       handleApiError(error, 'Error al cambiar el estado de la solicitud.');

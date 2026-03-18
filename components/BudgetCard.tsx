@@ -24,15 +24,15 @@ interface BudgetCardProps {
 const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDelete, userRole, picture }) => {
   const isCollaborator = userRole === Role.COLABORADOR;
   const isSupervisor = userRole === Role.SUPERVISOR;
-  const canEdit = (isCollaborator || isSupervisor) && request.estado === BudgetStatus.PENDING;
+  const canEdit = (isCollaborator || isSupervisor) && (request.estado === BudgetStatus.PENDING || request.estado === BudgetStatus.POR_REVISION);
   const canDelete = isCollaborator && request.estado === BudgetStatus.PENDING;
   const { ESTADO_CHOICES, getLabel } = useCatalogs();
 
     const getBorderCardColor = (status: BudgetStatus) => {
-      return status === BudgetStatus.REJECTED ? 'border-red-100' : status === BudgetStatus.PENDING ? 'border-amber-100' : 'border-emerald-100';
+      return status === BudgetStatus.REJECTED ? 'border-red-100' : status === BudgetStatus.PENDING ? 'border-amber-100' : status === BudgetStatus.POR_REVISION ? 'border-blue-100' : 'border-emerald-100';
     }
     const getBgCardColor = (status: BudgetStatus) => {
-      return status === BudgetStatus.REJECTED ? 'bg-red-50' : status === BudgetStatus.PENDING ? 'bg-amber-50' : 'bg-green-50';
+      return status === BudgetStatus.REJECTED ? 'bg-red-50' : status === BudgetStatus.PENDING ? 'bg-amber-50' : status === BudgetStatus.POR_REVISION ? 'bg-blue-50' : 'bg-green-50';
     }
   const getStatusStyle = (status: BudgetStatus) => {
     switch (status) {
@@ -40,6 +40,8 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
         return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       case BudgetStatus.REJECTED:
         return 'bg-rose-100 text-rose-700 border-rose-200';
+      case BudgetStatus.POR_REVISION:
+        return 'bg-blue-100 text-blue-700 border-blue-200';
       default:
         return 'bg-amber-100 text-amber-700 border-amber-200';
     }
