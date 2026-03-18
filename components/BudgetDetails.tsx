@@ -72,10 +72,10 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
     }
   };
   const getBorderFormColor = () => {
-    return request.estado === BudgetStatus.REJECTED ? 'border-red-100' : request.estado === BudgetStatus.PENDING ? 'border-amber-100' : 'border-emerald-100';
+    return request.estado === BudgetStatus.REJECTED ? 'border-red-100' : request.estado === BudgetStatus.PENDING ? 'border-amber-100' : request.estado === BudgetStatus.POR_REVISION ? 'border-blue-100' : 'border-emerald-100';
   }
   const getBgHeaderColor = () => {
-    return request.estado === BudgetStatus.REJECTED ? 'bg-red-50' : request.estado === BudgetStatus.PENDING ? 'bg-amber-50' : 'bg-emerald-50';
+    return request.estado === BudgetStatus.REJECTED ? 'bg-red-50' : request.estado === BudgetStatus.PENDING ? 'bg-amber-50' : request.estado === BudgetStatus.POR_REVISION ? 'bg-blue-50' : 'bg-emerald-50';
   }
   const getStatusBadge = (status: BudgetStatus) => {
     const label = getLabel(ESTADO_CHOICES, status);
@@ -112,6 +112,21 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, onBack, on
             <div className="flex flex-col">
               <span className="text-xs font-medium uppercase tracking-wider text-red-400">Estado</span>
               <span className="text-sm font-bold text-red-700">{label}</span>
+            </div>
+          </div>
+        );
+      case BudgetStatus.POR_REVISION:
+        return (
+          <div className="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-100 px-5 py-2.5 shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4.5 w-4.5 text-white" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+              </svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium uppercase tracking-wider text-blue-500">Estado</span>
+              <span className="text-sm font-bold text-blue-700">{label}</span>
             </div>
           </div>
         );
