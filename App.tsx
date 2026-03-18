@@ -17,23 +17,31 @@ import { CatalogProvider, useCatalogs } from './context/CatalogContext';
 interface DashboardViewProps {
   user: User;
   requests: BudgetRequest[];
+  filters: {
+    selectedYear: number;
+    selectedMonth: number;
+    statusFilter: BudgetStatus | 'TODOS';
+  };
   onViewDetails: (id: number | string) => void;
   onEdit: (id: number | string) => void;
-  onDelete: (id: number | string) => void;
+  onDelete: () => void;
   onRefresh: () => void;
+  onFiltersChange: (newFilters: { selectedYear?: number; selectedMonth?: number; statusFilter?: BudgetStatus | 'TODOS' }) => void;
 }
 
-const DashboardView: React.FC<DashboardViewProps> = ({ user, requests, onViewDetails, onEdit, onDelete, onRefresh }) => {
+const DashboardView: React.FC<DashboardViewProps> = ({ user, requests, filters, onViewDetails, onEdit, onDelete, onRefresh, onFiltersChange }) => {
   const navigate = useNavigate();
   return (
     <Dashboard 
       user={user} 
       requests={requests} 
+      filters={filters}
       onViewDetails={onViewDetails}
       onEdit={onEdit}
       onCreate={() => navigate('/create')}
       onDelete={onDelete}
-      onRefresh={onRefresh}        
+      onRefresh={onRefresh}
+      onFiltersChange={onFiltersChange}
     />
   );
 };
@@ -251,9 +259,11 @@ const AppContent: React.FC<{
   handleLogout: () => void;
   fetchAllRequests: () => void;
   handleApiError: (e: any, m?: string) => boolean;
+  filters: { selectedYear: number; selectedMonth: number; statusFilter: BudgetStatus | 'TODOS' };
+  setFilters: React.Dispatch<React.SetStateAction<{ selectedYear: number; selectedMonth: number; statusFilter: BudgetStatus | 'TODOS' }>>;
 }> = ({ 
   user, setUser, requests, setRequests, loading, setLoading, 
-  toasts, addToast, removeToast, handleLogout, fetchAllRequests, handleApiError 
+  toasts, addToast, removeToast, handleLogout, fetchAllRequests, handleApiError, filters, setFilters 
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -449,10 +459,12 @@ const AppContent: React.FC<{
             <DashboardView 
               user={user} 
               requests={requests}
+              filters={filters}
               onViewDetails={(id) => navigate(`/request/${id}`)}
               onEdit={(id) => navigate(`/request/${id}/edit`)}
               onDelete={handleDeleteBudget}
               onRefresh={fetchAllRequests}
+              onFiltersChange={(newFilters) => setFilters(prev => ({ ...prev, ...newFilters }))}
             />
           } />
           <Route path="/create" element={
@@ -523,6 +535,11 @@ const App: React.FC = () => {
   const [requests, setRequests] = useState<BudgetRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastType[]>([]);
+  const [filters, setFilters] = useState({
+    selectedYear: new Date().getFullYear(),
+    selectedMonth: new Date().getMonth() + 1,
+    statusFilter: 'TODOS' as BudgetStatus | 'TODOS'
+  });
 
   const addToast = useCallback((message: string, type: ToastType['type'] = 'info') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -577,6 +594,8 @@ const App: React.FC = () => {
         handleLogout={handleLogout}
         fetchAllRequests={fetchAllRequests}
         handleApiError={handleApiError}
+        filters={filters}
+        setFilters={setFilters}
       />
     </CatalogProvider>
   );

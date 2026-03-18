@@ -5,14 +5,20 @@ import BudgetCard from './BudgetCard';
 interface DashboardProps {
   user: User;
   requests: BudgetRequest[];
+  filters: {
+    selectedYear: number;
+    selectedMonth: number;
+    statusFilter: BudgetStatus | 'TODOS';
+  };
   onViewDetails: (id: string) => void;
   onEdit: (id: string) => void;
   onCreate: () => void;
   onDelete: () => void;
   onRefresh?: () => void;
+  onFiltersChange: (filters: { selectedYear?: number; selectedMonth?: number; statusFilter?: BudgetStatus | 'TODOS' }) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, onEdit, onCreate, onDelete, onRefresh }) => {
+const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDetails, onEdit, onCreate, onDelete, onRefresh, onFiltersChange }) => {
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
 
@@ -25,9 +31,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, onViewDetails, on
     }
   }, [onRefresh]);
 
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
-  const [statusFilter, setStatusFilter] = useState<BudgetStatus | 'TODOS'>('TODOS');
-  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+  const { selectedYear, selectedMonth, statusFilter } = filters;
+  const setSelectedYear = (year: number) => onFiltersChange({ selectedYear: year });
+  const setStatusFilter = (status: BudgetStatus | 'TODOS') => onFiltersChange({ statusFilter: status });
+  const setSelectedMonth = (month: number) => onFiltersChange({ selectedMonth: month });
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const years = useMemo(() => {
