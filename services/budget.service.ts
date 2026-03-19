@@ -40,7 +40,7 @@ class BudgetService extends HttpClient {
   /**
    * Cambia el estado de una solicitud (Aprobar/Rechazar).
    */
-  async updateStatus(id: string | number, status: BudgetStatus, comments?: string): Promise<BudgetRequest> {
+  async updateStatus(id: string | number, status: BudgetStatus, comments?: string): Promise<any> {
     return this.patch<BudgetRequest>(`/solicitudes/status/${id}/`, { status, comments });
   }
 

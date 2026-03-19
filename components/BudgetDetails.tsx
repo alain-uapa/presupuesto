@@ -186,12 +186,8 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
     }
   };
 
-  const handleStatusChange = (newStatus: BudgetStatus) => {
-    if (newStatus === BudgetStatus.REJECTED) {
-      setShowRejectionModal(true);
-      return;
-    }
-    handleUpdateStatus(String(request.id), newStatus, undefined);
+  const handleApprovedStatus = () => {
+    handleUpdateStatus(String(request.id), BudgetStatus.APPROVED, undefined);
   };
 
   const handleRejectConfirm = async (comments: string) => {
@@ -398,7 +394,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
               <div className="space-y-3">
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => handleStatusChange(BudgetStatus.APPROVED)}
+                    onClick={() => handleApprovedStatus()}
                     className="flex-1 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100 flex items-center justify-center gap-2"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -418,7 +414,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
                 </div>
 
                 <button 
-                  onClick={() => handleStatusChange(BudgetStatus.REJECTED)}
+                  onClick={() => setShowRejectionModal(true)}
                   className="w-full bg-white hover:bg-rose-50 border-2 border-rose-200 text-rose-600 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
