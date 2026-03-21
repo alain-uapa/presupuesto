@@ -29,6 +29,7 @@ const customStyles = {
 const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit, onDeleteAttachment, addToast }) => {
   const { ubicaciones, cuentasAnaliticas, loadingCatalogs, TIPO_CHOICES, RUBRO_CHOICES } = useCatalogs();
 
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: initialData?.titulo || '',
     description: initialData?.descripcion || '',
@@ -53,7 +54,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
       }));
     }
   };
-  console.log(initialData?.files);
   const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments || []);
 
   useEffect(() => {
@@ -71,6 +71,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
       executionAmount: initialData?.monto_a_ejecutar || '',
       files: initialData?.files || [],
     });
+    setFormErrors({});
   }, [initialData, initialData?.files]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,13 +107,25 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.description) return;
-    if (!formData.locationId || !formData.requestType || !formData.budgetRubro || !formData.analyticalAccountId) {
+
+    const errors: Record<string, string> = {};
+    if (!formData.name) errors['name'] = 'Este campo es obligatorio';
+    if (!formData.description) errors['description'] = 'Este campo es obligatorio';
+    if (!formData.locationId) errors['locationId'] = 'Seleccione una ubicación';
+    if (!formData.requestType) errors['requestType'] = 'Seleccione un tipo de solicitud';
+    if (!formData.budgetRubro) errors['budgetRubro'] = 'Seleccione un rubro presupuestal';
+    if (!formData.analyticalAccountId) errors['analyticalAccountId'] = 'Seleccione una cuenta analítica';
+    if (formData.preApprovedBudget === '' || formData.preApprovedBudget === 0) errors['preApprovedBudget'] = 'Este campo es obligatorio';
+    if (formData.executionAmount === '' || formData.executionAmount === 0) errors['executionAmount'] = 'Este campo es obligatorio';
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
       if (addToast) {
         addToast('Por favor complete todos los campos obligatorios', 'error');
       }
       return;
     }
+    setFormErrors({});
 
     const loc = ubicaciones.find(u => u.id === Number(formData.locationId));
     const acc = cuentasAnaliticas.find(a => a.id === Number(formData.analyticalAccountId));
@@ -126,6 +139,13 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
       analyticalAccountName: acc?.nombre || 'Cuenta Analítica',
       attachments
     });
+  };
+
+  const getFieldError = (field: string) => formErrors[field];
+  const getFieldClass = (field: string, base: string) => {
+    return formErrors[field]
+      ? `${base} border-red-400 focus:ring-red-400`
+      : base;
   };
 
   const inputClass = "w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all disabled:opacity-50";
@@ -159,18 +179,25 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               type="text"
               required
               value={formData.name}
-              onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={e => {
+                setFormData(prev => ({ ...prev, name: e.target.value }));
+                if (formErrors['name']) setFormErrors(prev => ({ ...prev, name: '' }));
+              }}
               placeholder="Ej. Taller de capacitación docente"
-              className={inputClass}
+              className={getFieldClass('name', inputClass)}
             />
+            {getFieldError('name') && <p className="text-xs text-red-500 font-medium">{getFieldError('name')}</p>}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-bold text-[#333333]">Ubicación *</label>
             <select 
               value={formData.locationId}
-              onChange={e => setFormData(prev => ({ ...prev, locationId: e.target.value }))}
-              className={inputClass}
+              onChange={e => {
+                setFormData(prev => ({ ...prev, locationId: e.target.value }));
+                if (formErrors['locationId']) setFormErrors(prev => ({ ...prev, locationId: '' }));
+              }}
+              className={getFieldClass('locationId', inputClass)}
               disabled={loadingCatalogs}
             >
               <option value="">Seleccione una opción</option>
@@ -182,6 +209,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
                 <option value="">Cargando ubicaciones...</option>
               )}
             </select>
+            {getFieldError('locationId') && <p className="text-xs text-red-500 font-medium">{getFieldError('locationId')}</p>}
           </div>
 
           <div className="space-y-2">
@@ -200,39 +228,52 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
             <label className="text-sm font-bold text-[#333333]">Tipo de Solicitud *</label>
             <select 
               value={formData.requestType}
-              onChange={e => setFormData(prev => ({ ...prev, requestType: e.target.value }))}
-              className={inputClass}
+              onChange={e => {
+                setFormData(prev => ({ ...prev, requestType: e.target.value }));
+                if (formErrors['requestType']) setFormErrors(prev => ({ ...prev, requestType: '' }));
+              }}
+              className={getFieldClass('requestType', inputClass)}
             >
               <option value="">Seleccione una opción</option>
               {TIPO_CHOICES.map(choice => (
                 <option key={choice.value} value={choice.value}>{choice.label}</option>
               ))}
             </select>
+            {getFieldError('requestType') && <p className="text-xs text-red-500 font-medium">{getFieldError('requestType')}</p>}
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-bold text-[#333333]">Rubro Presupuestal *</label>
             <select 
               value={formData.budgetRubro}
-              onChange={e => setFormData(prev => ({ ...prev, budgetRubro: e.target.value }))}
-              className={inputClass}
+              onChange={e => {
+                setFormData(prev => ({ ...prev, budgetRubro: e.target.value }));
+                if (formErrors['budgetRubro']) setFormErrors(prev => ({ ...prev, budgetRubro: '' }));
+              }}
+              className={getFieldClass('budgetRubro', inputClass)}
             >
               <option value="">Seleccione una opción</option>
               {RUBRO_CHOICES.map(choice => (
                 <option key={choice.value} value={choice.value}>{choice.label}</option>
               ))}
             </select>
+            {getFieldError('budgetRubro') && <p className="text-xs text-red-500 font-medium">{getFieldError('budgetRubro')}</p>}
           </div>
 
           <div className="space-y-2 col-span-1 md:col-span-2">
             <label className="text-sm font-bold text-[#333333]">Cuenta Analítica *</label>
-            <Select 
-              className='w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-[#003B71] transition-all disabled:opacity-50'
-              defaultValue={formData.analyticalAccountId ? {value: formData.analyticalAccountId, label: cuentasAnaliticas.find(c => c.id === Number(formData.analyticalAccountId)) ? `${cuentasAnaliticas.find(c => c.id === Number(formData.analyticalAccountId))?.codigo} - ${cuentasAnaliticas.find(c => c.id === Number(formData.analyticalAccountId))?.nombre}` : 'Cargando...'} : null} 
-              onChange={(newValue) => {
-                setFormData(prev => ({ ...prev, analyticalAccountId: newValue.value }));
-              }}
-              options={cuentasAnaliticas.map(c=>({value: c.id, label: `${c.codigo} - ${c.nombre}`}))} placeholder="Seleccione la cuenta..." />
+            <div className={getFieldClass('analyticalAccountId', 'w-full bg-[#F8F9FA] border border-slate-200 rounded-xl px-4 py-1 outline-none focus:ring-2 transition-all disabled:opacity-50') + ' focus:ring-[#003B71]'}>
+              <Select 
+                className='w-full bg-transparent border-none outline-none'
+                styles={{ control: (base) => ({ ...base, border: 'none', boxShadow: 'none', background: 'transparent' }) }}
+                defaultValue={formData.analyticalAccountId ? {value: formData.analyticalAccountId, label: cuentasAnaliticas.find(c => c.id === Number(formData.analyticalAccountId)) ? `${cuentasAnaliticas.find(c => c.id === Number(formData.analyticalAccountId))?.codigo} - ${cuentasAnaliticas.find(c => c.id === Number(formData.analyticalAccountId))?.nombre}` : 'Cargando...'} : null} 
+                onChange={(newValue) => {
+                  setFormData(prev => ({ ...prev, analyticalAccountId: newValue.value }));
+                  if (formErrors['analyticalAccountId']) setFormErrors(prev => ({ ...prev, analyticalAccountId: '' }));
+                }}
+                options={cuentasAnaliticas.map(c=>({value: c.id, label: `${c.codigo} - ${c.nombre}`}))} placeholder="Seleccione la cuenta..." />
+            </div>
+            {getFieldError('analyticalAccountId') && <p className="text-xs text-red-500 font-medium">{getFieldError('analyticalAccountId')}</p>}
           </div>
 
           <div className="space-y-2">
@@ -242,10 +283,14 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               required
               min="0"
               value={formData.preApprovedBudget}
-              onChange={e => setFormData(prev => ({ ...prev, preApprovedBudget: e.target.value === '' ? '' : Number(e.target.value) }))}
-              className={inputClass}
+              onChange={e => {
+                setFormData(prev => ({ ...prev, preApprovedBudget: e.target.value === '' ? '' : Number(e.target.value) }));
+                if (formErrors['preApprovedBudget']) setFormErrors(prev => ({ ...prev, preApprovedBudget: '' }));
+              }}
+              className={getFieldClass('preApprovedBudget', inputClass)}
               placeholder="0"
             />
+            {getFieldError('preApprovedBudget') && <p className="text-xs text-red-500 font-medium">{getFieldError('preApprovedBudget')}</p>}
           </div>
 
           <div className="space-y-2">
@@ -255,10 +300,14 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               required
               min="0"
               value={formData.executionAmount}
-              onChange={e => setFormData(prev => ({ ...prev, executionAmount: e.target.value === '' ? '' : Number(e.target.value) }))}
-              className={inputClass}
+              onChange={e => {
+                setFormData(prev => ({ ...prev, executionAmount: e.target.value === '' ? '' : Number(e.target.value) }));
+                if (formErrors['executionAmount']) setFormErrors(prev => ({ ...prev, executionAmount: '' }));
+              }}
+              className={getFieldClass('executionAmount', inputClass)}
               placeholder="0"
             />
+            {getFieldError('executionAmount') && <p className="text-xs text-red-500 font-medium">{getFieldError('executionAmount')}</p>}
           </div>
         </div>
 
@@ -268,10 +317,14 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
             required
             rows={4}
             value={formData.description}
-            onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={e => {
+              setFormData(prev => ({ ...prev, description: e.target.value }));
+              if (formErrors['description']) setFormErrors(prev => ({ ...prev, description: '' }));
+            }}
             placeholder="Explique el propósito de este gasto..."
-            className={`${inputClass} resize-none`}
+            className={getFieldClass('description', `${inputClass} resize-none`)}
           />
+          {getFieldError('description') && <p className="text-xs text-red-500 font-medium">{getFieldError('description')}</p>}
         </div>
 
         <div className="space-y-3">

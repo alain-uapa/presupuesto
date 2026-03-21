@@ -592,7 +592,7 @@ const App: React.FC = () => {
           if (idx >= 0) {
             merged[idx] = incoming;
           } else {
-            merged.push(incoming);
+            merged.unshift(incoming);
           }
         });
         return merged;
