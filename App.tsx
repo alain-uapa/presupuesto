@@ -605,7 +605,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!user) return;
-    const interval = setInterval(refreshSolicitudes, 30000);
+    const interval = setInterval(() => {
+      const path = window.location.pathname;
+      if (path === '/create' || /^\/request\/\d+\/edit$/.test(path)) return;
+      refreshSolicitudes();
+    }, 30000);
     return () => clearInterval(interval);
   }, [user, refreshSolicitudes]);
 

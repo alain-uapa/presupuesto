@@ -52,8 +52,8 @@ export function dnsDateFormat(fechaStr) {
   // Calculamos la diferencia en días
   const diasDeDiferencia = differenceInDays(hoy, fecha);
 
-  // Si fue hace menos de 7 días, muestra "hace X días"
-  if (diasDeDiferencia < 7) {
+  // Si fue hace menos de 2 días, muestra "hace X días"
+  if (diasDeDiferencia < 2) {
     return formatDistanceToNow(fecha, { addSuffix: true, locale: es });
   } 
   
