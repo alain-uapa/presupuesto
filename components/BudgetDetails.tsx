@@ -6,7 +6,7 @@ import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
 import StatusChangeModal from './StatusChangeModal';
-import { formatForDisplay } from '../utils/dateUtils';
+import { formatForDisplay, dnsDateFormat } from '../utils/dateUtils';
 
 interface BudgetDetailsProps {
   user: User;
@@ -57,7 +57,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
           contenido: comments,
           supervisor: user.name || 'Supervisor',
           estado: 'PENDIENTE',
-          fecha_creacion: formatForDisplay(new Date())
+          fecha_creacion: new Date().toISOString()
         };
         updatedRequest = {
           ...request,
@@ -353,7 +353,9 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
                             Marcar como Resuelta
                           </button>
                         )}
-                        <span className="text-xs text-blue-400">{formatForDisplay(note.fecha_creacion)}</span>
+                        <span className="text-xs text-blue-400">{
+                          dnsDateFormat(note.fecha_creacion)}
+                        </span>
                       </div>
                     </div>
                     <p className="text-sm text-blue-800">{note.contenido}</p>
