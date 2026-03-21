@@ -24,12 +24,12 @@ interface DashboardViewProps {
   };
   onViewDetails: (id: number | string) => void;
   onEdit: (id: number | string) => void;
-  onDelete: () => void;
-  onRefresh: () => void;
+  onDelete: (id: number | string) => void;
   onFiltersChange: (newFilters: { selectedYear?: number; selectedMonth?: number; statusFilter?: BudgetStatus | 'TODOS' }) => void;
+  lastUpdated: string | null;
 }
 
-const DashboardView: React.FC<DashboardViewProps> = ({ user, requests, filters, onViewDetails, onEdit, onDelete, onRefresh, onFiltersChange }) => {
+const DashboardView: React.FC<DashboardViewProps> = ({ user, requests, filters, onViewDetails, onEdit, onDelete, onFiltersChange, lastUpdated }) => {
   const navigate = useNavigate();
   return (
     <Dashboard 
@@ -40,8 +40,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({ user, requests, filters, 
       onEdit={onEdit}
       onCreate={() => navigate('/create')}
       onDelete={onDelete}
-      onRefresh={onRefresh}
       onFiltersChange={onFiltersChange}
+      lastUpdated={lastUpdated}
     />
   );
 };
@@ -261,9 +261,10 @@ const AppContent: React.FC<{
   handleApiError: (e: any, m?: string) => boolean;
   filters: { selectedYear: number; selectedMonth: number; statusFilter: BudgetStatus | 'TODOS' };
   setFilters: React.Dispatch<React.SetStateAction<{ selectedYear: number; selectedMonth: number; statusFilter: BudgetStatus | 'TODOS' }>>;
+  lastUpdated: string | null;
 }> = ({ 
   user, setUser, requests, setRequests, loading, setLoading, 
-  toasts, addToast, removeToast, handleLogout, fetchAllRequests, handleApiError, filters, setFilters 
+  toasts, addToast, removeToast, handleLogout, fetchAllRequests, handleApiError, filters, setFilters, lastUpdated 
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -463,8 +464,8 @@ const AppContent: React.FC<{
               onViewDetails={(id) => navigate(`/request/${id}`)}
               onEdit={(id) => navigate(`/request/${id}/edit`)}
               onDelete={handleDeleteBudget}
-              onRefresh={fetchAllRequests}
               onFiltersChange={(newFilters) => setFilters(prev => ({ ...prev, ...newFilters }))}
+              lastUpdated={lastUpdated}
             />
           } />
           <Route path="/create" element={
@@ -535,6 +536,7 @@ const App: React.FC = () => {
   const [requests, setRequests] = useState<BudgetRequest[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastType[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     selectedYear: new Date().getFullYear(),
     selectedMonth: new Date().getMonth() + 1,
@@ -570,14 +572,42 @@ const App: React.FC = () => {
   const fetchAllRequests = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await budgetService.getAll();
-      setRequests(data);
+      const {solicitudes, last_updated} = await budgetService.getAll();   
+      setLastUpdated(last_updated);   
+      setRequests(solicitudes);
     } catch (error: any) {
       handleApiError(error, 'No se pudieron cargar las solicitudes.');
     } finally {
       setLoading(false);
     }
   }, [handleApiError]);
+
+  const refreshSolicitudes = useCallback(async () => {
+    try {
+      const { solicitudes, last_updated } = await budgetService.refreshSolicitudes(lastUpdated);
+      setRequests(prev => {
+        const merged = [...prev];
+        solicitudes.forEach(incoming => {
+          const idx = merged.findIndex(r => String(r.id) === String(incoming.id));
+          if (idx >= 0) {
+            merged[idx] = incoming;
+          } else {
+            merged.push(incoming);
+          }
+        });
+        return merged;
+      });
+      setLastUpdated(last_updated);
+    } catch (error: any) {
+      console.error('Error al refrescar solicitudes:', error);
+    }
+  }, [lastUpdated]);
+
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(refreshSolicitudes, 30000);
+    return () => clearInterval(interval);
+  }, [user, refreshSolicitudes]);
 
   return (
     <CatalogProvider>
@@ -596,6 +626,7 @@ const App: React.FC = () => {
         handleApiError={handleApiError}
         filters={filters}
         setFilters={setFilters}
+        lastUpdated={lastUpdated}
       />
     </CatalogProvider>
   );

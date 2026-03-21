@@ -13,23 +13,14 @@ interface DashboardProps {
   onViewDetails: (id: string) => void;
   onEdit: (id: string) => void;
   onCreate: () => void;
-  onDelete: () => void;
-  onRefresh?: () => void;
+  onDelete: (id: number | string) => void;
   onFiltersChange: (filters: { selectedYear?: number; selectedMonth?: number; statusFilter?: BudgetStatus | 'TODOS' }) => void;
+  lastUpdated?: string | null;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDetails, onEdit, onCreate, onDelete, onRefresh, onFiltersChange }) => {
+const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDetails, onEdit, onCreate, onDelete, onFiltersChange, lastUpdated }) => {
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
-
-  useEffect(() => {
-    if (onRefresh) {
-      const interval = setInterval(() => {
-        onRefresh();
-      }, 120000);
-      return () => clearInterval(interval);
-    }
-  }, [onRefresh]);
 
   const { selectedYear, selectedMonth, statusFilter } = filters;
   const setSelectedYear = (year: number) => onFiltersChange({ selectedYear: year });
@@ -112,6 +103,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
             {isSupervisor ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
           </h2>
           <p className="text-slate-500">Mostrando registros para el periodo {selectedYear}</p>
+          {lastUpdated && (
+            <p className="text-xs text-slate-400 mt-1">
+              Actualizado: {new Date(lastUpdated).toLocaleString()}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -150,18 +146,6 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
               <option value={BudgetStatus.APPROVED}>Aprobadas</option>
               <option value={BudgetStatus.REJECTED}>Rechazadas</option>
             </select>
-          )}
-
-          {onRefresh && (
-            <button 
-              onClick={onRefresh}
-              className="p-2 text-slate-500 hover:text-[#003B71] hover:bg-blue-50 rounded-lg transition-colors border border-slate-200 bg-white shadow-sm"
-              title="Actualizar solicitudes"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
           )}
 
           {isCollaborator && (

@@ -96,6 +96,14 @@ class BudgetService extends HttpClient {
   async updateRevisionStatus(id: string | number, estado: string): Promise<any> {
     return this.patch(`/solicitudes/revision/${id}/`, { estado });
   }
+
+  /**
+   * Obtiene las solicitudes nuevas/actualizadas para refresh automático.
+   * Endpoint: /solicitudes/refresh/
+   */
+  async refreshSolicitudes(lastUpdated: string): Promise<{ solicitudes: BudgetRequest[], last_updated: string }> {
+    return this.get<{ solicitudes: BudgetRequest[], last_updated: string }>(`/solicitudes/refresh/?last_updated=${encodeURIComponent(lastUpdated)}`);
+  }
 }
 
 export const budgetService = new BudgetService();
