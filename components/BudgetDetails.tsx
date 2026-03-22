@@ -402,6 +402,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
                   <button 
                     onClick={() => handleApprovedStatus()}
                     disabled={hasPendingReview}
+                    title={hasPendingReview ? 'Hay revisiones pendientes' : undefined}
                     className={`flex-1 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${
                       hasPendingReview
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
