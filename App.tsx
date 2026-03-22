@@ -341,6 +341,7 @@ const AppContent: React.FC<{
     if (!user || !id) return;
     setLoading(true);
     try {
+      const currentRequest = requests.find(r => String(r.id) === String(id));
       const formData = new FormData();
 
       formData.append('titulo', formValues.name);
@@ -351,6 +352,7 @@ const AppContent: React.FC<{
       formData.append('presupuesto_pre_aprobado', formValues.preApprovedBudget);
       formData.append('ubicacion_id', formValues.locationId);
       formData.append('cuenta_analitica_id', formValues.analyticalAccountId);
+      formData.append('updated_at', currentRequest?.updated_at || new Date().toISOString());
       
       formValues.attachments.forEach((attachment) => {
         formData.append('files', attachment.file);
@@ -362,7 +364,13 @@ const AppContent: React.FC<{
       navigate('/');
       addToast('Solicitud actualizada correctamente', 'success');
     } catch (error: any) {
-      handleApiError(error, 'Error al actualizar la solicitud. Por favor reintente.');
+      if (error.status === 409) {
+        addToast(error.data?.error || 'Versión desactualizada', 'warning');
+        await fetchAllRequests();
+        navigate('/');
+      } else {
+        handleApiError(error, 'Error al actualizar la solicitud. Por favor reintente.');
+      }
     } finally {
       setLoading(false);
     }

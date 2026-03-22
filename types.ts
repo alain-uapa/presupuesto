@@ -79,7 +79,7 @@ export interface User {
 export interface ToastType {
   id: string;
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error' | 'info' | 'warning';
   duration: number;
 }
 
