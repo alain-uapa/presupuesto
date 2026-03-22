@@ -4,7 +4,7 @@ import { BudgetRequest, Attachment } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import { budgetService } from '../services/budget.service';
 import AttachmentList from './AttachmentList';
-import { parseFromBackend, formatForBackend, getCurrentDateForBackend, formatForDisplay } from '../utils/dateUtils';
+import { dnsDateFormat } from '../utils/dateUtils';
 interface BudgetFormProps {
   initialData?: BudgetRequest;
   onCancel: () => void;
@@ -34,8 +34,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
     name: initialData?.titulo || '',
     description: initialData?.descripcion || '',
     requestDate: initialData?.fecha_solicitud 
-      ? formatForDisplay(initialData.fecha_solicitud)
-      : formatForDisplay(new Date()), // Fecha actual si se está creando
+      ? new Date(initialData.fecha_solicitud).toLocaleDateString()
+      : new Date().toLocaleDateString(), // Fecha actual si se está creando
     locationId: initialData?.ubicacion?.id || '',
     requestType: initialData?.tipo_solicitud || '',
     budgetRubro: initialData?.rubro_presupuestal || '',
@@ -61,8 +61,8 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
       name: initialData?.titulo || '',
       description: initialData?.descripcion || '',      
       requestDate: initialData?.fecha_solicitud 
-        ? formatForDisplay(initialData.fecha_solicitud)
-        : formatForDisplay(new Date()), // Fecha actual si se está creando
+        ? new Date(initialData.fecha_solicitud).toLocaleDateString()
+        : new Date().toLocaleDateString(), // Fecha actual si se está creando
       locationId: initialData?.ubicacion?.id || '',
       requestType: initialData?.tipo_solicitud || '',
       budgetRubro: initialData?.rubro_presupuestal || '',
@@ -132,7 +132,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
     onSubmit({
       ...formData,
-      requestDate: formatForBackend(new Date(formData.requestDate)),
+      requestDate: new Date(formData.requestDate),
       preApprovedBudget: formData.preApprovedBudget === '' ? 0 : formData.preApprovedBudget,
       executionAmount: formData.executionAmount === '' ? 0 : formData.executionAmount,
       locationName: loc?.nombre || 'Sede Santiago',

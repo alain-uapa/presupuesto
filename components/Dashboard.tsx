@@ -58,11 +58,11 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
     //   );
     // }
 
-    // Filtro por año y mes basado en "DD/MM/YYYY"
+    // Filtro por año y mes basado en ISO 8601 "YYYY-MM-DDTHH:MM:SS..."
     list = list.filter(r => {
       if (!r.fecha_solicitud) return true;
       try {
-        const [day, month, year] = r.fecha_solicitud.split('/');
+        const [year, month] = r.fecha_solicitud.split('T')[0].split('-');
         return (
           parseInt(year) === selectedYear &&
           parseInt(month) === selectedMonth

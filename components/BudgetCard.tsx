@@ -3,7 +3,7 @@ import { BudgetRequest, BudgetStatus, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import Avatar from './Avatar';
 import { UnisexAvatar } from './BudgetDetails';
-import { formatForDisplay } from '../utils/dateUtils';
+import { dnsDateFormat, formatForDisplay } from '../utils/dateUtils';
 
 interface BudgetCardProps {
   request: BudgetRequest;
@@ -61,7 +61,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusStyle(request.estado)}`}>
             {getLabel(ESTADO_CHOICES, request.estado)}
           </span>
-          <span className="text-xs text-slate-400 font-medium">{formatForDisplay(request.fecha_solicitud)}</span>
+          <span className="text-xs text-slate-400 font-medium">{dnsDateFormat(request.fecha_solicitud)}</span>
         </div>
 
         <h3 className="font-bold text-[#333333] line-clamp-2 mb-2 group-hover:text-[#003B71] transition-colors">

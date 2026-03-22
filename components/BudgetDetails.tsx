@@ -6,7 +6,7 @@ import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
 import StatusChangeModal from './StatusChangeModal';
-import { formatForDisplay, dnsDateFormat } from '../utils/dateUtils';
+import { dnsDateFormat } from '../utils/dateUtils';
 
 interface BudgetDetailsProps {
   user: User;
@@ -289,7 +289,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
           </button>
           <div>
             <h2 className="text-xl font-bold text-[#333333]">{request.titulo}</h2>
-            <p className="text-sm text-slate-500">Solicitado el {formatForDisplay(request.fecha_solicitud)}</p>
+            <p className="text-sm text-slate-500">Fecha de solicitud: {dnsDateFormat(request.fecha_solicitud)}</p>
           </div>
         </div>
         <div>
