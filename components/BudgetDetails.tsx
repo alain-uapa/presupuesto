@@ -256,6 +256,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
   const fullName = request.colaborador 
     ? `${request.colaborador.first_name} ${request.colaborador.last_name}` 
     : 'Colaborador';
+  const hasPendingReview = request.review_notes?.some(note => note.estado === 'PENDIENTE') ?? false;
 
   if (showCertificateForm) {
     const selectedFiles = regularFiles.filter(f => selectedAttachmentIds.includes(f.id as number));
@@ -400,7 +401,12 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
                 <div className="flex gap-2">
                   <button 
                     onClick={() => handleApprovedStatus()}
-                    className="flex-1 bg-[#ff8300] hover:bg-[#e67600] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-orange-100 flex items-center justify-center gap-2"
+                    disabled={hasPendingReview}
+                    className={`flex-1 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${
+                      hasPendingReview
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-[#ff8300] hover:bg-[#e67600] text-white shadow-orange-100'
+                    }`}
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
