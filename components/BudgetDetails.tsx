@@ -290,6 +290,9 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
           <div>
             <h2 className="text-xl font-bold text-[#333333]">{request.titulo}</h2>
             <p className="text-sm text-slate-500">Fecha de solicitud: {dnsDateFormat(request.fecha_solicitud)}</p>
+            {request.updated_at && (
+              <p className="text-xs text-slate-400 mt-1">Última actualización: {dnsDateFormat(request.updated_at)}</p>
+            )}
           </div>
         </div>
         <div>

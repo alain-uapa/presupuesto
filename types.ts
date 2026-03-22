@@ -64,6 +64,8 @@ export interface BudgetRequest {
   certificado_url?: string;
   confirmado?: boolean;
   review_notes?: ReviewNote[];
+  updated_at?: string;
+  files?: Attachment[];
 }
 
 export interface User {

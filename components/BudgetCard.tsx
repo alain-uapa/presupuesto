@@ -3,7 +3,7 @@ import { BudgetRequest, BudgetStatus, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import Avatar from './Avatar';
 import { UnisexAvatar } from './BudgetDetails';
-import { dnsDateFormat, formatForDisplay } from '../utils/dateUtils';
+import { dnsDateFormat } from '../utils/dateUtils';
 
 interface BudgetCardProps {
   request: BudgetRequest;
@@ -140,5 +140,5 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
     </div>
   );
 };
-export { formatForDisplay, formatCurrency };
+export { formatCurrency };
 export default BudgetCard;
