@@ -50,7 +50,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
       await onDeleteAttachment(id, String(initialData.id));
       setFormData(prev => ({
         ...prev,
-        files: prev.files?.filter(f => String(f.id) !== String(id)) || []
+        files: prev.files?.filter(f => String((f as any).id ?? (f as any).name ?? '') !== String(id)) || []
       }));
     }
   };
