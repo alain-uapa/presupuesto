@@ -282,6 +282,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               type="number"
               required
               min="0"
+              step="0.01"
               value={formData.preApprovedBudget}
               onChange={e => {
                 setFormData(prev => ({ ...prev, preApprovedBudget: e.target.value === '' ? '' : Number(e.target.value) }));
@@ -299,6 +300,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
               type="number"
               required
               min="0"
+              step="0.01"
               value={formData.executionAmount}
               onChange={e => {
                 setFormData(prev => ({ ...prev, executionAmount: e.target.value === '' ? '' : Number(e.target.value) }));
