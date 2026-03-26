@@ -21,6 +21,10 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDetails, onEdit, onCreate, onDelete, onFiltersChange, lastUpdated }) => {
   const isCollaborator = user.role === Role.COLABORADOR;
   const isSupervisor = user.role === Role.SUPERVISOR;
+  const isCompraRSS = user.role === Role.COMPRA_RSS;
+  const isCompraRSD = user.role === Role.COMPRA_RSD;
+  const isCompraRCO = user.role === Role.COMPRA_RCO;
+  const isCompra = isCompraRSS || isCompraRSD || isCompraRCO;
 
   const { selectedYear, selectedMonth, statusFilter } = filters;
   const setSelectedYear = (year: number) => onFiltersChange({ selectedYear: year });
@@ -148,7 +152,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
             </select>
           )}
 
-          {isCollaborator && (
+          {isCollaborator || isCompra && (
             <button 
               onClick={onCreate}
               className="bg-[#ff8300] hover:bg-[#e67600] text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-md shadow-orange-100 flex items-center gap-2"

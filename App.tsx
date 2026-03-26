@@ -122,7 +122,7 @@ const BudgetConfirmView: React.FC<BudgetConfirmViewProps> = ({ user, requests, f
     [requests, id]
   );
 
-  const isCompra = user.role === Role.COMPRA;
+  const isCompra = user.role === Role.COMPRA_RSS || user.role === Role.COMPRA_RSD || user.role === Role.COMPRA_RCO;
 
   useEffect(() => {
     if (!isCompra || !id) return;
