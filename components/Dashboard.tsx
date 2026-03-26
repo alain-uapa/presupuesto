@@ -104,7 +104,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-[#333333]">
-            {isSupervisor ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
+            {isSupervisor || isCompra ? 'Todas las Solicitudes' : 'Mis Solicitudes'}
           </h2>
           <p className="text-slate-500">Mostrando registros para el periodo {selectedYear}</p>
           {lastUpdated && (
@@ -152,7 +152,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
             </select>
           )}
 
-          {isCollaborator || isCompra && (
+          {(isCollaborator || isCompra) && (
             <button 
               onClick={onCreate}
               className="bg-[#ff8300] hover:bg-[#e67600] text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-md shadow-orange-100 flex items-center gap-2"

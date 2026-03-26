@@ -6,7 +6,7 @@ import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
 import StatusChangeModal from './StatusChangeModal';
-import { dnsDateFormat } from '../utils/dateUtils';
+import { dnsDateFormat, formatCurrency } from '../utils/dateUtils';
 
 interface BudgetDetailsProps {
   user: User;
@@ -239,10 +239,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
     } finally {
       //setLoading?.(false);
     }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(amount || 0);
   };
 
   const DetailItem = ({ label, value }: { label: string, value: string | number }) => (

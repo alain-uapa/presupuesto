@@ -2,9 +2,9 @@
 export enum Role {
   COLABORADOR = 'COLABORADOR',
   SUPERVISOR = 'SUPERVISOR',
-  COMPRA_RSS = 'Compra RSS',
-  COMPRA_RSD = 'Compra RSD',
-  COMPRA_RCO = 'Compra RCO'
+  COMPRA_RSS = 'COMPRA RSS',
+  COMPRA_RSD = 'COMPRA RSD',
+  COMPRA_RCO = 'COMPRA RCO'
 }
 
 export enum BudgetStatus {

@@ -3,7 +3,7 @@ import { BudgetRequest, BudgetStatus, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import Avatar from './Avatar';
 import { UnisexAvatar } from './BudgetDetails';
-import { dnsDateFormat } from '../utils/dateUtils';
+import { dnsDateFormat, formatCurrency } from '../utils/dateUtils';
 
 interface BudgetCardProps {
   request: BudgetRequest;
@@ -13,13 +13,6 @@ interface BudgetCardProps {
   userRole: Role;
   picture: string;
 }
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-DO', { 
-      style: 'currency', 
-      currency: 'DOP',
-      maximumFractionDigits: 0 
-    }).format(amount || 0);
-  };
 
 const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDelete, userRole, picture }) => {
   const isCollaborator = userRole === Role.COLABORADOR;
@@ -140,5 +133,4 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
     </div>
   );
 };
-export { formatCurrency };
 export default BudgetCard;

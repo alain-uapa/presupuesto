@@ -20,3 +20,10 @@ export function dnsDateFormat(fechaStr) {
   return format(fecha, "d 'de' MMMM", { locale: es });
 }
 
+export function formatCurrency(amount, currency = 'DOP'){
+  return new Intl.NumberFormat('es-DO', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+  }).format(amount);
+}
