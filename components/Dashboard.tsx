@@ -151,18 +151,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
             ))}
           </select>
 
-          {isSupervisor && (
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
               className="bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm font-medium text-[#333333] outline-none focus:ring-2 focus:ring-[#003B71] shadow-sm"
             >
-              <option value="TODOS">Todos los Estados</option>
+              <option value="TODOS">Todas</option>
               <option value={BudgetStatus.PENDING}>Pendientes</option>
               <option value={BudgetStatus.APPROVED}>Aprobadas</option>
               <option value={BudgetStatus.REJECTED}>Rechazadas</option>
             </select>
-          )}
 
           {(isCollaborator || isCompra) && (
             <button 
