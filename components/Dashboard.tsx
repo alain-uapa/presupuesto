@@ -31,6 +31,8 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
   const setStatusFilter = (status: BudgetStatus | 'TODOS') => onFiltersChange({ statusFilter: status });
   const setSelectedMonth = (month: number) => onFiltersChange({ selectedMonth: month });
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [sortField, setSortField] = useState<'fecha_solicitud' | 'fecha_actividad'>('fecha_solicitud');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -97,7 +99,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
     }
 
     return list;
-  }, [requests, user, selectedYear, selectedMonth, statusFilter, searchQuery]);
+  }, [requests, user, selectedYear, selectedMonth, statusFilter, searchQuery, sortField, sortDirection]);
+
+  const sortedRequests = useMemo(() => {
+    const sortFn = (a: BudgetRequest, b: BudgetRequest) => {
+      const dateA = a[sortField] ? new Date(a[sortField]).getTime() : 0;
+      const dateB = b[sortField] ? new Date(b[sortField]).getTime() : 0;
+      return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+    };
+
+    return [...filteredRequests].sort(sortFn);
+  }, [filteredRequests, sortField, sortDirection]);
 
   return (
     <div className="space-y-6">
@@ -167,7 +179,28 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
       </div>
 
       {/* Search row */}
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">
+        <div className="flex gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
+          <button
+            onClick={() => { setSortField('fecha_solicitud'); setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc'); }}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1 ${
+              sortField === 'fecha_solicitud' ? 'bg-[#003B71] text-white' : 'text-[#333333] hover:bg-slate-50'
+            }`}
+          >
+            Fecha Solicitud
+            <span className="text-[10px]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+          </button>
+          <button
+            onClick={() => { setSortField('fecha_actividad'); setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc'); }}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1 ${
+              sortField === 'fecha_actividad' ? 'bg-[#003B71] text-white' : 'text-[#333333] hover:bg-slate-50'
+            }`}
+          >
+            Fecha Actividad
+            <span className="text-[10px]">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+          </button>
+        </div>
+
         <div className="relative">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z" />
@@ -195,7 +228,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
         </div>
       </div>
 
-      {filteredRequests.length === 0 ? (
+      {sortedRequests.length === 0 ? (
         <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-20 flex flex-col items-center justify-center text-center">
           <div className="w-16 h-16 bg-[#F8F9FA] rounded-full flex items-center justify-center mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -206,7 +239,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRequests.map(req => (
+          {sortedRequests.map(req => (
             <BudgetCard 
               key={req.id} 
               request={req} 
