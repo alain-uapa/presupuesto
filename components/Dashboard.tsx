@@ -33,6 +33,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortField, setSortField] = useState<'fecha_solicitud' | 'fecha_actividad'>('fecha_solicitud');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [statusFilterLocal, setStatusFilterLocal] = useState<string>('PENDIENTE');
 
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
@@ -79,9 +80,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
       }
     });
 
-    // Filtro por estado
-    if (statusFilter !== 'TODOS') {
-      list = list.filter(r => r.estado === statusFilter);
+    // Filtro por estado (selector local)
+    if (statusFilterLocal !== 'TODAS') {
+      list = list.filter(r => r.estado === statusFilterLocal);
     }
 
     // Filtro por búsqueda de texto (mínimo 3 caracteres)
@@ -99,7 +100,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
     }
 
     return list;
-  }, [requests, user, selectedYear, selectedMonth, statusFilter, searchQuery, sortField, sortDirection]);
+  }, [requests, user, selectedYear, selectedMonth, statusFilter, statusFilterLocal, searchQuery, sortField, sortDirection]);
 
   const sortedRequests = useMemo(() => {
     const sortFn = (a: BudgetRequest, b: BudgetRequest) => {
@@ -179,7 +180,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
       </div>
 
       {/* Search row */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-4">
         <div className="flex gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
           <button
             onClick={() => { setSortField('fecha_solicitud'); setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc'); }}
@@ -201,30 +202,44 @@ const Dashboard: React.FC<DashboardProps> = ({ user, requests, filters, onViewDe
           </button>
         </div>
 
-        <div className="relative">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z" />
-          </svg>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por título, solicitante, descripción o ubicación..."
-            className="bg-white border border-slate-200 rounded-lg pl-9 pr-8 py-2 text-sm text-[#333333] outline-none focus:ring-2 focus:ring-[#003B71] shadow-sm w-80"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-          {searchQuery.length > 0 && searchQuery.length < 3 && (
-            <p className="absolute left-0 top-full mt-1 text-xs text-slate-400">Escribe al menos 3 caracteres para buscar</p>
-          )}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z" />
+            </svg>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar por título, solicitante, descripción o ubicación..."
+              className="bg-white border border-slate-200 rounded-lg pl-9 pr-8 py-2 text-sm text-[#333333] outline-none focus:ring-2 focus:ring-[#003B71] shadow-sm w-80"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+            {searchQuery.length > 0 && searchQuery.length < 3 && (
+              <p className="absolute left-0 top-full mt-1 text-xs text-slate-400">Escribe al menos 3 caracteres para buscar</p>
+            )}
+          </div>
+
+          <select
+            value={statusFilterLocal}
+            onChange={(e) => setStatusFilterLocal(e.target.value)}
+            className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-[#333333] outline-none focus:ring-2 focus:ring-[#003B71] shadow-sm"
+          >
+            <option value="PENDIENTE">Pendientes</option>
+            <option value="POR_REVISION">En Revisión</option>
+            <option value="APROBADA">Aprobadas</option>
+            <option value="RECHAZADA">Rechazadas</option>
+            <option value="TODAS">Todas</option>
+          </select>
         </div>
       </div>
 
