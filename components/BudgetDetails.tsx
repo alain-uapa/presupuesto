@@ -305,7 +305,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
              <DetailItem label="Presupuesto Pre-aprobado" value={formatCurrency(request.presupuesto_pre_aprobado)} />
              <DetailItem label="Monto a Ejecutar" value={formatCurrency(request.monto_a_ejecutar)} />
              <DetailItem label="Fecha de la actividad" value={formatServerDate(request.fecha_actividad)} />
-             <DetailItem label="Fecha de solicitud" value={new Date(request.fecha_solicitud).toLocaleDateString()} />
+             <DetailItem label="Fecha de solicitud" value={formatServerDate(request.fecha_solicitud)} />
           </section>
 
           <section>
