@@ -64,14 +64,18 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
           {request.descripcion}
         </p>
 
-        <div className="grid grid-cols-2 bg-slate-50 gap-3 mb-4 p-3 rounded-lg border border-slate-200">
+        <div className="grid grid-cols-3 bg-slate-50 gap-3 mb-4 p-3 rounded-lg border border-slate-200">
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Presupuesto</p>
             <p className="text-xs font-bold text-[#333333]">{formatCurrency(request.presupuesto_pre_aprobado)}</p>
           </div>
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">A Ejecutar</p>
-            <p className="text-xs font-bold text-[#ff8300]">{formatCurrency(request.monto_a_ejecutar)}</p>
+            <p className="text-xs font-bold text-[#ff8300]">{formatCurrency(request.monto_a_ejecutar)}</p>            
+          </div>
+          <div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Fecha Actividad</p>
+            <p className="text-xs font-bold text-[#ff8300]">{new Date(request.fecha_actividad).toLocaleDateString()}</p>            
           </div>
         </div>
         {!isCollaborator && (

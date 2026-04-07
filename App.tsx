@@ -320,7 +320,7 @@ const AppContent: React.FC<{
       formData.append('presupuesto_pre_aprobado', formValues.preApprovedBudget);
       formData.append('ubicacion_id', formValues.locationId);
       formData.append('cuenta_analitica_id', formValues.analyticalAccountId);
-      
+      formData.append('fecha_actividad', formValues.activityDate);
       formValues.attachments.forEach((attachment) => {
         formData.append('files', attachment.file);
       });
@@ -353,7 +353,7 @@ const AppContent: React.FC<{
       formData.append('ubicacion_id', formValues.locationId);
       formData.append('cuenta_analitica_id', formValues.analyticalAccountId);
       formData.append('updated_at', currentRequest?.updated_at || new Date().toISOString());
-      
+      formData.append('fecha_actividad', formValues.activityDate);
       formValues.attachments.forEach((attachment) => {
         formData.append('files', attachment.file);
       });

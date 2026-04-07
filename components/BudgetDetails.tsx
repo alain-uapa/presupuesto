@@ -286,10 +286,6 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
           </button>
           <div>
             <h2 className="text-xl font-bold text-[#333333]">{request.titulo}</h2>
-            <p className="text-sm text-slate-500">Fecha de solicitud: {dnsDateFormat(request.fecha_solicitud)}</p>
-            {request.updated_at && (
-              <p className="text-xs text-slate-400 mt-1">Última actualización: {dnsDateFormat(request.updated_at)}</p>
-            )}
           </div>
         </div>
         <div>
@@ -306,8 +302,10 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
              <DetailItem label="Tipo de Solicitud" value={getLabel(TIPO_CHOICES, request.tipo_solicitud)} />
              <DetailItem label="Rubro Presupuestal" value={getLabel(RUBRO_CHOICES, request.rubro_presupuestal)} />
              <DetailItem label="Cuenta Analítica" value={request.cuenta_analitica?.nombre} />
-              <DetailItem label="Presupuesto Pre-aprobado" value={formatCurrency(request.presupuesto_pre_aprobado)} />
-              <DetailItem label="Monto a Ejecutar" value={formatCurrency(request.monto_a_ejecutar)} />
+             <DetailItem label="Presupuesto Pre-aprobado" value={formatCurrency(request.presupuesto_pre_aprobado)} />
+             <DetailItem label="Monto a Ejecutar" value={formatCurrency(request.monto_a_ejecutar)} />
+             <DetailItem label="Fecha de la actividad" value={new Date(request.fecha_actividad).toLocaleDateString()} />
+             <DetailItem label="Fecha de solicitud" value={new Date(request.fecha_solicitud).toLocaleDateString()} />
           </section>
 
           <section>

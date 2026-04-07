@@ -13,6 +13,12 @@ interface BudgetFormProps {
   addToast?: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
+const getLocalDateString = () => {
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  return new Date(now.getTime() - offset).toISOString().split('T')[0];
+};
+
 const customStyles = {
   control: (base) => ({
     ...base,
@@ -33,9 +39,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
   const [formData, setFormData] = useState({
     name: initialData?.titulo || '',
     description: initialData?.descripcion || '',
-    requestDate: initialData?.fecha_solicitud 
-      ? new Date(initialData.fecha_solicitud).toLocaleDateString()
-      : new Date().toLocaleDateString(), // Fecha actual si se está creando
+    activityDate: initialData?.fecha_actividad 
+      ? initialData.fecha_actividad.split('T')[0]
+      : getLocalDateString(),
     locationId: initialData?.ubicacion?.id || '',
     requestType: initialData?.tipo_solicitud || '',
     budgetRubro: initialData?.rubro_presupuestal || '',
@@ -60,9 +66,9 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
     setFormData({
       name: initialData?.titulo || '',
       description: initialData?.descripcion || '',      
-      requestDate: initialData?.fecha_solicitud 
-        ? new Date(initialData.fecha_solicitud).toLocaleDateString()
-        : new Date().toLocaleDateString(), // Fecha actual si se está creando
+      activityDate: initialData?.fecha_actividad 
+        ? initialData.fecha_actividad.split('T')[0]
+        : getLocalDateString(),
       locationId: initialData?.ubicacion?.id || '',
       requestType: initialData?.tipo_solicitud || '',
       budgetRubro: initialData?.rubro_presupuestal || '',
@@ -132,7 +138,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
     onSubmit({
       ...formData,
-      requestDate: new Date(formData.requestDate),
+      activityDate: formData.activityDate,
       preApprovedBudget: formData.preApprovedBudget === '' ? 0 : formData.preApprovedBudget,
       executionAmount: formData.executionAmount === '' ? 0 : formData.executionAmount,
       locationName: loc?.nombre || 'Sede Santiago',
@@ -213,15 +219,17 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-bold text-[#333333]">Fecha de Solicitud *</label>
+            <label className="text-sm font-bold text-[#333333]">Fecha de Actividad *</label>
             <input 
-              type="text"
+              type="date"
               required
-              value={formData.requestDate}
-              readOnly // Campo solo lectura
-              className={inputClass}
+              value={formData.activityDate}
+              onChange={e => {
+                setFormData(prev => ({ ...prev, activityDate: e.target.value }));
+                if (formErrors['activityDate']) setFormErrors(prev => ({ ...prev, activityDate: '' }));
+              }}
+              className={getFieldClass('activityDate', inputClass)}
             />
-            {initialData && <p className="text-[10px] text-slate-400 italic">La fecha de solicitud no es editable.</p>}
           </div>
 
           <div className="space-y-2">

@@ -52,6 +52,7 @@ export interface BudgetRequest {
   id: number;
   colaborador: Colaborador;
   fecha_solicitud: string;
+  fecha_actividad: string;
   titulo: string;
   descripcion: string;
   tipo_solicitud: string;
