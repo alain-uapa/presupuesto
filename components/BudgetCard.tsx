@@ -3,7 +3,7 @@ import { BudgetRequest, BudgetStatus, Role } from '../types';
 import { useCatalogs } from '../context/CatalogContext';
 import Avatar from './Avatar';
 import { UnisexAvatar } from './BudgetDetails';
-import { dnsDateFormat, formatCurrency } from '../utils/dateUtils';
+import { dnsDateFormat, formatCurrency, formatServerDate } from '../utils/dateUtils';
 
 interface BudgetCardProps {
   request: BudgetRequest;
@@ -75,7 +75,7 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
           </div>
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Fecha Actividad</p>
-            <p className="text-xs font-bold text-[#ff8300]">{new Date(request.fecha_actividad).toLocaleDateString()}</p>            
+            <p className="text-xs font-bold text-[#ff8300]">{formatServerDate(request.fecha_actividad)}</p>            
           </div>
         </div>
         {!isCollaborator && (

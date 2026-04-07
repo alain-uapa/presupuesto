@@ -19,6 +19,11 @@ const getLocalDateString = () => {
   return new Date(now.getTime() - offset).toISOString().split('T')[0];
 };
 
+const parseServerDate = (serverDate: string | undefined): string => {
+  if (!serverDate) return getLocalDateString();
+  return serverDate.split('T')[0];
+};
+
 const customStyles = {
   control: (base) => ({
     ...base,
@@ -39,9 +44,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
   const [formData, setFormData] = useState({
     name: initialData?.titulo || '',
     description: initialData?.descripcion || '',
-    activityDate: initialData?.fecha_actividad 
-      ? initialData.fecha_actividad.split('T')[0]
-      : getLocalDateString(),
+    activityDate: parseServerDate(initialData?.fecha_actividad),
     locationId: initialData?.ubicacion?.id || '',
     requestType: initialData?.tipo_solicitud || '',
     budgetRubro: initialData?.rubro_presupuestal || '',
@@ -66,9 +69,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
     setFormData({
       name: initialData?.titulo || '',
       description: initialData?.descripcion || '',      
-      activityDate: initialData?.fecha_actividad 
-        ? initialData.fecha_actividad.split('T')[0]
-        : getLocalDateString(),
+      activityDate: parseServerDate(initialData?.fecha_actividad),
       locationId: initialData?.ubicacion?.id || '',
       requestType: initialData?.tipo_solicitud || '',
       budgetRubro: initialData?.rubro_presupuestal || '',

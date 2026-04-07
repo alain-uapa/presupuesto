@@ -6,7 +6,7 @@ import { useCatalogs } from '../context/CatalogContext';
 import AttachmentList from './AttachmentList';
 import CertificateTemplate from './CertificateTemplate';
 import StatusChangeModal from './StatusChangeModal';
-import { dnsDateFormat, formatCurrency } from '../utils/dateUtils';
+import { dnsDateFormat, formatCurrency, formatServerDate } from '../utils/dateUtils';
 
 interface BudgetDetailsProps {
   user: User;
@@ -304,7 +304,7 @@ const BudgetDetails: React.FC<BudgetDetailsProps> = ({ user, request, loading = 
              <DetailItem label="Cuenta Analítica" value={request.cuenta_analitica?.nombre} />
              <DetailItem label="Presupuesto Pre-aprobado" value={formatCurrency(request.presupuesto_pre_aprobado)} />
              <DetailItem label="Monto a Ejecutar" value={formatCurrency(request.monto_a_ejecutar)} />
-             <DetailItem label="Fecha de la actividad" value={new Date(request.fecha_actividad).toLocaleDateString()} />
+             <DetailItem label="Fecha de la actividad" value={formatServerDate(request.fecha_actividad)} />
              <DetailItem label="Fecha de solicitud" value={new Date(request.fecha_solicitud).toLocaleDateString()} />
           </section>
 

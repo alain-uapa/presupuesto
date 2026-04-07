@@ -2,6 +2,12 @@
 import { formatDistanceToNow, format, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+export function formatServerDate(dateStr: string): string {
+  if (!dateStr) return '';
+  const [year, month, day] = dateStr.split('T')[0].split('-');
+  return `${day}/${month}/${year}`;
+}
+
 export function dnsDateFormat(fechaStr) {
   //console.log(fechaInteligente("2026-03-21T11:00:00Z")); // "hace 30 minutos"
   //console.log(fechaInteligente("2026-01-21T10:00:00Z")); // "21 de enero"
