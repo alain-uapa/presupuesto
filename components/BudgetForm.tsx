@@ -122,7 +122,6 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
     if (!formData.requestType) errors['requestType'] = 'Seleccione un tipo de solicitud';
     if (!formData.budgetRubro) errors['budgetRubro'] = 'Seleccione un rubro presupuestal';
     if (!formData.analyticalAccountId) errors['analyticalAccountId'] = 'Seleccione una cuenta analítica';
-    if (formData.preApprovedBudget === '' || formData.preApprovedBudget === 0) errors['preApprovedBudget'] = 'Este campo es obligatorio';
     if (formData.executionAmount === '' || formData.executionAmount === 0) errors['executionAmount'] = 'Este campo es obligatorio';
 
     if (Object.keys(errors).length > 0) {
@@ -288,8 +287,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
           <div className="space-y-2">
             <label className="text-sm font-bold text-[#333333]">Presupuesto Pre-aprobado (RD$) *</label>
             <input 
-              type="number"
-              required
+              type="number"              
               min="0"
               step="0.01"
               value={formData.preApprovedBudget}
