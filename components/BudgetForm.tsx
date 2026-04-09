@@ -83,7 +83,7 @@ const BudgetForm: React.FC<BudgetFormProps> = ({ initialData, onCancel, onSubmit
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const MAX_FILES = 2; 
-    const MAX_TOTAL_SIZE_MB = 3;
+    const MAX_TOTAL_SIZE_MB = 10;
     const MAX_TOTAL_BYTES = MAX_TOTAL_SIZE_MB * 1024 * 1024; // Convertir MB a Bytes
     const selectedFiles: File[] = Array.from(e.target.files || []);
 
