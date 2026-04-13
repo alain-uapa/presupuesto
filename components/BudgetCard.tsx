@@ -17,7 +17,8 @@ interface BudgetCardProps {
 const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDelete, userRole, picture }) => {
   const isCollaborator = userRole === Role.COLABORADOR;
   const isSupervisor = userRole === Role.SUPERVISOR;
-  const canEdit = (isCollaborator || isSupervisor) && (request.estado === BudgetStatus.PENDING || request.estado === BudgetStatus.POR_REVISION);
+  let canEdit = isCollaborator && (request.estado === BudgetStatus.PENDING || request.estado === BudgetStatus.POR_REVISION);
+  canEdit = canEdit || (isSupervisor && !request.tiene_certificado);
   const canDelete = isCollaborator && request.estado === BudgetStatus.PENDING;
   const { ESTADO_CHOICES, getLabel } = useCatalogs();
 
@@ -63,20 +64,22 @@ const BudgetCard: React.FC<BudgetCardProps> = ({ request, onView, onEdit, onDele
         <p className="text-sm text-slate-500 line-clamp-2 mb-4">
           {request.descripcion}
         </p>
-
-        <div className="grid grid-cols-3 bg-slate-50 gap-3 mb-4 p-3 rounded-lg border border-slate-200">
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Presupuesto</p>
-            <p className="text-xs font-bold text-[#333333]">{formatCurrency(request.presupuesto_pre_aprobado)}</p>
-          </div>
-          <div>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">A Ejecutar</p>
-            <p className="text-xs font-bold text-[#ff8300]">{formatCurrency(request.monto_a_ejecutar)}</p>            
+        <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4">      
+          <div className="grid grid-cols-2 gap-3 pb-2 mb-2 border-b border-slate-200/60">
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Presupuesto</p>
+              <p className="text-xs font-bold text-[#333333]">{formatCurrency(request.presupuesto_pre_aprobado)}</p>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">A Ejecutar</p>
+              <p className="text-xs font-bold text-[#ff8300]">{formatCurrency(request.monto_a_ejecutar)}</p>            
+            </div>
           </div>
           <div>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Fecha Actividad</p>
-            <p className="text-xs font-bold text-[#ff8300]">{formatServerDate(request.fecha_actividad)}</p>            
+            <p className="text-xs font-bold">{formatServerDate(request.fecha_actividad)}</p>            
           </div>
+          
         </div>
         {!isCollaborator && (
           /* Vista para Supervisor: Muestra solicitante y ubicación */

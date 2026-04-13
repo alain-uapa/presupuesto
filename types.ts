@@ -69,6 +69,7 @@ export interface BudgetRequest {
   review_notes?: ReviewNote[];
   updated_at?: string;
   files?: Attachment[];
+  tiene_certificado: boolean
 }
 
 export interface User {
