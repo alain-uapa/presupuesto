@@ -4,8 +4,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    const isProduction = mode === 'production';
     return {
-      base: '/',
+      // Los archivos generados por el build (JS, CSS, imágenes importadas)
+      // se copian al static de Django, que los sirve bajo /django_static/.
+      base: isProduction ? '/django_static/' : '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
